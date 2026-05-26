@@ -20,7 +20,7 @@ export const useMBQueryRelease = ({
 }) =>
   useQuery({
     queryFn: () =>
-      mbApi.get(`release`, {
+      mbApi.get<QueryReleaseResponse>(`release`, {
         params: {
           query,
         },
@@ -41,7 +41,7 @@ export const useMBGetRecording = ({
 }) =>
   useQuery({
     queryFn: () =>
-      mbApi.get(`recording/${recordingId}`, {
+      mbApi.get<RecordingsResponse>(`recording/${recordingId}`, {
         params: {
           inc: "media+releases+artist-credits+release-groups",
         },
