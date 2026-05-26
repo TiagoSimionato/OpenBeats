@@ -1,0 +1,7 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.biome": "always",
+    "source.fixAll.biome": "always",
+    "source.fixAll.eslint": "never",
+  },
+}

@@ -1,37 +1,47 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on",
+        "useSortedAttributes":"on",
+        "useSortedKeys":"on",
+        "useSortedProperties": "on"
+      }
+    }
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!node_modules", "!.next", "!dist", "!build"]
+    "includes": ["**", "!node_modules", "!.next", "!dist", "!build", "!package.json"]
   },
   "formatter": {
+    "attributePosition":"auto",
+    "bracketSpacing":true,
     "enabled": true,
+    "expand": "always",
     "indentStyle": "space",
     "indentWidth": 2
   },
   "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "suspicious": {
-        "noUnknownAtRules": "off"
-      }
-    },
     "domains": {
       "next": "recommended",
       "react": "recommended"
-    }
-  },
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
+    },
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noCommonJs": "on",
+        "useConst": "warn"
+      },
+      "suspicious": {
+        "noUnknownAtRules": "off"
       }
     }
+  },
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
   }
 }
