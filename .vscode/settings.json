@@ -1,7 +1,8 @@
 {
+  "eslint.useFlatConfig": true,
   "editor.codeActionsOnSave": {
-    "source.biome": "always",
-    "source.fixAll.biome": "always",
-    "source.fixAll.eslint": "never",
-  },
+    "source.organizeImports": "never",
+    "source.removeUnusedImports": "always",
+    "source.fixAll.eslint": "explicit"
+  }
 }
