@@ -86,4 +86,8 @@ const GenericAPI = (
 };
 
 export const api = GenericAPI("/api");
-export const mbApi = GenericAPI("https://musicbrainz.org/ws/2/");
+export const mbApi = GenericAPI("https://musicbrainz.org/ws/2/", {
+  params: {
+    fmt : 'json',
+  },
+});
