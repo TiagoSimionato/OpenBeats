@@ -5,6 +5,28 @@ export type QueryReleaseResponse = {
   releases: QueryRelease[];
 };
 
+export type ReleaseResponse = {
+  'artist-credit'?: ArtistCredit[];
+  'asin'?: null | string;
+  'barcode'?: null | string;
+  'country'?: null | string;
+  'cover-art-archive'?: ReleaseCoverArtArchive;
+  'date'?: string;
+  'disambiguation'?: string;
+  'id': string;
+  'label-info'?: ReleaseLabelInfo[];
+  'media'?: ReleaseMedia[];
+  'packaging'?: null | string;
+  'packaging-id'?: null | string;
+  'quality'?: string;
+  'release-events'?: ReleaseEvent[];
+  'release-group'?: ReleaseGroup;
+  'status'?: string;
+  'status-id'?: null | string;
+  'text-representation'?: TextRepresentation;
+  'title'?: string;
+};
+
 export type QueryRelease = {
   'artist-credit': ArtistCredit[];
   'artist-credit-id'?: string;
@@ -41,6 +63,29 @@ export type LabelInfo = {
 export type Tag = {
   count?: number;
   name?: string;
+};
+
+export type ReleaseCoverArtArchive = {
+  artwork?: boolean;
+  back?: boolean;
+  count?: number;
+  darkened?: boolean;
+  front?: boolean;
+};
+
+export type ReleaseLabelInfo = {
+  'catalog-number'?: null | string;
+  'label'?: ReleaseLabel;
+};
+
+export type ReleaseLabel = {
+  'disambiguation'?: string;
+  'id'?: string;
+  'label-code'?: number;
+  'name'?: string;
+  'sort-name'?: string;
+  'type'?: string;
+  'type-id'?: null | string;
 };
 
 export type RecordingsResponse = {
@@ -113,6 +158,37 @@ export type RecordingReference = {
   id: string;
   length?: number;
   title?: string;
+};
+
+export type ReleaseMedia = {
+  'format'?: string;
+  'format-id'?: null | string;
+  'id'?: string;
+  'position'?: number;
+  'title'?: string;
+  'track-count'?: number;
+  'track-offset'?: number;
+  'tracks'?: ReleaseTrack[];
+};
+
+export type ReleaseRecording = {
+  'artist-credit'?: ArtistCredit[];
+  'disambiguation'?: string;
+  'first-release-date'?: null | string;
+  'id': string;
+  'length'?: number;
+  'title'?: string;
+  'video'?: boolean;
+};
+
+export type ReleaseTrack = {
+  'artist-credit'?: ArtistCredit[];
+  'id'?: string;
+  'length'?: number;
+  'number'?: number | string;
+  'position'?: number;
+  'recording'?: ReleaseRecording;
+  'title'?: string;
 };
 
 export type ReleaseEvent = {
