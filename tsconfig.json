@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "esModuleInterop": true,
     "incremental": true,
-    "isolatedModules": true,
+    "target": "ES2017",
     "jsx": "react-jsx",
     "lib": [
       "dom",
@@ -12,7 +10,6 @@
     ],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "noEmit": true,
     "paths": {
       "*": [
         "./src/*"
@@ -24,13 +21,13 @@
       }
     ],
     "resolveJsonModule": true,
-    "skipLibCheck": true,
+    "allowJs": true,
     "strict": true,
-    "target": "ES2017"
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
-  "exclude": [
-    "node_modules"
-  ],
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -38,5 +35,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

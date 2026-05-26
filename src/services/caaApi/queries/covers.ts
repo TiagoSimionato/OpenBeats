@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import type { HookQueryOptions } from "types/reactQuery";
-import { caaApi } from "..";
+import type { HookQueryOptions } from 'types/reactQuery';
+import { useQuery } from '@tanstack/react-query';
+import { caaApi } from '..';
 
 type CoverImage = {
   front?: boolean;
@@ -28,7 +28,7 @@ export const useCover = ({
     queryFn: () => caaApi.get<CoverResponse>(`release/${releaseId}`),
     queryKey: [
       'caa',
-      releaseId
+      releaseId,
     ],
     ...options,
   });

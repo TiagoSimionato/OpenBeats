@@ -1,20 +1,21 @@
-import type { AxiosRequestConfig, CreateAxiosDefaults } from "axios";
-import axios from "axios";
+/* eslint-disable prefer-arrow/prefer-arrow-functions */
+import type { AxiosRequestConfig, CreateAxiosDefaults } from 'axios';
+import axios from 'axios';
 
-export * from "./mutations";
-export * from "./queries";
+export * from './mutations';
+export * from './queries';
 
 export type RequestConfig<D = unknown> = Pick<
   AxiosRequestConfig<D>,
-  "headers" | "params"
+  'headers' | 'params'
 >;
 
 export const GenericAPI = (
   baseURL: string,
-  configs?: Omit<CreateAxiosDefaults, "baseURL">,
+  configs?: Omit<CreateAxiosDefaults, 'baseURL'>,
 ) => {
   const axiosInstance = axios.create({
-    baseURL, 
+    baseURL,
     timeout: 10000,
     ...configs,
   });
@@ -29,12 +30,12 @@ export const GenericAPI = (
         data,
         url,
         ...config,
-        method: "delete",
+        method: 'delete',
       });
     },
     get<RequesReturnType>(url: string, config?: RequestConfig) {
       return this.request<RequesReturnType>({
-        method: "get",
+        method: 'get',
         url,
         ...config,
       });
@@ -48,7 +49,7 @@ export const GenericAPI = (
         data,
         url,
         ...config,
-        method: "patch",
+        method: 'patch',
       });
     },
     post<RequesReturnType>(
@@ -60,7 +61,7 @@ export const GenericAPI = (
         data,
         url,
         ...config,
-        method: "post",
+        method: 'post',
       });
     },
     put<RequesReturnType>(
@@ -72,17 +73,17 @@ export const GenericAPI = (
         data,
         url,
         ...config,
-        method: "put",
+        method: 'put',
       });
     },
     async request<RequesReturnType>(
-      config: Parameters<typeof axiosInstance.request>["0"],
+      config: Parameters<typeof axiosInstance.request>['0'],
     ) {
       return await axiosInstance
         .request<RequesReturnType>(config)
-        .then((response) => response.data);
+        .then(response => response.data);
     },
   };
 };
 
-export const api = GenericAPI("/api");
+export const api = GenericAPI('/api');

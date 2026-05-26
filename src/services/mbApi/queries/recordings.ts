@@ -1,14 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import type { HookQueryOptions } from "types/reactQuery";
-import { mbApi } from "../index";
-import type { QueryReleaseResponse, RecordingsResponse } from "../types";
+import type { HookQueryOptions } from 'types/reactQuery';
+import type { QueryReleaseResponse, RecordingsResponse } from '../types';
+import { useQuery } from '@tanstack/react-query';
+import { mbApi } from '../index';
 
 const MUSICBRAINZ_QUERY_QUEY = [
-  "musicbrainz",
+  'musicbrainz',
 ];
 const MUSICBRAINZ_RELEASES_QUERY_QUEY = [
   ...MUSICBRAINZ_QUERY_QUEY,
-  "releases",
+  'releases',
 ];
 
 export const useMBQueryRelease = ({
@@ -43,11 +43,11 @@ export const useMBGetRecording = ({
     queryFn: () =>
       mbApi.get<RecordingsResponse>(`recording/${recordingId}`, {
         params: {
-          inc: "media+releases+artist-credits+release-groups",
+          inc: 'media+releases+artist-credits+release-groups',
         },
       }),
     queryKey: [
-      "",
+      '',
     ],
     ...options,
   });

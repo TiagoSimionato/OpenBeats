@@ -6,28 +6,28 @@ export type QueryReleaseResponse = {
 };
 
 export type QueryRelease = {
-  "artist-credit": ArtistCredit[];
-  "artist-credit-id"?: string;
-  asin?: string;
-  barcode?: string;
-  count?: number;
-  country?: string | null;
-  date?: string;
-  disambiguation?: string;
-  id: string;
-  "label-info"?: LabelInfo[];
-  media?: Media[];
-  packaging?: string | null;
-  "packaging-id"?: string | null;
-  "release-events"?: ReleaseEvent[];
-  "release-group"?: ReleaseGroup;
-  score?: number;
-  status?: string;
-  "status-id"?: string | null;
-  "text-representation"?: TextRepresentation;
-  title?: string;
-  "track-count"?: number;
-  tags?: Tag[];
+  'artist-credit': ArtistCredit[];
+  'artist-credit-id'?: string;
+  'asin'?: string;
+  'barcode'?: string;
+  'count'?: number;
+  'country'?: null | string;
+  'date'?: string;
+  'disambiguation'?: string;
+  'id': string;
+  'label-info'?: LabelInfo[];
+  'media'?: Media[];
+  'packaging'?: null | string;
+  'packaging-id'?: null | string;
+  'release-events'?: ReleaseEvent[];
+  'release-group'?: ReleaseGroup;
+  'score'?: number;
+  'status'?: string;
+  'status-id'?: null | string;
+  'tags'?: Tag[];
+  'text-representation'?: TextRepresentation;
+  'title'?: string;
+  'track-count'?: number;
 };
 
 export type LabelInfo = {
@@ -44,14 +44,14 @@ export type Tag = {
 };
 
 export type RecordingsResponse = {
-  "artist-credit": ArtistCredit[];
-  disambiguation?: string;
-  "first-release-date"?: string | null;
-  id: string;
-  length?: number;
-  releases?: Release[];
-  title?: string;
-  video?: boolean;
+  'artist-credit': ArtistCredit[];
+  'disambiguation'?: string;
+  'first-release-date'?: null | string;
+  'id': string;
+  'length'?: number;
+  'releases'?: Release[];
+  'title'?: string;
+  'video'?: boolean;
 };
 
 export type ArtistCredit = {
@@ -61,58 +61,58 @@ export type ArtistCredit = {
 };
 
 export type Artist = {
-  country?: string | null;
-  disambiguation?: string;
-  id: string;
-  name: string;
-  "sort-name"?: string;
-  type?: string;
-  "type-id"?: string | null;
+  'country'?: null | string;
+  'disambiguation'?: string;
+  'id': string;
+  'name': string;
+  'sort-name'?: string;
+  'type'?: string;
+  'type-id'?: null | string;
 };
 
 export type Release = {
-  "artist-credit": ArtistCredit[];
-  barcode?: string | null;
-  country?: string | null;
-  date?: string;
-  disambiguation?: string;
-  id: string;
-  media?: Media[];
-  packaging?: string | null;
-  "packaging-id"?: string | null;
-  quality?: string;
-  "release-events"?: ReleaseEvent[];
-  "release-group"?: ReleaseGroup;
-  status?: string;
-  "status-id"?: string | null;
-  "text-representation"?: TextRepresentation;
-  title?: string;
+  'artist-credit': ArtistCredit[];
+  'barcode'?: null | string;
+  'country'?: null | string;
+  'date'?: string;
+  'disambiguation'?: string;
+  'id': string;
+  'media'?: Media[];
+  'packaging'?: null | string;
+  'packaging-id'?: null | string;
+  'quality'?: string;
+  'release-events'?: ReleaseEvent[];
+  'release-group'?: ReleaseGroup;
+  'status'?: string;
+  'status-id'?: null | string;
+  'text-representation'?: TextRepresentation;
+  'title'?: string;
 };
 
 export type Media = {
-  format?: string;
-  "format-id"?: string | null;
-  id?: string;
-  position?: number;
-  title?: string;
-  "track-count"?: number;
-  "track-offset"?: number;
-  tracks?: Track[];
+  'format'?: string;
+  'format-id'?: null | string;
+  'id'?: string;
+  'position'?: number;
+  'title'?: string;
+  'track-count'?: number;
+  'track-offset'?: number;
+  'tracks'?: Track[];
 };
 
 export type Track = {
   id?: string;
-  number?: string | number;
-  position?: number;
-  title?: string;
   length?: number;
+  number?: number | string;
+  position?: number;
   recording?: RecordingReference;
+  title?: string;
 };
 
 export type RecordingReference = {
   id: string;
-  title?: string;
   length?: number;
+  title?: string;
 };
 
 export type ReleaseEvent = {
@@ -121,25 +121,25 @@ export type ReleaseEvent = {
 };
 
 export type Area = {
-  id?: string;
-  name?: string;
-  "type-id"?: string | null;
+  'id'?: string;
+  'name'?: string;
+  'type-id'?: null | string;
 };
 
 export type ReleaseGroup = {
-  "artist-credit"?: ArtistCredit[];
-  disambiguation?: string;
-  "first-release-date"?: string | null;
-  id?: string;
-  "primary-type"?: string;
-  "primary-type-id"?: string | null;
-  releases?: Release[];
-  "secondary-type-ids"?: string[];
-  "secondary-types"?: string[];
-  title?: string;
+  'artist-credit'?: ArtistCredit[];
+  'disambiguation'?: string;
+  'first-release-date'?: null | string;
+  'id'?: string;
+  'primary-type'?: string;
+  'primary-type-id'?: null | string;
+  'releases'?: Release[];
+  'secondary-type-ids'?: string[];
+  'secondary-types'?: string[];
+  'title'?: string;
 };
 
 export type TextRepresentation = {
-  language?: string | null;
+  language?: null | string;
   script?: string;
 };
