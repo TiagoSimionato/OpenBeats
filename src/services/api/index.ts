@@ -9,7 +9,7 @@ export type RequestConfig<D = unknown> = Pick<
   "headers" | "params"
 >;
 
-const GenericAPI = (
+export const GenericAPI = (
   baseURL: string,
   configs?: Omit<CreateAxiosDefaults, "baseURL">,
 ) => {
@@ -86,8 +86,3 @@ const GenericAPI = (
 };
 
 export const api = GenericAPI("/api");
-export const mbApi = GenericAPI("https://musicbrainz.org/ws/2/", {
-  params: {
-    fmt : 'json',
-  },
-});

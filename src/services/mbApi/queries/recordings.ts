@@ -1,10 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { mbApi } from "services";
 import type { HookQueryOptions } from "types/reactQuery";
+import { mbApi } from "../index";
 import type { QueryReleaseResponse, RecordingsResponse } from "../types";
 
-const MUSICBRAINZ_QUERY_QUEY = ["musicbrainz"]
-const MUSICBRAINZ_RELEASES_QUERY_QUEY = [...MUSICBRAINZ_QUERY_QUEY, "releases"]
+const MUSICBRAINZ_QUERY_QUEY = [
+  "musicbrainz",
+];
+const MUSICBRAINZ_RELEASES_QUERY_QUEY = [
+  ...MUSICBRAINZ_QUERY_QUEY,
+  "releases",
+];
 
 export const useMBQueryRelease = ({
   options,
