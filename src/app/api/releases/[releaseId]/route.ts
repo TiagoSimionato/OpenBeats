@@ -80,7 +80,7 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
       let downloadResult: Awaited<ReturnType<typeof downloadTrackAudio>>;
 
       try {
-        downloadResult = await downloadTrackAudio({ videoId });
+        downloadResult = await downloadTrackAudio({ track, videoId });
       }
       catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown yt-dlp error';

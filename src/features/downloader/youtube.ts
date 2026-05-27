@@ -2,7 +2,7 @@ import type { ReleaseResponse, ReleaseTrack } from 'services/mbApi/types';
 import type { Track } from './types';
 import { execFile } from 'node:child_process';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
-import { basename, dirname, extname, join } from 'node:path';
+import { basename, dirname, extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { getArtistLabel, getTrackTitle } from './utils';
 
@@ -36,8 +36,10 @@ export const searchYouTubeMusic = async (query: string) => {
 };
 
 export const downloadTrackAudio = async ({
+  track,
   videoId,
 }: {
+  track?: Track;
   videoId: string;
 }) => {
   const libraryPath = process.env.LIBRARY_PATH;
@@ -46,7 +48,34 @@ export const downloadTrackAudio = async ({
     throw new Error('LIBRARY_PATH is not defined');
   }
 
-  await mkdir(libraryPath, { recursive: true });
+  const absoluteLibraryPath = resolve(libraryPath);
+  await mkdir(absoluteLibraryPath, { recursive: true });
+
+  const sanitize = (s: string) =>
+    s
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/[<>:"/\\|?*-]/g, '')
+      .replace(/\.+$/g, '');
+
+  const padTrack = (n: number) => String(n ?? 0).padStart(2, '0');
+
+  let outputTemplate: string;
+
+  if (track) {
+    const albumArtist = sanitize(track.album_artist || 'Unknown Artist');
+    const album = sanitize(track.album || 'Unknown Album');
+    const title = sanitize(track.title || 'Untitled');
+    const trackNumber = padTrack(Number(track.track ?? 0));
+
+    const dir = join(absoluteLibraryPath, albumArtist, album);
+    await mkdir(dir, { recursive: true });
+
+    outputTemplate = join(dir, `${trackNumber}. ${title}.%(ext)s`);
+  }
+  else {
+    outputTemplate = join(absoluteLibraryPath, '%(title)s.%(ext)s');
+  }
 
   const { stdout } = await execFileAsync(YT_DLP_BIN, [
     '--ignore-errors',
@@ -58,11 +87,9 @@ export const downloadTrackAudio = async ({
     '--audio-quality',
     '160K',
     '--output',
-    '%(title)s.%(ext)s',
+    outputTemplate,
     '--print',
     'after_move:filepath',
-    '--paths',
-    libraryPath,
     `https://www.youtube.com/watch?v=${videoId}`,
   ], {
     maxBuffer: 10 * 1024 * 1024,
