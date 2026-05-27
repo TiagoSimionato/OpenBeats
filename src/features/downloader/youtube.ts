@@ -1,7 +1,7 @@
 import type { ReleaseResponse, ReleaseTrack } from 'services/mbApi/types';
 import type { Track } from './types';
 import { execFile } from 'node:child_process';
-import { mkdir, rename } from 'node:fs/promises';
+import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { getArtistLabel, getTrackTitle } from './utils';
@@ -9,6 +9,7 @@ import { getArtistLabel, getTrackTitle } from './utils';
 const YT_DLP_BIN = process.env.YT_DLP_BIN ?? 'yt-dlp';
 const FFMPEG_BIN = process.env.FFMPEG_BIN ?? 'ffmpeg';
 const PYTHON_BIN = process.env.PYTHON_BIN ?? 'python3';
+const COVERS_PATH = process.env.COVERS_PATH;
 const YTMUSIC_SCRIPT_PATH = join(process.cwd(), 'src', 'features', 'downloader', 'search_ytmusic.py');
 
 const execFileAsync = promisify(execFile);
@@ -83,10 +84,49 @@ export const downloadTrackAudio = async ({
   };
 };
 
+const getCoverFileExtension = (contentType: null | string) => {
+  if (contentType?.includes('png')) {
+    return '.png';
+  }
+
+  if (contentType?.includes('webp')) {
+    return '.webp';
+  }
+
+  return '.jpg';
+};
+
+export const downloadReleaseCoverArt = async (releaseId: string) => {
+  if (!COVERS_PATH) {
+    throw new Error('COVERS_PATH is not defined');
+  }
+
+  const response = await fetch(`https://coverartarchive.org/release/${releaseId}/front`);
+
+  if (!response.ok) {
+    throw new Error(`Cover Art Archive request failed with status ${response.status}`);
+  }
+
+  const contentType = response.headers.get('content-type');
+  const coverFilePath = join(COVERS_PATH, `${releaseId}${getCoverFileExtension(contentType)}`);
+
+  await mkdir(dirname(coverFilePath), { recursive: true });
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  await writeFile(coverFilePath, buffer);
+
+  return {
+    contentType,
+    coverFilePath,
+  };
+};
+
 export const writeTrackMetadata = async ({
+  coverFilePath,
   filePath,
   track,
 }: {
+  coverFilePath?: string;
   filePath: string;
   track: Track;
 }) => {
@@ -108,17 +148,35 @@ export const writeTrackMetadata = async ({
     ];
   });
 
-  const { stdout } = await execFileAsync(FFMPEG_BIN, [
-    '-y',
-    '-i',
-    filePath,
-    '-map',
-    '0',
-    '-c',
-    'copy',
-    ...metadataArgs,
-    tempFilePath,
-  ], {
+  const ffmpegArgs = coverFilePath
+    ? [
+        '-y',
+        '-i',
+        filePath,
+        '-i',
+        coverFilePath,
+        '-map',
+        '0:0',
+        '-map',
+        '1:0',
+        '-id3v2_version',
+        '3',
+        ...metadataArgs,
+        tempFilePath,
+      ]
+    : [
+        '-y',
+        '-i',
+        filePath,
+        '-map',
+        '0',
+        '-c',
+        'copy',
+        ...metadataArgs,
+        tempFilePath,
+      ];
+
+  const { stdout } = await execFileAsync(FFMPEG_BIN, ffmpegArgs, {
     maxBuffer: 10 * 1024 * 1024,
   });
 

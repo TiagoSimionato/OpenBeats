@@ -1,7 +1,7 @@
 import type { ReleaseSearchResponse, Track, TrackSearchResult } from 'features/downloader/types';
 import type { ReleaseResponse } from 'services/mbApi/types';
 import { mapReleaseTracksToDownloadTracks } from 'features/downloader/utils';
-import { downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'features/downloader/youtube';
+import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'features/downloader/youtube';
 import { NextResponse } from 'next/server';
 import { mbApi } from 'services/mbApi';
 
@@ -24,6 +24,17 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
     },
   });
   const tracks: Track[] = mapReleaseTracksToDownloadTracks(release);
+  const coverResult: {
+    coverError?: string;
+    coverFilePath?: string;
+  } = await downloadReleaseCoverArt(releaseId)
+    .then(({ coverFilePath }) => ({
+      coverFilePath,
+    }))
+    .catch(error => ({
+      coverError: error instanceof Error ? error.message : 'Unknown cover download error',
+      coverFilePath: undefined,
+    }));
 
   const trackSearches = await Promise.all(
     tracks.map(async (track) => {
@@ -40,6 +51,8 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
 
         return {
           artist,
+          coverError: coverResult.coverError,
+          coverFilePath: coverResult.coverFilePath,
           query,
           results: [],
           trackId: track['MusicBrainz Release Track Id'],
@@ -54,6 +67,8 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
       if (!videoId) {
         return {
           artist,
+          coverError: coverResult.coverError,
+          coverFilePath: coverResult.coverFilePath,
           query,
           results,
           trackId: track['MusicBrainz Release Track Id'],
@@ -72,6 +87,8 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
 
         return {
           artist,
+          coverError: coverResult.coverError,
+          coverFilePath: coverResult.coverFilePath,
           query,
           results,
           trackId: track['MusicBrainz Release Track Id'],
@@ -83,12 +100,15 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
 
       try {
         const ffmpegOutput = await writeTrackMetadata({
+          coverFilePath: coverResult.coverFilePath,
           filePath: downloadResult.filePath,
           track,
         });
 
         return {
           artist,
+          coverError: coverResult.coverError,
+          coverFilePath: coverResult.coverFilePath,
           downloadedFilePath: downloadResult.filePath,
           downloadOutput: downloadResult.output,
           ffmpegOutput,
@@ -104,6 +124,8 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
 
         return {
           artist,
+          coverError: coverResult.coverError,
+          coverFilePath: coverResult.coverFilePath,
           downloadedFilePath: downloadResult.filePath,
           downloadOutput: downloadResult.output,
           ffmpegError: message,

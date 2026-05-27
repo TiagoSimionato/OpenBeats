@@ -30,6 +30,8 @@ export type Track = {
 
 export type TrackSearchResult = {
   artist: string;
+  coverError?: string;
+  coverFilePath?: string;
   downloadedFilePath?: string;
   downloadOutput?: string;
   ffmpegError?: string;
