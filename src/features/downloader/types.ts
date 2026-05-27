@@ -30,7 +30,10 @@ export type Track = {
 
 export type TrackSearchResult = {
   artist: string;
+  downloadedFilePath?: string;
   downloadOutput?: string;
+  ffmpegError?: string;
+  ffmpegOutput?: string;
   query: string;
   results: unknown[];
   trackId: string;
