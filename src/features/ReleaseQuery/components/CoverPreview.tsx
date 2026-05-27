@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCover } from 'services/caaApi/queries/covers';
 
 export const CoverPreview = ({
@@ -25,19 +26,19 @@ export const CoverPreview = ({
 
   if (!coverUrl) {
     return (
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-zinc-200 bg-zinc-100 text-xs text-zinc-500">
+      <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded border border-zinc-200 bg-zinc-100 text-xs text-zinc-500">
         No cover
       </div>
     );
   }
 
   return (
-    <img
+    <Image
       alt={title ? `${title} cover art` : 'release cover art'}
-      className="h-16 w-16 shrink-0 rounded object-cover"
-      height={64}
+      className="h-24 w-24 shrink-0 rounded object-cover"
+      height={500}
       src={coverUrl}
-      width={64}
+      width={500}
     />
   );
 };
