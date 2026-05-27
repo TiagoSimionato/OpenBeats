@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       new URL('https://coverartarchive.org/release/**'),
     ],
   },
+  output: 'standalone',
   reactCompiler: true,
 };
 

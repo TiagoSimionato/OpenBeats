@@ -1,0 +1,15 @@
+name: lostbeats
+
+services:
+  app:
+    build:
+      context: .
+    container_name: lostbeats_server
+    restart: unless-stopped
+    volumes:
+      - ${LIBRARY_PATH}/lostbeats:/data
+      - ./lostbeats:/opt/lostbeats
+    ports:
+      - "5334:5334"
+    env_file:
+    - .env

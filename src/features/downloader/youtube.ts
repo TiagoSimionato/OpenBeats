@@ -9,7 +9,9 @@ import { getArtistLabel, getTrackTitle } from './utils';
 const YT_DLP_BIN = process.env.YT_DLP_BIN ?? 'yt-dlp';
 const FFMPEG_BIN = process.env.FFMPEG_BIN ?? 'ffmpeg';
 const PYTHON_BIN = process.env.PYTHON_BIN ?? 'python3';
-const COVERS_PATH = process.env.COVERS_PATH;
+const DOWNLOAD_PATH = process.env.DOWNLOAD_PATH ?? '/data';
+const CACHE_PATH = process.env.CACHE_PATH ?? `/opt/lostbeats`;
+const COVERS_PATH = `${CACHE_PATH}/covers`;
 const YTMUSIC_SCRIPT_PATH = join(process.cwd(), 'src', 'features', 'downloader', 'search_ytmusic.py');
 
 const execFileAsync = promisify(execFile);
@@ -42,13 +44,11 @@ export const downloadTrackAudio = async ({
   track?: Track;
   videoId: string;
 }) => {
-  const libraryPath = process.env.LIBRARY_PATH;
-
-  if (!libraryPath) {
-    throw new Error('LIBRARY_PATH is not defined');
+  if (!DOWNLOAD_PATH) {
+    throw new Error('DOWNLOAD_PATH is not defined');
   }
 
-  const absoluteLibraryPath = resolve(libraryPath);
+  const absoluteLibraryPath = resolve(DOWNLOAD_PATH);
   await mkdir(absoluteLibraryPath, { recursive: true });
 
   const sanitize = (s: string) =>

@@ -12,6 +12,7 @@
 
 venv
 tmp
+lostbeats
 
 # testing
 /coverage
