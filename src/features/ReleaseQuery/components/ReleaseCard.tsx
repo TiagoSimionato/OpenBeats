@@ -3,6 +3,7 @@
 import type { QueryRelease } from 'services/mbApi/types';
 import { useState } from 'react';
 import { useDownloadRelease } from 'services/api/mutations/download';
+import { useMBGetRelease } from 'services/mbApi/queries/releases';
 import { CoverPreview } from './CoverPreview';
 
 type ReleaseCardProps = {
@@ -36,39 +37,85 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
     setIsDownloading(false);
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+  const { data: fullRelease, isLoading: isReleaseLoading } = useMBGetRelease({
+    options: { enabled: isOpen },
+    releaseId: String(release.id),
+  });
+
+  const toggleOpen = () => setIsOpen(v => !v);
+
   return (
-    <li
-      className="flex items-start gap-3 rounded border border-zinc-200 p-3"
-      key={release.id}
-    >
-      <CoverPreview releaseId={release.id} title={release.title} />
-      <div className="flex-1">
-        <p className="font-medium">
-          {release.title ?? 'Untitled release'}
-        </p>
-        <p className="text-sm text-zinc-700">
-          {getArtistsLabel(release)}
-        </p>
-        <p className="text-sm text-zinc-600">
-          {release.date ?? 'Unknown date'}
-          {release.country ? ` • ${release.country}` : ''}
-          {release['release-group']?.['primary-type'] ? ` • ${release['release-group']['primary-type']}` : ''}
-          {release.status ? ` • ${release.status}` : ''}
-          {release['track-count']
-            ? ` • ${release['track-count']} tracks`
-            : ''}
-        </p>
+    <li className="rounded border border-zinc-200 p-3" key={release.id}>
+      <div className="flex items-start gap-3">
+        <CoverPreview releaseId={release.id} title={release.title} />
+        <div className="flex-1">
+          <p className="font-medium">
+            {release.title ?? 'Untitled release'}
+          </p>
+          <p className="text-sm text-zinc-700">
+            {getArtistsLabel(release)}
+          </p>
+          <p className="text-sm text-zinc-600">
+            {release.date ?? 'Unknown date'}
+            {release.country ? ` • ${release.country}` : ''}
+            {release['release-group']?.['primary-type'] ? ` • ${release['release-group']['primary-type']}` : ''}
+            {release.status ? ` • ${release.status}` : ''}
+            {release['track-count']
+              ? ` • ${release['track-count']} tracks`
+              : ''}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-start flex-col gap-2">
+          <button
+            className="rounded bg-zinc-900 px-3 py-1 text-white disabled:opacity-50"
+            disabled={isDownloading}
+            onClick={handleDownload}
+            type="button"
+          >
+            {isDownloading ? 'Downloading...' : 'Download'}
+          </button>
+          <button
+            className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+            onClick={toggleOpen}
+            type="button"
+          >
+            {isOpen ? 'Hide tracks' : 'Show tracks'}
+          </button>
+        </div>
       </div>
-      <div className="flex shrink-0 items-start">
-        <button
-          className="rounded bg-zinc-900 px-3 py-1 text-white disabled:opacity-50"
-          disabled={isDownloading}
-          onClick={handleDownload}
-          type="button"
-        >
-          {isDownloading ? 'Downloading...' : 'Download'}
-        </button>
-      </div>
+
+      {isOpen
+        ? (
+            <div className="mt-3">
+              {isReleaseLoading
+                ? (
+                    <p className="text-sm text-zinc-500">Loading tracks…</p>
+                  )
+                : (
+                    <ol className="space-y-1 text-sm">
+                      {fullRelease?.media?.flatMap(m => m.tracks ?? []).map(t => (
+                        <li className="flex items-start gap-3" key={t.id ?? `${t.position ?? t.number}-${t.title}`}>
+                          <span className="w-8 text-right text-xs text-zinc-600">
+                            {t.position ?? t.number ?? ''}
+                            .
+                          </span>
+                          <div>
+                            <div className="font-medium">{t.title ?? t.recording?.title}</div>
+                            <div className="text-xs text-zinc-600">
+                              {(t['artist-credit'] ?? t.recording?.['artist-credit'] ?? [])
+                                .map(c => c.name ?? c.artist?.name ?? '')
+                                .filter(Boolean)
+                                .join(', ')}
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+            </div>
+          )
+        : null}
     </li>
   );
 };
