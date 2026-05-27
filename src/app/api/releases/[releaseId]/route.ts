@@ -1,3 +1,4 @@
+import type { ReleaseSearchResponse, TrackSearchResult } from 'features/downloader/types';
 import type { ReleaseResponse } from 'services/mbApi/types';
 import { getArtistLabel, getTrackId, getTrackTitle } from 'features/downloader/utils';
 import { buildTrackQuery, downloadTrackAudio, searchYouTubeMusic } from 'features/downloader/youtube';
@@ -13,23 +14,6 @@ type RouteContext = {
   params: Promise<{
     releaseId: string;
   }>;
-};
-
-type TrackSearchResult = {
-  artist: string;
-  downloadOutput?: string;
-  query: string;
-  results: unknown[];
-  trackId: string;
-  trackTitle: string;
-  videoId?: string;
-  ytdlpError?: string;
-  ytmusicError?: string;
-};
-
-type ReleaseSearchResponse = {
-  release: ReleaseResponse;
-  trackSearches: TrackSearchResult[];
 };
 
 export const GET = async (_request: Request, { params }: RouteContext) => {
