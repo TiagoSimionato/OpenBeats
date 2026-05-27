@@ -8,7 +8,7 @@ import { mbApi } from 'services/mbApi';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MUSICBRAINZ_RELEASE_INC = 'media+recordings+artist-credits+release-groups+labels';
+const MUSICBRAINZ_RELEASE_INC = 'media+recordings+artist-credits+release-groups+labels+tags';
 
 type RouteContext = {
   params: Promise<{

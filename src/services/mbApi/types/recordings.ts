@@ -177,6 +177,7 @@ export type ReleaseRecording = {
   'first-release-date'?: null | string;
   'id': string;
   'length'?: number;
+  'tags'?: Tag[];
   'title'?: string;
   'video'?: boolean;
 };

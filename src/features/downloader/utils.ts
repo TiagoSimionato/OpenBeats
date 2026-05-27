@@ -55,6 +55,14 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
       const trackId = getTrackId(track);
       const musicBrainzArtistId = trackArtistCredits?.[0]?.artist?.id ?? releaseArtistCredits?.[0]?.artist?.id ?? '';
 
+      const recordingTags = track.recording?.tags ?? [];
+      const topGenres = (recordingTags ?? [])
+        .filter(tag => (tag.count ?? 0) >= 3 && tag.name)
+        .sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
+        .slice(0, 3)
+        .map(t => t.name!)
+        .filter(Boolean);
+
       return {
         'album': release.title ?? '',
         'album_artist': getArtistLabel(releaseArtistCredits),
@@ -63,7 +71,7 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
         'date': release.date ?? '',
         'disc': disc,
         'Disctotal': discTotal,
-        'genre': [],
+        'genre': topGenres,
         'MusicBrainz Album Artist Id': releaseArtistCredits?.[0]?.artist?.id ?? '',
         'MusicBrainz Album Id': release.id,
         'MusicBrainz Album Release Country': release.country ?? '',
