@@ -1,4 +1,4 @@
-import type { TrackSearchResult } from 'features/downloader/types';
+import type { TrackSearchResult } from 'backend/downloader/types';
 import type { HookMutationOptions } from 'types/reactQuery';
 import type { RequestConfig } from '..';
 import { useMutation } from '@tanstack/react-query';

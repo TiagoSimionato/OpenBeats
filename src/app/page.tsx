@@ -1,4 +1,4 @@
-import { ReleasesSearch } from 'features/ReleaseQuery/ReleasesSearch';
+import { ReleasesSearch } from 'frontend/ReleaseQuery/ReleasesSearch';
 
 const Home = () => <ReleasesSearch />;
 

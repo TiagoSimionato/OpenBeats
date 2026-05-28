@@ -1,7 +1,7 @@
-import type { ReleaseSearchResponse, Track, TrackSearchResult } from 'features/downloader/types';
+import type { ReleaseSearchResponse, Track, TrackSearchResult } from 'backend/downloader/types';
 import type { ReleaseResponse } from 'services/mbApi/types';
-import { mapReleaseTracksToDownloadTracks } from 'features/downloader/utils';
-import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'features/downloader/youtube';
+import { mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
+import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'backend/downloader/youtube';
 import { NextResponse } from 'next/server';
 import { mbApi } from 'services/mbApi';
 
