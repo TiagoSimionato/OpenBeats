@@ -2,6 +2,7 @@ import type { ReleaseSearchResponse, Track, TrackSearchResult } from 'backend/do
 import type { ReleaseResponse } from 'services/mbApi/types';
 import { mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
 import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'backend/downloader/youtube';
+import { withErrorHandler } from 'backend/exceptions/handler';
 import { NextResponse } from 'next/server';
 import { mbApi } from 'services/mbApi';
 
@@ -16,7 +17,7 @@ type RouteContext = {
   }>;
 };
 
-export const GET = async (_request: Request, { params }: RouteContext) => {
+export const GET = withErrorHandler(async (_request: Request, { params }: RouteContext) => {
   const { releaseId } = await params;
   const release = await mbApi.get<ReleaseResponse>(`release/${releaseId}`, {
     params: {
@@ -143,4 +144,4 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
     release,
     trackSearches,
   });
-};
+});
