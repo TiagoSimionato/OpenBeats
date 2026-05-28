@@ -34,15 +34,12 @@ export type TrackSearchResult = {
   coverFilePath?: string;
   downloadedFilePath?: string;
   downloadOutput?: string;
-  ffmpegError?: string;
   ffmpegOutput?: string;
   query: string;
   results: unknown[];
   trackId: string;
   trackTitle: string;
-  videoId?: string;
-  ytdlpError?: string;
-  ytmusicError?: string;
+  videoId: string;
 };
 
 export type ReleaseSearchResponse = {

@@ -3,6 +3,7 @@ import type { ReleaseResponse } from 'services/mbApi/types';
 import { mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
 import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'backend/downloader/youtube';
 import { withErrorHandler } from 'backend/exceptions/handler';
+import { UnprocessableEntityError } from 'backend/exceptions/http';
 import { NextResponse } from 'next/server';
 import { mbApi } from 'services/mbApi';
 
@@ -42,101 +43,34 @@ export const GET = withErrorHandler(async (_request: Request, { params }: RouteC
       const query = `${track.title} - ${track.artist}`;
       const artist = track.artist;
 
-      let results: { videoId: string }[];
-
-      try {
-        results = await searchYouTubeMusic(query);
-      }
-      catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown YTMusic search error';
-
-        return {
-          artist,
-          coverError: coverResult.coverError,
-          coverFilePath: coverResult.coverFilePath,
-          query,
-          results: [],
-          trackId: track['MusicBrainz Release Track Id'],
-          trackTitle: track.title,
-          videoId: undefined,
-          ytmusicError: message,
-        } satisfies TrackSearchResult;
-      }
+      const results: { videoId: string }[] = await searchYouTubeMusic(query);
 
       const videoId = results[0]?.videoId;
 
-      if (!videoId) {
-        return {
-          artist,
-          coverError: coverResult.coverError,
-          coverFilePath: coverResult.coverFilePath,
-          query,
-          results,
-          trackId: track['MusicBrainz Release Track Id'],
-          trackTitle: track.title,
-          ytmusicError: 'No YTMusic videoId found',
-        } satisfies TrackSearchResult;
-      }
+      if (!videoId)
+        throw new UnprocessableEntityError('No YTMusic videoId found');
 
-      let downloadResult: Awaited<ReturnType<typeof downloadTrackAudio>>;
+      const downloadResult: Awaited<ReturnType<typeof downloadTrackAudio>> = await downloadTrackAudio({ track, videoId });
 
-      try {
-        downloadResult = await downloadTrackAudio({ track, videoId });
-      }
-      catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown yt-dlp error';
+      const ffmpegOutput = await writeTrackMetadata({
+        coverFilePath: coverResult.coverFilePath,
+        filePath: downloadResult.filePath,
+        track,
+      });
 
-        return {
-          artist,
-          coverError: coverResult.coverError,
-          coverFilePath: coverResult.coverFilePath,
-          query,
-          results,
-          trackId: track['MusicBrainz Release Track Id'],
-          trackTitle: track.title,
-          videoId,
-          ytdlpError: message,
-        } satisfies TrackSearchResult;
-      }
-
-      try {
-        const ffmpegOutput = await writeTrackMetadata({
-          coverFilePath: coverResult.coverFilePath,
-          filePath: downloadResult.filePath,
-          track,
-        });
-
-        return {
-          artist,
-          coverError: coverResult.coverError,
-          coverFilePath: coverResult.coverFilePath,
-          downloadedFilePath: downloadResult.filePath,
-          downloadOutput: downloadResult.output,
-          ffmpegOutput,
-          query,
-          results,
-          trackId: track['MusicBrainz Release Track Id'],
-          trackTitle: track.title,
-          videoId,
-        } satisfies TrackSearchResult;
-      }
-      catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown ffmpeg error';
-
-        return {
-          artist,
-          coverError: coverResult.coverError,
-          coverFilePath: coverResult.coverFilePath,
-          downloadedFilePath: downloadResult.filePath,
-          downloadOutput: downloadResult.output,
-          ffmpegError: message,
-          query,
-          results,
-          trackId: track['MusicBrainz Release Track Id'],
-          trackTitle: track.title,
-          videoId,
-        } satisfies TrackSearchResult;
-      }
+      return {
+        artist,
+        coverError: coverResult.coverError,
+        coverFilePath: coverResult.coverFilePath,
+        downloadedFilePath: downloadResult.filePath,
+        downloadOutput: downloadResult.output,
+        ffmpegOutput,
+        query,
+        results,
+        trackId: track['MusicBrainz Release Track Id'],
+        trackTitle: track.title,
+        videoId,
+      } satisfies TrackSearchResult;
     }),
   );
 
