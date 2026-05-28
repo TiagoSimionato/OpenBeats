@@ -1,10 +1,12 @@
+import type { CoverResponse } from 'services/caaApi/queries/covers';
 import type { ReleaseResponse, ReleaseTrack } from 'services/mbApi/types';
 import type { Track } from './types';
 import { execFile } from 'node:child_process';
-import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rename, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { CONFIGS } from 'configs';
+import { caaApi } from 'services/caaApi';
 import { getArtistLabel, getTrackTitle } from './utils';
 
 const execFileAsync = promisify(execFile);
@@ -37,10 +39,6 @@ export const downloadTrackAudio = async ({
   track?: Track;
   videoId: string;
 }) => {
-  if (!CONFIGS.DOWNLOAD_PATH) {
-    throw new Error('DOWNLOAD_PATH is not defined');
-  }
-
   const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
   await mkdir(absoluteLibraryPath, { recursive: true });
 
@@ -104,39 +102,56 @@ export const downloadTrackAudio = async ({
   };
 };
 
-const getCoverFileExtension = (contentType: null | string) => {
-  if (contentType?.includes('png')) {
-    return '.png';
+const getCoverFileExtension = (sourcePathOrUrl: string) => extname(sourcePathOrUrl) || '.jpg';
+
+const getExistingCoverFilePath = async (releaseId: string) => {
+  const coverDir = resolve(CONFIGS.COVERS_PATH);
+  let entries;
+
+  try {
+    entries = await readdir(coverDir, { withFileTypes: true });
+  }
+  catch {
+    return undefined;
   }
 
-  if (contentType?.includes('webp')) {
-    return '.webp';
-  }
+  const existingCoverEntry = entries.find(entry => entry.isFile() && entry.name.startsWith(`${releaseId}.`));
 
-  return '.jpg';
+  return existingCoverEntry ? join(coverDir, existingCoverEntry.name) : undefined;
 };
 
 export const downloadReleaseCoverArt = async (releaseId: string) => {
-  if (!CONFIGS.COVERS_PATH) {
-    throw new Error('COVERS_PATH is not defined');
+  const existingCoverFilePath = await getExistingCoverFilePath(releaseId);
+
+  if (existingCoverFilePath) {
+    return {
+      coverFilePath: existingCoverFilePath,
+    };
   }
 
-  const response = await fetch(`https://coverartarchive.org/release/${releaseId}/front`);
+  const coverResponse = await caaApi.get<CoverResponse>(`release/${releaseId}`);
+  const coverImage = coverResponse.images?.find(image => image.front) ?? coverResponse.images?.[0];
 
-  if (!response.ok) {
-    throw new Error(`Cover Art Archive request failed with status ${response.status}`);
+  if (!coverImage?.image) {
+    throw new Error('Cover Art Archive did not return a downloadable cover image');
   }
 
-  const contentType = response.headers.get('content-type');
-  const coverFilePath = join(CONFIGS.COVERS_PATH, `${releaseId}${getCoverFileExtension(contentType)}`);
+  const coverImageUrl = new URL(coverImage.image);
+  const coverFilePath = join(
+    resolve(CONFIGS.COVERS_PATH),
+    `${releaseId}${getCoverFileExtension(coverImageUrl.pathname)}`,
+  );
 
   await mkdir(dirname(coverFilePath), { recursive: true });
 
-  const buffer = Buffer.from(await response.arrayBuffer());
+  const coverImageResponse = await caaApi.get<ArrayBuffer>(coverImage.image, {
+    responseType: 'arraybuffer',
+  });
+
+  const buffer = Buffer.from(coverImageResponse);
   await writeFile(coverFilePath, buffer);
 
   return {
-    contentType,
     coverFilePath,
   };
 };

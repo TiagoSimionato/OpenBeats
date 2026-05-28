@@ -12,8 +12,7 @@ export const CONFIGS = {
   PYTHON_BIN: process.env.PYTHON_BIN ?? 'python3',
   YT_DLP_BIN: process.env.YT_DLP_BIN ?? 'yt-dlp',
   YTMUSIC_SCRIPT_PATH: join(process.cwd(), 'src', 'backend', 'downloader', 'search_ytmusic.py'),
-
-};
+} as const;
 
 if (!existsSync(CONFIGS.YTMUSIC_SCRIPT_PATH))
   throw new Error('Cannot find ytmusic script');

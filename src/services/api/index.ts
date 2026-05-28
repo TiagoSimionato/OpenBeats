@@ -7,7 +7,7 @@ export * from './queries';
 
 export type RequestConfig<D = unknown> = Pick<
   AxiosRequestConfig<D>,
-  'headers' | 'params'
+  'headers' | 'params' | 'responseType'
 >;
 
 export const GenericAPI = (
