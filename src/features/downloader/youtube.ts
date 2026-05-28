@@ -4,15 +4,8 @@ import { execFile } from 'node:child_process';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
+import { CONFIGS } from 'configs';
 import { getArtistLabel, getTrackTitle } from './utils';
-
-const YT_DLP_BIN = process.env.YT_DLP_BIN ?? 'yt-dlp';
-const FFMPEG_BIN = process.env.FFMPEG_BIN ?? 'ffmpeg';
-const PYTHON_BIN = process.env.PYTHON_BIN ?? 'python3';
-const DOWNLOAD_PATH = process.env.DOWNLOAD_PATH ?? '/data';
-const CACHE_PATH = process.env.CACHE_PATH ?? `/opt/lostbeats`;
-const COVERS_PATH = `${CACHE_PATH}/covers`;
-const YTMUSIC_SCRIPT_PATH = join(process.cwd(), 'src', 'features', 'downloader', 'search_ytmusic.py');
 
 const execFileAsync = promisify(execFile);
 
@@ -26,8 +19,8 @@ export const buildTrackQuery = (track: ReleaseTrack, release: ReleaseResponse) =
 };
 
 export const searchYouTubeMusic = async (query: string) => {
-  const { stdout } = await execFileAsync(PYTHON_BIN, [
-    YTMUSIC_SCRIPT_PATH,
+  const { stdout } = await execFileAsync(CONFIGS.PYTHON_BIN, [
+    CONFIGS.YTMUSIC_SCRIPT_PATH,
     query,
     '1',
   ], {
@@ -44,11 +37,11 @@ export const downloadTrackAudio = async ({
   track?: Track;
   videoId: string;
 }) => {
-  if (!DOWNLOAD_PATH) {
+  if (!CONFIGS.DOWNLOAD_PATH) {
     throw new Error('DOWNLOAD_PATH is not defined');
   }
 
-  const absoluteLibraryPath = resolve(DOWNLOAD_PATH);
+  const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
   await mkdir(absoluteLibraryPath, { recursive: true });
 
   const sanitize = (s: string) =>
@@ -77,7 +70,7 @@ export const downloadTrackAudio = async ({
     outputTemplate = join(absoluteLibraryPath, '%(title)s.%(ext)s');
   }
 
-  const { stdout } = await execFileAsync(YT_DLP_BIN, [
+  const { stdout } = await execFileAsync(CONFIGS.YT_DLP_BIN, [
     '--ignore-errors',
     '--format',
     'bestaudio',
@@ -124,7 +117,7 @@ const getCoverFileExtension = (contentType: null | string) => {
 };
 
 export const downloadReleaseCoverArt = async (releaseId: string) => {
-  if (!COVERS_PATH) {
+  if (!CONFIGS.COVERS_PATH) {
     throw new Error('COVERS_PATH is not defined');
   }
 
@@ -135,7 +128,7 @@ export const downloadReleaseCoverArt = async (releaseId: string) => {
   }
 
   const contentType = response.headers.get('content-type');
-  const coverFilePath = join(COVERS_PATH, `${releaseId}${getCoverFileExtension(contentType)}`);
+  const coverFilePath = join(CONFIGS.COVERS_PATH, `${releaseId}${getCoverFileExtension(contentType)}`);
 
   await mkdir(dirname(coverFilePath), { recursive: true });
 
@@ -203,7 +196,7 @@ export const writeTrackMetadata = async ({
         tempFilePath,
       ];
 
-  const { stdout } = await execFileAsync(FFMPEG_BIN, ffmpegArgs, {
+  const { stdout } = await execFileAsync(CONFIGS.FFMPEG_BIN, ffmpegArgs, {
     maxBuffer: 10 * 1024 * 1024,
   });
 
