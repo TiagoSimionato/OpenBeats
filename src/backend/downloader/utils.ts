@@ -12,7 +12,7 @@ export const getArtistLabel = (
 
   return credits
     .map(
-      credit => `${credit.name ?? credit.artist?.name ?? 'Unknown'}${credit.joinphrase ?? ''}`,
+      credit => `${credit.name ?? credit.artist?.name ?? 'Unknown'}`,
     )
     .join('; ');
 };
