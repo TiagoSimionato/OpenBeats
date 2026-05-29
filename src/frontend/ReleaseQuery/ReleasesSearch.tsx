@@ -1,6 +1,7 @@
 'use client';
 
 import type { FormEvent } from 'react';
+import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { useMBQueryRelease } from 'services/mbApi';
 import { ReleaseCard } from './components/ReleaseCard';
@@ -42,7 +43,13 @@ export const ReleasesSearch = () => {
         </button>
       </form>
 
-      {isLoading || isFetching ? <p>Loading releases...</p> : null}
+      {isLoading || isFetching
+        ? (
+            <div className="flex justify-center items-center gap-3">
+              <Spinner color="text-primary" size="lg" />
+            </div>
+          )
+        : null}
 
       {error ? <p className="text-red-600">Failed to load releases.</p> : null}
 

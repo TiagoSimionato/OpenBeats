@@ -1,6 +1,7 @@
 'use client';
 
 import type { QueryRelease } from 'services/mbApi/types';
+import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { useDownloadRelease } from 'services/api/mutations/download';
 import { useMBGetRelease } from 'services/mbApi/queries/releases';
@@ -73,7 +74,14 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
             onClick={handleDownload}
             type="button"
           >
-            {isDownloading ? 'Downloading...' : 'Download'}
+            {isDownloading
+              ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner color="text-white" size="xs" />
+                    <span>Downloading</span>
+                  </span>
+                )
+              : 'Download'}
           </button>
           <button
             className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
@@ -90,7 +98,9 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
             <div className="mt-3">
               {isReleaseLoading
                 ? (
-                    <p className="text-sm text-zinc-500">Loading tracks…</p>
+                    <div className="flex justify-center items-center gap-3">
+                      <Spinner size="md" />
+                    </div>
                   )
                 : (
                     <ol className="space-y-1 text-sm">
