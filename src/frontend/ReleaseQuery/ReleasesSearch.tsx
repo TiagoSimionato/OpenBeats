@@ -29,13 +29,13 @@ export const ReleasesSearch = () => {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-6">
-      <h1 className="text-2xl font-semibold">MusicBrainz Release Search</h1>
+      <h1 className="text-2xl font-semibold">LostBeats</h1>
 
       <form className="flex gap-2" onSubmit={onSubmit}>
         <input
           className="w-full rounded border border-zinc-300 px-3 py-2"
           onChange={event => setInputValue(event.target.value)}
-          placeholder="Type artist, album, or release (e.g. meteora)"
+          placeholder="Search for album, release or singles"
           value={inputValue}
         />
         <button
