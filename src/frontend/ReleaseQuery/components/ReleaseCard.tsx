@@ -1,8 +1,9 @@
 'use client';
 
+import type { DownloadJobProgress } from 'backend/downloader/types';
 import type { QueryRelease } from 'services/mbApi/types';
 import { Spinner } from 'frontend/ui/Spinner';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDownloadRelease } from 'services/api/mutations/download';
 import { useMBGetRelease } from 'services/mbApi/queries/releases';
 import { CoverPreview } from './CoverPreview';
@@ -29,14 +30,47 @@ const getArtistsLabel = (release: QueryRelease) => {
 export const ReleaseCard = ({ release }: ReleaseCardProps) => {
   const download = useDownloadRelease();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [jobId, setJobId] = useState('');
+  const [progress, setProgress] = useState<DownloadJobProgress | null>(null);
 
   const handleDownload = async () => {
-    setIsDownloading(true);
-
-    await download.mutateAsync(String(release.id));
-
-    setIsDownloading(false);
+    try {
+      setIsDownloading(true);
+      setProgress(null);
+      const { jobId: nextJobId } = await download.mutateAsync(String(release.id));
+      setJobId(nextJobId);
+    }
+    catch {
+      setIsDownloading(false);
+    }
   };
+
+  useEffect(() => {
+    if (!jobId) {
+      return;
+    }
+
+    const eventSource = new EventSource(`/api/releases/jobs/${jobId}`);
+
+    eventSource.onmessage = (event) => {
+      const nextProgress = JSON.parse(event.data) as DownloadJobProgress;
+      setProgress(nextProgress);
+
+      if (nextProgress.status === 'completed' || nextProgress.status === 'failed') {
+        setIsDownloading(false);
+        eventSource.close();
+      }
+    };
+
+    eventSource.onerror = () => {
+      setIsDownloading(false);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [jobId]);
 
   const [isOpen, setIsOpen] = useState(false);
   const { data: fullRelease, isLoading: isReleaseLoading } = useMBGetRelease({
@@ -78,7 +112,11 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
               ? (
                   <span className="flex items-center gap-2">
                     <Spinner color="text-white" size="xs" />
-                    <span>Downloading</span>
+                    <span>
+                      {progress
+                        ? `${progress.processedTracks}/${progress.totalTracks}`
+                        : 'Starting'}
+                    </span>
                   </span>
                 )
               : 'Download'}
@@ -90,6 +128,13 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
           >
             {isOpen ? 'Hide tracks' : 'Show tracks'}
           </button>
+          {isDownloading && progress
+            ? (
+                <p className="max-w-40 text-xs text-zinc-500">
+                  {progress.message ?? 'Working...'}
+                </p>
+              )
+            : null}
         </div>
       </div>
 

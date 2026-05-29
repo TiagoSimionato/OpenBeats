@@ -1,4 +1,4 @@
-import type { TrackSearchResult } from 'backend/downloader/types';
+import type { StartDownloadResponse } from 'backend/downloader/types';
 import type { HookMutationOptions } from 'types/reactQuery';
 import type { RequestConfig } from '..';
 import { useMutation } from '@tanstack/react-query';
@@ -8,9 +8,9 @@ export const useDownloadRelease = ({
   options,
 }: {
   configs?: RequestConfig;
-  options?: HookMutationOptions<unknown, TrackSearchResult, unknown>;
+  options?: HookMutationOptions<string, StartDownloadResponse, unknown>;
 } = {}) => useMutation({
   mutationFn: (releaseId: string) =>
-    api.get<TrackSearchResult>(`releases/${releaseId}`),
+    api.post<StartDownloadResponse>(`releases/${releaseId}`),
   ...options,
 });

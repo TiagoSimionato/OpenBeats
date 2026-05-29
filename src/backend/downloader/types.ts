@@ -34,15 +34,44 @@ export type TrackSearchResult = {
   coverFilePath?: string;
   downloadedFilePath?: string;
   downloadOutput?: string;
+  ffmpegError?: string;
   ffmpegOutput?: string;
   query: string;
   results: unknown[];
   trackId: string;
   trackTitle: string;
   videoId: string;
+  ytdlpError?: string;
+  ytmusicError?: string;
 };
 
 export type ReleaseSearchResponse = {
   release: ReleaseResponse;
   trackSearches: TrackSearchResult[];
+};
+
+export type DownloadJobStage
+  = | 'completed'
+    | 'cover'
+    | 'download'
+    | 'failed'
+    | 'metadata'
+    | 'queued'
+    | 'search';
+
+export type DownloadJobStatus = 'completed' | 'failed' | 'running';
+
+export type DownloadJobProgress = {
+  currentTrackTitle?: string;
+  error?: string;
+  jobId: string;
+  message?: string;
+  processedTracks: number;
+  stage: DownloadJobStage;
+  status: DownloadJobStatus;
+  totalTracks: number;
+};
+
+export type StartDownloadResponse = {
+  jobId: string;
 };
