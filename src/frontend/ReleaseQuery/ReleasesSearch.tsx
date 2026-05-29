@@ -3,6 +3,7 @@
 import type { FormEvent } from 'react';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
+import { useDownloadedReleases } from 'services/api/queries/downloads';
 import { useMBQueryRelease } from 'services/mbApi';
 import { ReleaseCard } from './components/ReleaseCard';
 
@@ -18,6 +19,8 @@ export const ReleasesSearch = () => {
   });
 
   const releases = data?.releases ?? [];
+  const { data: downloadsData } = useDownloadedReleases();
+  const downloadedReleaseIds = new Set(downloadsData?.downloadedReleases.map(download => download.releaseId) ?? []);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -67,7 +70,11 @@ export const ReleasesSearch = () => {
               </p>
               <ul className="space-y-2">
                 {releases.map(release => (
-                  <ReleaseCard key={release.id} release={release} />
+                  <ReleaseCard
+                    isDownloaded={downloadedReleaseIds.has(release.id)}
+                    key={release.id}
+                    release={release}
+                  />
                 ))}
               </ul>
             </div>

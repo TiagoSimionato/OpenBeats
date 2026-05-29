@@ -1,8 +1,10 @@
 import type { DownloadJobProgress, ReleaseSearchResponse, StartDownloadResponse, Track, TrackSearchResult } from 'backend/downloader/types';
 import type { ReleaseResponse } from 'services/mbApi/types';
+import { dirname } from 'node:path';
 import { createDownloadJob, updateDownloadJob } from 'backend/downloader/jobs';
-import { mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
+import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
 import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'backend/downloader/youtube';
+import { upsertDownloadedRelease } from 'backend/downloads';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { NextResponse } from 'next/server';
 import { mbApi } from 'services/mbApi';
@@ -155,7 +157,26 @@ export const POST = withErrorHandler(async (_request: Request, { params }: Route
     ...partial,
     status: 'running',
   }))
-    .then(() => {
+    .then(async (response) => {
+      const fullyDownloaded = response.trackSearches.length > 0
+        && response.trackSearches.every(trackSearch => Boolean(trackSearch.downloadedFilePath));
+
+      if (fullyDownloaded) {
+        const firstDownloadedTrack = response.trackSearches.find(trackSearch => trackSearch.downloadedFilePath);
+
+        if (firstDownloadedTrack?.downloadedFilePath) {
+          await upsertDownloadedRelease({
+            album: response.release.title ?? 'Unknown Album',
+            albumArtist: getArtistLabel(response.release['artist-credit']),
+            completedAt: new Date().toISOString(),
+            coverPath: firstDownloadedTrack.coverFilePath,
+            downloadPath: dirname(firstDownloadedTrack.downloadedFilePath),
+            releaseId: response.release.id,
+            trackCount: response.trackSearches.length,
+          });
+        }
+      }
+
       updateDownloadJob(jobId, {
         message: 'Download completed',
         processedTracks: totalTracks,

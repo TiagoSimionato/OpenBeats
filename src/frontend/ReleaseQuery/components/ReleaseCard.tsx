@@ -2,6 +2,7 @@
 
 import type { DownloadJobProgress } from 'backend/downloader/types';
 import type { QueryRelease } from 'services/mbApi/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useEffect, useState } from 'react';
 import { useDownloadRelease } from 'services/api/mutations/download';
@@ -9,6 +10,7 @@ import { useMBGetRelease } from 'services/mbApi/queries/releases';
 import { CoverPreview } from './CoverPreview';
 
 type ReleaseCardProps = {
+  isDownloaded?: boolean;
   release: QueryRelease;
 };
 
@@ -27,8 +29,9 @@ const getArtistsLabel = (release: QueryRelease) => {
     .join('');
 };
 
-export const ReleaseCard = ({ release }: ReleaseCardProps) => {
+export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps) => {
   const download = useDownloadRelease();
+  const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
   const [jobId, setJobId] = useState('');
   const [progress, setProgress] = useState<DownloadJobProgress | null>(null);
@@ -58,6 +61,7 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
 
       if (nextProgress.status === 'completed' || nextProgress.status === 'failed') {
         setIsDownloading(false);
+        void queryClient.invalidateQueries({ queryKey: ['downloads'] });
         eventSource.close();
       }
     };
@@ -85,8 +89,15 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
       <div className="flex items-start gap-3">
         <CoverPreview releaseId={release.id} title={release.title} />
         <div className="flex-1">
-          <p className="font-medium">
+          <p className="flex items-center gap-2 font-medium">
             {release.title ?? 'Untitled release'}
+            {isDownloaded
+              ? (
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                    Downloaded
+                  </span>
+                )
+              : null}
           </p>
           <p className="text-sm text-zinc-700">
             {getArtistsLabel(release)}
@@ -104,22 +115,23 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
         <div className="flex shrink-0 items-start flex-col gap-2">
           <button
             className="rounded bg-zinc-900 px-3 py-1 text-white disabled:opacity-50"
-            disabled={isDownloading}
+            disabled={isDownloading || isDownloaded}
             onClick={handleDownload}
             type="button"
           >
-            {isDownloading
-              ? (
-                  <span className="flex items-center gap-2">
-                    <Spinner color="text-white" size="xs" />
-                    <span>
-                      {progress
-                        ? `${progress.processedTracks}/${progress.totalTracks}`
-                        : 'Starting'}
-                    </span>
+            {isDownloaded && 'Downloaded'}
+            {!isDownloaded && isDownloading
+              && (
+                <span className="flex items-center gap-2">
+                  <Spinner color="text-white" size="xs" />
+                  <span>
+                    {progress
+                      ? `${progress.processedTracks}/${progress.totalTracks}`
+                      : 'Starting'}
                   </span>
-                )
-              : 'Download'}
+                </span>
+              )}
+            {!isDownloaded && !isDownloading && 'Download'}
           </button>
           <button
             className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
