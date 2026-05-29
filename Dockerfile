@@ -1,5 +1,7 @@
 FROM node:22-alpine AS base
+# build-base for better-sqlite3
 RUN apk add --no-cache libc6-compat \
+  build-base \
   python3 \
   py3-pip \
   yt-dlp \
