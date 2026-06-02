@@ -1,14 +1,17 @@
 'use client';
 
 import type { FormEvent } from 'react';
+import type { DownloadQueueUpdate } from './components/ReleaseCard';
 import { Spinner } from 'frontend/ui/Spinner';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDownloadedReleases } from 'services/api/queries/downloads';
 import { useMBQueryRelease } from 'services/mbApi';
+import { DownloadQueuePopup } from './components/DownloadQueuePopup';
 import { ReleaseCard } from './components/ReleaseCard';
 
 export const ReleaseSearch = () => {
   const [inputValue, setInputValue] = useState('');
+  const [queue, setQueue] = useState<Record<string, DownloadQueueUpdate>>({});
   const [query, setQuery] = useState('');
 
   const { data, error, isFetching, isLoading } = useMBQueryRelease({
@@ -26,6 +29,32 @@ export const ReleaseSearch = () => {
     event.preventDefault();
     setQuery(inputValue.trim());
   };
+
+  const onQueueUpdate = useCallback((update: DownloadQueueUpdate) => {
+    setQueue(prev => ({
+      ...prev,
+      [update.releaseId]: update,
+    }));
+
+    if (update.status === 'completed' || update.status === 'failed') {
+      setTimeout(() => {
+        setQueue((current) => {
+          const existing = current[update.releaseId];
+
+          if (!existing || existing.status === 'running') {
+            return current;
+          }
+
+          const next = { ...current };
+          delete next[update.releaseId];
+
+          return next;
+        });
+      }, 4000);
+    }
+  }, []);
+
+  const queueItems = Object.values(queue);
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-6">
@@ -73,6 +102,7 @@ export const ReleaseSearch = () => {
                   <ReleaseCard
                     isDownloaded={downloadedReleaseIds.has(release.id)}
                     key={release.id}
+                    onQueueUpdate={onQueueUpdate}
                     release={release}
                   />
                 ))}
@@ -80,6 +110,8 @@ export const ReleaseSearch = () => {
             </div>
           )
         : null}
+
+      <DownloadQueuePopup items={queueItems} />
     </main>
   );
 };

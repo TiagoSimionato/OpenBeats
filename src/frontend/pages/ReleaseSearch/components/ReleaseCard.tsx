@@ -9,8 +9,19 @@ import { useDownloadRelease } from 'services/api/mutations/download';
 import { useMBGetRelease } from 'services/mbApi/queries/releases';
 import { CoverPreview } from './CoverPreview';
 
+export type DownloadQueueUpdate = {
+  message?: string;
+  processedTracks: number;
+  releaseId: string;
+  stage: DownloadJobProgress['stage'];
+  status: DownloadJobProgress['status'];
+  title: string;
+  totalTracks: number;
+};
+
 type ReleaseCardProps = {
   isDownloaded?: boolean;
+  onQueueUpdate?: (update: DownloadQueueUpdate) => void;
   release: QueryRelease;
 };
 
@@ -29,7 +40,7 @@ const getArtistsLabel = (release: QueryRelease) => {
     .join('');
 };
 
-export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps) => {
+export const ReleaseCard = ({ isDownloaded = false, onQueueUpdate, release }: ReleaseCardProps) => {
   const download = useDownloadRelease();
   const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
@@ -40,6 +51,14 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
     try {
       setIsDownloading(true);
       setProgress(null);
+      onQueueUpdate?.({
+        processedTracks: 0,
+        releaseId: release.id,
+        stage: 'queued',
+        status: 'running',
+        title: release.title ?? 'Untitled release',
+        totalTracks: 0,
+      });
       const { jobId: nextJobId } = await download.mutateAsync(String(release.id));
       setJobId(nextJobId);
     }
@@ -58,6 +77,15 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
     eventSource.onmessage = (event) => {
       const nextProgress = JSON.parse(event.data) as DownloadJobProgress;
       setProgress(nextProgress);
+      onQueueUpdate?.({
+        message: nextProgress.message,
+        processedTracks: nextProgress.processedTracks,
+        releaseId: release.id,
+        stage: nextProgress.stage,
+        status: nextProgress.status,
+        title: release.title ?? 'Untitled release',
+        totalTracks: nextProgress.totalTracks,
+      });
 
       if (nextProgress.status === 'completed' || nextProgress.status === 'failed') {
         setIsDownloading(false);
@@ -68,13 +96,22 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
 
     eventSource.onerror = () => {
       setIsDownloading(false);
+      onQueueUpdate?.({
+        message: 'Connection lost while tracking progress',
+        processedTracks: progress?.processedTracks ?? 0,
+        releaseId: release.id,
+        stage: 'failed',
+        status: 'failed',
+        title: release.title ?? 'Untitled release',
+        totalTracks: progress?.totalTracks ?? 0,
+      });
       eventSource.close();
     };
 
     return () => {
       eventSource.close();
     };
-  }, [jobId]);
+  }, [jobId, onQueueUpdate, progress?.processedTracks, progress?.totalTracks, queryClient, release.id, release.title]);
 
   const [isOpen, setIsOpen] = useState(false);
   const { data: fullRelease, isLoading: isReleaseLoading } = useMBGetRelease({
