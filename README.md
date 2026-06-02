@@ -22,7 +22,6 @@ Should build the app image from local `Dockerfile` and start the app at port 533
 
 Below there is a list of planned upcoming changes to keep as reference
 
-- Popup with download queue progress
 - Scan files button (to update sqlite)
 - Authorization
 - Replace/Update Metadata from downloaded files
