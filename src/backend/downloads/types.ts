@@ -15,3 +15,7 @@ export type DownloadedReleasesResponse = {
 export type DownloadedReleaseResponse = {
   downloadedRelease: DownloadedReleaseRecord;
 };
+
+export type ScanDownloadedReleasesResponse = {
+  downloadedReleases: DownloadedReleaseRecord[];
+};

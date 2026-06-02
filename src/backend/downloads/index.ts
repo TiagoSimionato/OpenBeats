@@ -33,6 +33,7 @@ type ProbeResponse = {
 };
 
 let databasePromise: null | Promise<Database.Database> = null;
+let databaseInstance: Database.Database | null = null;
 let startupScanPromise: null | Promise<void> = null;
 
 const getDatabasePath = () => join(CONFIGS.CACHE_PATH, 'downloads.sqlite');
@@ -58,13 +59,13 @@ const getCoverPathForRelease = (releaseId: string) => {
 };
 
 const getDatabase = async () => {
-  if (!databasePromise) {
-    databasePromise = (async () => {
-      await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
+  databasePromise ??= (async () => {
+    await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
 
-      const database = new Database(getDatabasePath());
+    const database = new Database(getDatabasePath());
+    databaseInstance = database;
 
-      database.exec(`
+    database.exec(`
         CREATE TABLE IF NOT EXISTS downloaded_releases (
           release_id TEXT PRIMARY KEY,
           album TEXT NOT NULL,
@@ -76,11 +77,17 @@ const getDatabase = async () => {
         );
       `);
 
-      return database;
-    })();
-  }
+    return database;
+  })();
 
   return databasePromise;
+};
+
+const resetDatabase = async () => {
+  databaseInstance?.close();
+  databaseInstance = null;
+  databasePromise = null;
+  await getDatabase();
 };
 
 const probeAudioFile = async (filePath: string) => {
@@ -121,34 +128,48 @@ const walkFiles = async (directoryPath: string): Promise<string[]> => {
 };
 
 export const upsertDownloadedRelease = async (record: DownloadedReleaseRecord) => {
-  const database = await getDatabase();
+  const writeRecord = async () => {
+    const database = await getDatabase();
 
-  database.prepare(`
-    INSERT INTO downloaded_releases (
-      release_id,
-      album,
-      album_artist,
-      download_path,
-      cover_path,
-      track_count,
-      completed_at
-    ) VALUES (
-      @releaseId,
-      @album,
-      @albumArtist,
-      @downloadPath,
-      @coverPath,
-      @trackCount,
-      @completedAt
-    )
-    ON CONFLICT(release_id) DO UPDATE SET
-      album = excluded.album,
-      album_artist = excluded.album_artist,
-      download_path = excluded.download_path,
-      cover_path = excluded.cover_path,
-      track_count = excluded.track_count,
-      completed_at = excluded.completed_at;
-  `).run(record);
+    database.prepare(`
+      INSERT INTO downloaded_releases (
+        release_id,
+        album,
+        album_artist,
+        download_path,
+        cover_path,
+        track_count,
+        completed_at
+      ) VALUES (
+        @releaseId,
+        @album,
+        @albumArtist,
+        @downloadPath,
+        @coverPath,
+        @trackCount,
+        @completedAt
+      )
+      ON CONFLICT(release_id) DO UPDATE SET
+        album = excluded.album,
+        album_artist = excluded.album_artist,
+        download_path = excluded.download_path,
+        cover_path = excluded.cover_path,
+        track_count = excluded.track_count,
+        completed_at = excluded.completed_at;
+    `).run(record);
+  };
+
+  try {
+    await writeRecord();
+  }
+  catch (error) {
+    if ((error as { code?: string }).code !== 'SQLITE_READONLY_DBMOVED') {
+      throw error;
+    }
+
+    await resetDatabase();
+    await writeRecord();
+  }
 };
 
 export const listDownloadedReleases = async () => {
@@ -245,10 +266,13 @@ export const scanDownloadedReleasesFromDisk = async () => {
   await Promise.all(upsertStatements);
 };
 
+export const rescanDownloadedReleases = async () => {
+  await scanDownloadedReleasesFromDisk();
+  return await listDownloadedReleases();
+};
+
 export const ensureDownloadIndexReady = async () => {
-  if (!startupScanPromise) {
-    startupScanPromise = scanDownloadedReleasesFromDisk();
-  }
+  startupScanPromise ??= scanDownloadedReleasesFromDisk();
 
   return startupScanPromise;
 };
