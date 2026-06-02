@@ -34,6 +34,10 @@ Below there is a list of planned upcoming changes to keep as reference
 - Review endpoint returns
 - Improve ui/ux
 - Open large cover modal on click
+- Cancel downloads
+- Clear cover cache
+- Download again (replace file)
+- Search blacklist
 
 ## Development
 
