@@ -1,27 +1,14 @@
 'use client';
 
-import type { DownloadJobProgress } from 'backend/downloader/types';
 import type { QueryRelease } from 'services/mbApi/types';
-import { useQueryClient } from '@tanstack/react-query';
+import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
 import { Spinner } from 'frontend/ui/Spinner';
-import { useEffect, useState } from 'react';
-import { useDownloadRelease } from 'services/api/mutations/download';
+import { useState } from 'react';
 import { useMBGetRelease } from 'services/mbApi/queries/releases';
 import { CoverPreview } from './CoverPreview';
 
-export type DownloadQueueUpdate = {
-  message?: string;
-  processedTracks: number;
-  releaseId: string;
-  stage: DownloadJobProgress['stage'];
-  status: DownloadJobProgress['status'];
-  title: string;
-  totalTracks: number;
-};
-
 type ReleaseCardProps = {
   isDownloaded?: boolean;
-  onQueueUpdate?: (update: DownloadQueueUpdate) => void;
   release: QueryRelease;
 };
 
@@ -40,78 +27,16 @@ const getArtistsLabel = (release: QueryRelease) => {
     .join('');
 };
 
-export const ReleaseCard = ({ isDownloaded = false, onQueueUpdate, release }: ReleaseCardProps) => {
-  const download = useDownloadRelease();
-  const queryClient = useQueryClient();
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [jobId, setJobId] = useState('');
-  const [progress, setProgress] = useState<DownloadJobProgress | null>(null);
+export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps) => {
+  const { enqueueRelease, queue } = useDownloadQueueContext();
 
-  const handleDownload = async () => {
-    try {
-      setIsDownloading(true);
-      setProgress(null);
-      onQueueUpdate?.({
-        processedTracks: 0,
-        releaseId: release.id,
-        stage: 'queued',
-        status: 'running',
-        title: release.title ?? 'Untitled release',
-        totalTracks: 0,
-      });
-      const { jobId: nextJobId } = await download.mutateAsync(String(release.id));
-      setJobId(nextJobId);
-    }
-    catch {
-      setIsDownloading(false);
-    }
+  const queueItem = queue.find(item => item.releaseId === String(release.id));
+  const isDownloading = queueItem?.status === 'running';
+  const isQueued = queueItem?.stage === 'queued' && queueItem?.status === 'running';
+
+  const handleDownload = () => {
+    enqueueRelease(release);
   };
-
-  useEffect(() => {
-    if (!jobId) {
-      return;
-    }
-
-    const eventSource = new EventSource(`/api/releases/jobs/${jobId}`);
-
-    eventSource.onmessage = (event) => {
-      const nextProgress = JSON.parse(event.data) as DownloadJobProgress;
-      setProgress(nextProgress);
-      onQueueUpdate?.({
-        message: nextProgress.message,
-        processedTracks: nextProgress.processedTracks,
-        releaseId: release.id,
-        stage: nextProgress.stage,
-        status: nextProgress.status,
-        title: release.title ?? 'Untitled release',
-        totalTracks: nextProgress.totalTracks,
-      });
-
-      if (nextProgress.status === 'completed' || nextProgress.status === 'failed') {
-        setIsDownloading(false);
-        void queryClient.invalidateQueries({ queryKey: ['downloads'] });
-        eventSource.close();
-      }
-    };
-
-    eventSource.onerror = () => {
-      setIsDownloading(false);
-      onQueueUpdate?.({
-        message: 'Connection lost while tracking progress',
-        processedTracks: progress?.processedTracks ?? 0,
-        releaseId: release.id,
-        stage: 'failed',
-        status: 'failed',
-        title: release.title ?? 'Untitled release',
-        totalTracks: progress?.totalTracks ?? 0,
-      });
-      eventSource.close();
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, [jobId, onQueueUpdate, progress?.processedTracks, progress?.totalTracks, queryClient, release.id, release.title]);
 
   const [isOpen, setIsOpen] = useState(false);
   const { data: fullRelease, isLoading: isReleaseLoading } = useMBGetRelease({
@@ -157,13 +82,14 @@ export const ReleaseCard = ({ isDownloaded = false, onQueueUpdate, release }: Re
             type="button"
           >
             {isDownloaded && 'Downloaded'}
-            {!isDownloaded && isDownloading
+            {!isDownloaded && isQueued && 'Queued'}
+            {!isDownloaded && isDownloading && !isQueued
               && (
                 <span className="flex items-center gap-2">
                   <Spinner color="text-white" size="xs" />
                   <span>
-                    {progress
-                      ? `${progress.processedTracks}/${progress.totalTracks}`
+                    {queueItem
+                      ? `${queueItem.processedTracks}/${queueItem.totalTracks}`
                       : 'Starting'}
                   </span>
                 </span>
@@ -177,10 +103,10 @@ export const ReleaseCard = ({ isDownloaded = false, onQueueUpdate, release }: Re
           >
             {isOpen ? 'Hide tracks' : 'Show tracks'}
           </button>
-          {isDownloading && progress
+          {isDownloading && queueItem
             ? (
                 <p className="max-w-40 text-xs text-zinc-500">
-                  {progress.message ?? 'Working...'}
+                  {queueItem.message ?? 'Working...'}
                 </p>
               )
             : null}
