@@ -7,7 +7,7 @@ import { useDownloadedReleases } from 'services/api/queries/downloads';
 import { useMBQueryRelease } from 'services/mbApi';
 import { ReleaseCard } from './components/ReleaseCard';
 
-export const ReleasesSearch = () => {
+export const ReleaseSearch = () => {
   const [inputValue, setInputValue] = useState('');
   const [query, setQuery] = useState('');
 

@@ -1,5 +1,5 @@
-import { ReleasesSearch } from 'frontend/ReleaseQuery/ReleasesSearch';
+import { ReleaseSearch } from 'frontend/pages/ReleaseSearch/ReleasesSearch';
 
-const Home = () => <ReleasesSearch />;
+const Home = () => <ReleaseSearch />;
 
 export default Home;
