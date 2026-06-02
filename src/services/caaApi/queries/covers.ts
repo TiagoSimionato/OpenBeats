@@ -1,4 +1,4 @@
-import type { HookQueryOptions } from 'types/reactQuery';
+import type { HookQueryOptions } from 'frontend/types/reactQuery';
 import { useQuery } from '@tanstack/react-query';
 import { caaApi } from '..';
 
