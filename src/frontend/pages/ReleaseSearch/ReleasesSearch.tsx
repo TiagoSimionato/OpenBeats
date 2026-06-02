@@ -1,7 +1,6 @@
 'use client';
 
 import type { ScanDownloadedReleasesResponse } from 'backend/downloads/types';
-import type { FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
@@ -34,7 +33,7 @@ export const ReleaseSearch = () => {
   const { data: downloadsData } = useDownloadedReleases();
   const downloadedReleaseIds = new Set(downloadsData?.downloadedReleases.map(download => download.releaseId) ?? []);
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
     setQuery(inputValue.trim());
   };
