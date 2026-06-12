@@ -80,6 +80,7 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
         'MusicBrainz Artist Id': musicBrainzArtistId,
         'MusicBrainz Release Group Id': releaseGroup?.id ?? '',
         'MusicBrainz Release Track Id': trackId,
+        'MusicBrainz Track Id': track.recording?.id ?? '',
         'originalyear': Number.parseInt((release.date ?? '').slice(0, 4), 10) || 0,
         'publisher': firstLabel,
         'TDOR': release.date ?? '',
@@ -88,7 +89,6 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
         'track': track.position ?? 0,
         'Tracktotal': media['track-count'] ?? 0,
         'TSO2': artistSortLabel,
-        'TSRC': track.recording?.id ?? '',
       } satisfies Track;
     }) ?? [];
   }) ?? [];

@@ -17,6 +17,7 @@ export type Track = {
   'MusicBrainz Artist Id': string;
   'MusicBrainz Release Group Id': string;
   'MusicBrainz Release Track Id': string;
+  'MusicBrainz Track Id': string;
   'originalyear': number;
   'publisher': string;
   'TDOR': string;
@@ -25,7 +26,6 @@ export type Track = {
   'track': number;
   'Tracktotal': number;
   'TSO2': string;
-  'TSRC': string;
 };
 
 export type TrackSearchResult = {
