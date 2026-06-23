@@ -7,6 +7,7 @@ export const CONFIGS = {
   ALLOWED_DEV_ORIGINS: JSON.parse(process.env.ALLOWED_DEV_ORIGINS ?? ''),
   CACHE_PATH,
   COVERS_PATH: `${CACHE_PATH}/covers`,
+  DB_PATH: join(CACHE_PATH, `openbeats.db`),
   DOWNLOAD_PATH: process.env.DOWNLOAD_PATH ?? '/data',
   FFMPEG_BIN: process.env.FFMPEG_BIN ?? 'ffmpeg',
   FFPROBE_BIN: process.env.FFPROBE_BIN ?? 'ffprobe',

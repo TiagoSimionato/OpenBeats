@@ -1,13 +1,11 @@
 import type { DownloadedReleaseRecord } from './types';
-import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, readdir } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
-import { promisify } from 'node:util';
+import { execFileAsync } from 'backend/downloader/utils';
 import Database from 'better-sqlite3';
 import { CONFIGS } from 'configs';
 
-const execFileAsync = promisify(execFile);
 const AUDIO_FILE_EXTENSIONS = new Set([
   '.aac',
   '.flac',
@@ -36,8 +34,6 @@ let databasePromise: null | Promise<Database.Database> = null;
 let databaseInstance: Database.Database | null = null;
 let startupScanPromise: null | Promise<void> = null;
 
-const getDatabasePath = () => join(CONFIGS.CACHE_PATH, 'downloads.sqlite');
-
 const getCoverPathForRelease = (releaseId: string) => {
   const coverDir = resolve(CONFIGS.COVERS_PATH);
 
@@ -62,7 +58,7 @@ const getDatabase = async () => {
   databasePromise ??= (async () => {
     await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
 
-    const database = new Database(getDatabasePath());
+    const database = new Database(CONFIGS.DB_PATH);
     databaseInstance = database;
 
     database.exec(`
