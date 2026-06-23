@@ -2,7 +2,7 @@
 
 import type { ScanDownloadedReleasesResponse } from 'backend/downloads/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRescanDownloadedReleases } from 'services';
+import { useRescanDownloadedReleases } from 'frontend/services';
 import { Spinner } from './Spinner';
 
 export const ScanLibraryButton = () => {

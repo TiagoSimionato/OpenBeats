@@ -1,9 +1,9 @@
 'use client';
 
+import { useDownloadedReleases } from 'frontend/services/api/queries/downloads';
+import { useMBQueryRelease } from 'frontend/services/mbApi';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
-import { useDownloadedReleases } from 'services/api/queries/downloads';
-import { useMBQueryRelease } from 'services/mbApi';
 import { DownloadQueuePopup } from './components/DownloadQueuePopup';
 import { ReleaseCard } from './components/ReleaseCard';
 

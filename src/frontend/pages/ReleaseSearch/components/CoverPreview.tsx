@@ -1,7 +1,7 @@
 'use client';
 
+import { useCover } from 'frontend/services/caaApi/queries/covers';
 import Image from 'next/image';
-import { useCover } from 'services/caaApi/queries/covers';
 
 export const CoverPreview = ({
   releaseId,

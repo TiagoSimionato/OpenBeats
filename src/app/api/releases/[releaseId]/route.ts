@@ -1,5 +1,5 @@
 import type { DownloadJobProgress, ReleaseSearchResponse, StartDownloadResponse, Track, TrackSearchResult } from 'backend/downloader/types';
-import type { ReleaseResponse } from 'services/mbApi/types';
+import type { ReleaseResponse } from 'frontend/services/mbApi/types';
 import { dirname } from 'node:path';
 import { downloadReleaseCoverArt } from 'backend/downloader/coverArt';
 import { writeTrackMetadata } from 'backend/downloader/ffmpeg';
@@ -8,8 +8,8 @@ import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downlo
 import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
 import { upsertDownloadedRelease } from 'backend/downloads';
 import { withErrorHandler } from 'backend/exceptions/handler';
+import { mbApi } from 'frontend/services/mbApi';
 import { NextResponse } from 'next/server';
-import { mbApi } from 'services/mbApi';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

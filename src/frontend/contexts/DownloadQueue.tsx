@@ -1,9 +1,9 @@
 import type { DownloadJobProgress, DownloadJobStage, DownloadJobStatus } from 'backend/downloader/types';
+import type { QueryRelease } from 'frontend/services/mbApi/types';
 import type { PropsWithChildren } from 'react';
-import type { QueryRelease } from 'services/mbApi/types';
 import { useQueryClient } from '@tanstack/react-query';
+import { useDownloadRelease } from 'frontend/services/api/mutations/download';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDownloadRelease } from 'services/api/mutations/download';
 
 export type DownloadQueueItem = {
   jobId?: string;

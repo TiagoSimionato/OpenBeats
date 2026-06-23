@@ -1,10 +1,10 @@
 'use client';
 
-import type { QueryRelease } from 'services/mbApi/types';
+import type { QueryRelease } from 'frontend/services/mbApi/types';
 import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
+import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
-import { useMBGetRelease } from 'services/mbApi/queries/releases';
 import { CoverPreview } from './CoverPreview';
 
 type ReleaseCardProps = {
