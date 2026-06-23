@@ -1,0 +1,77 @@
+import type { Track } from './types';
+import { execFile } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { promisify } from 'node:util';
+import { CONFIGS } from 'configs';
+import { padTrack, sanitize } from './utils';
+
+const execFileAsync = promisify(execFile);
+
+export const searchYouTubeMusic = async (track: Track) => {
+  const query = `${track.title} - ${track.artist}`;
+
+  const { stdout } = await execFileAsync(CONFIGS.PYTHON_BIN, [
+    CONFIGS.YTMUSIC_SCRIPT_PATH,
+    query,
+    '1',
+  ], {
+    maxBuffer: 10 * 1024 * 1024,
+  });
+
+  return JSON.parse(stdout) as { query: string; videoId: string }[];
+};
+
+export const downloadTrackAudio = async ({
+  track,
+  videoId,
+}: {
+  track: Track;
+  videoId: string;
+}) => {
+  const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
+  await mkdir(absoluteLibraryPath, { recursive: true });
+
+  const albumArtist = sanitize(track.album_artist || 'Unknown Artist');
+  const album = sanitize(track.album || 'Unknown Album');
+  const title = sanitize(track.title || 'Untitled');
+  const trackNumber = padTrack(track.track);
+
+  const dir = join(absoluteLibraryPath, albumArtist, album);
+  await mkdir(dir, { recursive: true });
+
+  const outputTemplate = join(dir, `${trackNumber}. ${title}.%(ext)s`);
+
+  const { stdout } = await execFileAsync(CONFIGS.YT_DLP_BIN, [
+    '--ignore-errors',
+    '--format',
+    'bestaudio',
+    '--extract-audio',
+    '--audio-format',
+    'mp3',
+    '--audio-quality',
+    '160K',
+    '--output',
+    outputTemplate,
+    '--print',
+    'after_move:filepath',
+    `https://www.youtube.com/watch?v=${videoId}`,
+  ], {
+    maxBuffer: 10 * 1024 * 1024,
+  });
+
+  const output = stdout.trim();
+  const filePath = output
+    .split('\n')
+    .map(line => line.trim())
+    .findLast(line => line.length > 0);
+
+  if (!filePath) {
+    throw new Error('yt-dlp did not return a downloaded file path');
+  }
+
+  return {
+    filePath,
+    output,
+  };
+};

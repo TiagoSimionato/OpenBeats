@@ -1,6 +1,15 @@
 import type { ReleaseResponse, ReleaseTrack } from 'services/mbApi/types';
 import type { Track } from './types';
 
+export const sanitize = (s: string) =>
+  s
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[<>:"/\\|?*-]/g, '')
+    .replace(/\.+$/g, '');
+
+export const padTrack = (n: number) => String(n ?? 0).padStart(2, '0');
+
 export const getArtistLabel = (
   artistCredits: ReleaseResponse['artist-credit'] | ReleaseTrack['artist-credit'] | undefined,
 ) => {
@@ -35,7 +44,7 @@ export const getArtistSortLabel = (
 
 export const getTrackTitle = (track: ReleaseTrack) => track.title ?? track.recording?.title ?? 'Untitled track';
 
-export const getTrackId = (track: ReleaseTrack) =>
+const getTrackId = (track: ReleaseTrack) =>
   track.id ?? track.recording?.id ?? `${track.position ?? track.number ?? getTrackTitle(track)}`;
 
 export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Track[] => {

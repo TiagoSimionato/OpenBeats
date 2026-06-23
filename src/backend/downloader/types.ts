@@ -36,7 +36,6 @@ export type TrackSearchResult = {
   downloadOutput?: string;
   ffmpegError?: string;
   ffmpegOutput?: string;
-  query: string;
   results: unknown[];
   trackId: string;
   trackTitle: string;

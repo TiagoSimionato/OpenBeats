@@ -1,9 +1,11 @@
 import type { DownloadJobProgress, ReleaseSearchResponse, StartDownloadResponse, Track, TrackSearchResult } from 'backend/downloader/types';
 import type { ReleaseResponse } from 'services/mbApi/types';
 import { dirname } from 'node:path';
+import { downloadReleaseCoverArt } from 'backend/downloader/coverArt';
+import { writeTrackMetadata } from 'backend/downloader/ffmpeg';
 import { createDownloadJob, updateDownloadJob } from 'backend/downloader/jobs';
 import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
-import { downloadReleaseCoverArt, downloadTrackAudio, searchYouTubeMusic, writeTrackMetadata } from 'backend/downloader/youtube';
+import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
 import { upsertDownloadedRelease } from 'backend/downloads';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { NextResponse } from 'next/server';
@@ -52,7 +54,6 @@ const downloadReleaseAndCollect = async (
   const trackSearches: TrackSearchResult[] = [];
 
   for (const [index, track] of tracks.entries()) {
-    const query = `${track.title} - ${track.artist}`;
     const artist = track.artist;
     const processedTracks = index + 1;
 
@@ -64,7 +65,7 @@ const downloadReleaseAndCollect = async (
         stage: 'search',
       });
 
-      const results: { videoId: string }[] = await searchYouTubeMusic(query);
+      const results: { videoId: string }[] = await searchYouTubeMusic(track);
       const videoId = results[0]?.videoId;
 
       if (!videoId) {
@@ -100,7 +101,6 @@ const downloadReleaseAndCollect = async (
         downloadedFilePath: downloadResult.filePath,
         downloadOutput: downloadResult.output,
         ffmpegOutput,
-        query,
         results,
         trackId: track['MusicBrainz Release Track Id'],
         trackTitle: track.title,
@@ -114,7 +114,6 @@ const downloadReleaseAndCollect = async (
         artist,
         coverError: coverResult.coverError,
         coverFilePath: coverResult.coverFilePath,
-        query,
         results: [],
         trackId: track['MusicBrainz Release Track Id'],
         trackTitle: track.title,
