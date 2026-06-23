@@ -3,9 +3,6 @@ import { withErrorHandler } from 'backend/exceptions/handler';
 import { NotFoundError } from 'backend/exceptions/http';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 type RouteContext = {
   params: Promise<{
     releaseId: string;

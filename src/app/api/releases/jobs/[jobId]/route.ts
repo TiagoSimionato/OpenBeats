@@ -1,8 +1,5 @@
 import { jobService } from 'backend/services/jobs';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 type RouteContext = {
   params: Promise<{
     jobId: string;
