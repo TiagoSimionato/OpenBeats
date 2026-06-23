@@ -82,7 +82,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
     }, 4000);
   }, [clearRemovalTimer]);
 
-  const finalizeJob = useCallback((releaseId: string, status: DownloadJobStatus, fallbackProgress?: Pick<DownloadJobProgress, 'processedTracks' | 'totalTracks'>) => {
+  const finalizeJob = useCallback((releaseId: string, status: DownloadJobStatus, fallbackProgress?: Pick<DownloadJobProgress, 'processedTracks'>) => {
     if (activeReleaseIdRef.current !== releaseId) {
       return;
     }
@@ -93,7 +93,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
       processedTracks: fallbackProgress?.processedTracks ?? current.processedTracks,
       stage: status === 'failed' ? 'failed' : 'completed',
       status,
-      totalTracks: fallbackProgress?.totalTracks ?? current.totalTracks,
+      totalTracks: current.totalTracks,
     }));
 
     eventSourceRef.current?.close();
@@ -145,7 +145,6 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
             processedTracks: nextProgress.processedTracks,
             stage: nextProgress.stage,
             status: nextProgress.status,
-            totalTracks: nextProgress.totalTracks,
           }));
 
           if (isTerminalStatus(nextProgress.status)) {
@@ -156,7 +155,6 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
         eventSource.onerror = () => {
           finalizeJob(nextQueuedItem.releaseId, 'failed', {
             processedTracks: 0,
-            totalTracks: 0,
           });
         };
       })

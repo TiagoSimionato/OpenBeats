@@ -1,4 +1,4 @@
-import { getDownloadJobProgress, subscribeDownloadJob } from 'backend/downloader/jobs';
+import { jobService } from 'backend/services/jobs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,7 +11,7 @@ type RouteContext = {
 
 export const GET = async (_request: Request, { params }: RouteContext) => {
   const { jobId } = await params;
-  const initialProgress = getDownloadJobProgress(jobId);
+  const initialProgress = jobService.getDownloadJobProgress(jobId);
 
   if (!initialProgress) {
     return Response.json({
@@ -47,7 +47,7 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
         unsubscribe();
       };
 
-      unsubscribe = subscribeDownloadJob(jobId, (progress) => {
+      unsubscribe = jobService.subscribeDownloadJob(jobId, (progress) => {
         send(progress);
 
         if (progress.status === 'completed' || progress.status === 'failed') {

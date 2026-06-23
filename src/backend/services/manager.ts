@@ -3,10 +3,10 @@ import type { ReleaseResponse } from 'frontend/services/mbApi/types';
 import { dirname } from 'node:path';
 import { downloadReleaseCoverArt } from 'backend/downloader/coverArt';
 import { writeTrackMetadata } from 'backend/downloader/ffmpeg';
-import { createDownloadJob, updateDownloadJob } from 'backend/downloader/jobs';
 import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
 import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
 import { upsertDownloadedRelease } from 'backend/downloads';
+import { jobService } from 'backend/services/jobs';
 import { mbApi } from 'frontend/services/mbApi';
 
 const MUSICBRAINZ_RELEASE_INC = 'media+recordings+artist-credits+release-groups+labels+tags';
@@ -124,9 +124,9 @@ const downloadReleaseAndCollect = async (
 };
 
 const startDownloadJob = (releaseId: string): string => {
-  const jobId = createDownloadJob();
+  const jobId = jobService.createDownloadJob();
 
-  downloadReleaseAndCollect(releaseId, partial => updateDownloadJob(jobId, {
+  downloadReleaseAndCollect(releaseId, partial => jobService.updateDownloadJob(jobId, {
     ...partial,
     status: 'running',
   }))
@@ -150,7 +150,7 @@ const startDownloadJob = (releaseId: string): string => {
         }
       }
 
-      updateDownloadJob(jobId, {
+      jobService.updateDownloadJob(jobId, {
         message: 'Download completed',
         processedTracks: response.trackSearches.length,
         stage: 'completed',
@@ -158,7 +158,7 @@ const startDownloadJob = (releaseId: string): string => {
       });
     })
     .catch((error: unknown) => {
-      updateDownloadJob(jobId, {
+      jobService.updateDownloadJob(jobId, {
         error: error instanceof Error ? error.message : 'Unknown job failure',
         message: 'Download failed',
         stage: 'failed',
@@ -170,6 +170,5 @@ const startDownloadJob = (releaseId: string): string => {
 };
 
 export const libraryManagerService = {
-  downloadReleaseAndCollect,
   startDownloadJob,
 };

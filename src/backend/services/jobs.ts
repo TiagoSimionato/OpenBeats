@@ -1,4 +1,4 @@
-import type { DownloadJobProgress, DownloadJobStatus } from './types';
+import type { DownloadJobProgress, DownloadJobStatus } from '../downloader/types';
 import { randomUUID } from 'node:crypto';
 
 type DownloadJobSubscriber = (progress: DownloadJobProgress) => void;
@@ -8,10 +8,10 @@ type DownloadJobState = {
   progress: DownloadJobProgress;
 };
 
-const TERMINAL_STATUSES: DownloadJobStatus[] = [
+const TERMINAL_STATUSES: Set<DownloadJobStatus> = new Set([
   'completed',
   'failed',
-];
+]);
 
 const jobs = new Map<string, DownloadJobState>();
 
@@ -27,7 +27,7 @@ const emit = (jobId: string) => {
   }
 };
 
-export const createDownloadJob = () => {
+const createDownloadJob = () => {
   const jobId = randomUUID();
 
   jobs.set(jobId, {
@@ -43,9 +43,9 @@ export const createDownloadJob = () => {
   return jobId;
 };
 
-export const getDownloadJobProgress = (jobId: string) => jobs.get(jobId)?.progress;
+const getDownloadJobProgress = (jobId: string) => jobs.get(jobId)?.progress;
 
-export const updateDownloadJob = (
+const updateDownloadJob = (
   jobId: string,
   partial: Omit<Partial<DownloadJobProgress>, 'jobId'>,
 ) => {
@@ -63,14 +63,14 @@ export const updateDownloadJob = (
 
   emit(jobId);
 
-  if (job.progress.status && TERMINAL_STATUSES.includes(job.progress.status)) {
+  if (job.progress.status && TERMINAL_STATUSES.has(job.progress.status)) {
     setTimeout(() => {
       jobs.delete(jobId);
     }, 5 * 60 * 1000);
   }
 };
 
-export const subscribeDownloadJob = (
+const subscribeDownloadJob = (
   jobId: string,
   listener: DownloadJobSubscriber,
 ) => {
@@ -92,4 +92,11 @@ export const subscribeDownloadJob = (
 
     currentJob.listeners.delete(listener);
   };
+};
+
+export const jobService = {
+  createDownloadJob,
+  getDownloadJobProgress,
+  subscribeDownloadJob,
+  updateDownloadJob,
 };
