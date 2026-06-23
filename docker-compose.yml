@@ -10,6 +10,6 @@ services:
       - ${LIBRARY_PATH}/lostbeats:/data
       - ./lostbeats:/opt/lostbeats
     ports:
-      - "5334:5334"
+      - '5334:5334'
     env_file:
-    - .env
+      - .env
