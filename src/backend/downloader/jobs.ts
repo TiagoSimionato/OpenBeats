@@ -27,11 +27,7 @@ const emit = (jobId: string) => {
   }
 };
 
-export const createDownloadJob = ({
-  totalTracks,
-}: {
-  totalTracks: number;
-}) => {
+export const createDownloadJob = () => {
   const jobId = randomUUID();
 
   jobs.set(jobId, {
@@ -41,7 +37,6 @@ export const createDownloadJob = ({
       processedTracks: 0,
       stage: 'queued',
       status: 'running',
-      totalTracks,
     },
   });
 

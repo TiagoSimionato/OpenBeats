@@ -68,7 +68,6 @@ export type DownloadJobProgress = {
   processedTracks: number;
   stage: DownloadJobStage;
   status: DownloadJobStatus;
-  totalTracks: number;
 };
 
 export type StartDownloadResponse = {
