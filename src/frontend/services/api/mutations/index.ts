@@ -1,2 +1,2 @@
 export * from './download';
-export * from './scanDownloads';
+export * from './scanLibrary';

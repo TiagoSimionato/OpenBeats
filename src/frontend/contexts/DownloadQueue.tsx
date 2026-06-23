@@ -2,6 +2,7 @@ import type { DownloadJobProgress, DownloadJobStage, DownloadJobStatus } from 'b
 import type { QueryRelease } from 'frontend/services/mbApi/types';
 import type { PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { LIBRARY_QUERY_KEY } from 'frontend/services';
 import { useDownloadRelease } from 'frontend/services/api/mutations/download';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -99,7 +100,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
     eventSourceRef.current?.close();
     eventSourceRef.current = null;
     activeReleaseIdRef.current = null;
-    void queryClient.invalidateQueries({ queryKey: ['downloads'] });
+    void queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     scheduleRemoval(releaseId);
   }, [queryClient, scheduleRemoval, updateQueueItem]);
 

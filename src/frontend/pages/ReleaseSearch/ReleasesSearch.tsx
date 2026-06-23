@@ -1,6 +1,6 @@
 'use client';
 
-import { useDownloadedReleases } from 'frontend/services/api/queries/downloads';
+import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBQueryRelease } from 'frontend/services/mbApi';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
@@ -19,7 +19,7 @@ export const ReleaseSearch = () => {
   });
 
   const releases = data?.releases ?? [];
-  const { data: downloadsData } = useDownloadedReleases();
+  const { data: downloadsData } = useGetLibrary();
   const downloadedReleaseIds = new Set(downloadsData?.downloadedReleases.map(download => download.releaseId) ?? []);
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {

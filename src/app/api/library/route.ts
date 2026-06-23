@@ -1,4 +1,4 @@
-import { ensureDownloadIndexReady, listDownloadedReleases } from 'backend/downloads';
+import { listDownloadedReleases } from 'backend/downloads';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { NextResponse } from 'next/server';
 
@@ -10,7 +10,6 @@ type RouteContext = {
 };
 
 export const GET = withErrorHandler(async (_request: Request, _context: RouteContext) => {
-  await ensureDownloadIndexReady();
   const downloadedReleases = await listDownloadedReleases();
 
   return NextResponse.json({
