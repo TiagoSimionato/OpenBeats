@@ -34,3 +34,7 @@ export const withErrorHandler = <TContext = Record<string, never>>(
     throw error;
   }
 };
+
+export const throwError = (error: HttpError) => {
+  throw error;
+};

@@ -1,3 +1,5 @@
+import { withErrorHandler } from 'backend/exceptions/handler';
+import { NotFoundError } from 'backend/exceptions/http';
 import { jobService } from 'backend/services/jobs';
 
 type RouteContext = {
@@ -6,20 +8,12 @@ type RouteContext = {
   }>;
 };
 
-export const GET = async (_request: Request, { params }: RouteContext) => {
+export const GET = withErrorHandler(async (_request: Request, { params }: RouteContext) => {
   const { jobId } = await params;
-  const initialProgress = jobService.getDownloadJobProgress(jobId);
 
-  if (!initialProgress) {
-    return Response.json({
-      error: {
-        message: 'Download job not found',
-        status: 404,
-      },
-    }, {
-      status: 404,
-    });
-  }
+  const isJobFound = jobService.getDownloadJobProgress(jobId);
+  if (!isJobFound)
+    throw new NotFoundError('Job not found');
 
   const encoder = new TextEncoder();
   let cleanup = () => {};
@@ -68,4 +62,4 @@ export const GET = async (_request: Request, { params }: RouteContext) => {
       'Content-Type': 'text/event-stream',
     },
   });
-};
+});
