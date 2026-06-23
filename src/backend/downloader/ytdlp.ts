@@ -1,12 +1,8 @@
 import type { Track } from './types';
-import { execFile } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { promisify } from 'node:util';
 import { CONFIGS } from 'configs';
-import { padTrack, sanitize } from './utils';
-
-const execFileAsync = promisify(execFile);
+import { execFileAsync, padTrack, sanitize } from './utils';
 
 export const searchYouTubeMusic = async (track: Track) => {
   const query = `${track.title} - ${track.artist}`;

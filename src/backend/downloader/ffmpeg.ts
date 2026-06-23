@@ -1,11 +1,8 @@
 import type { Track } from './types';
-import { execFile } from 'node:child_process';
 import { rename } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
-import { promisify } from 'node:util';
 import { CONFIGS } from 'configs';
-
-const execFileAsync = promisify(execFile);
+import { execFileAsync } from './utils';
 
 export const writeTrackMetadata = async ({
   coverFilePath,
