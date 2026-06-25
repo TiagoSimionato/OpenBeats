@@ -1,21 +1,7 @@
+import type { CoverResponse } from 'common/types/requests/caaApi';
 import type { HookQueryOptions } from 'frontend/services/types';
 import { useQuery } from '@tanstack/react-query';
 import { caaApi } from 'common/api/caaApi';
-
-type CoverImage = {
-  front?: boolean;
-  image?: string;
-  thumbnails?: {
-    250?: string;
-    500?: string;
-    large?: string;
-    small?: string;
-  };
-};
-
-export type CoverResponse = {
-  images?: CoverImage[];
-};
 
 export const useCover = ({
   options,

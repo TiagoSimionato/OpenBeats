@@ -1,4 +1,4 @@
-import type { CoverResponse } from 'frontend/services/caaApi/queries/covers';
+import type { CoverResponse } from 'common/types/requests/caaApi';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { caaApi } from 'common/api/caaApi';
