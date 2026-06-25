@@ -1,4 +1,4 @@
-import type { DownloadedReleasesResponse as LibraryReleasesResponse } from 'backend/downloads/types';
+import type { LibraryReleasesResponse } from 'backend/downloads/types';
 import type { HookQueryOptions } from 'frontend/types/reactQuery';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '..';

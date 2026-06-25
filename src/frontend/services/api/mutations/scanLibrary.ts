@@ -1,4 +1,4 @@
-import type { ScanDownloadedReleasesResponse as LibraryReleasesResponse } from 'backend/downloads/types';
+import type { ScanLibraryReleasesResponse } from 'backend/downloads/types';
 import type { HookMutationOptions } from 'frontend/types/reactQuery';
 import type { RequestConfig } from '..';
 import { useMutation } from '@tanstack/react-query';
@@ -8,8 +8,8 @@ export const useScanLibrary = ({
   options,
 }: {
   configs?: RequestConfig;
-  options?: HookMutationOptions<void, LibraryReleasesResponse, unknown>;
+  options?: HookMutationOptions<void, ScanLibraryReleasesResponse, unknown>;
 } = {}) => useMutation({
-  mutationFn: () => api.post<LibraryReleasesResponse>('library/scan'),
+  mutationFn: () => api.post<ScanLibraryReleasesResponse>('library/scan'),
   ...options,
 });

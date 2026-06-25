@@ -19,8 +19,8 @@ export const ReleaseSearch = () => {
   });
 
   const releases = data?.releases ?? [];
-  const { data: downloadsData } = useGetLibrary();
-  const downloadedReleaseIds = new Set(downloadsData?.downloadedReleases.map(download => download.releaseId) ?? []);
+  const { data: libraryData } = useGetLibrary();
+  const libraryReleaseIds = new Set(libraryData?.libraryReleases?.map(download => download.releaseId) ?? []);
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
@@ -69,7 +69,7 @@ export const ReleaseSearch = () => {
               <ul className="space-y-2">
                 {releases.map(release => (
                   <ReleaseCard
-                    isDownloaded={downloadedReleaseIds.has(release.id)}
+                    isDownloaded={libraryReleaseIds.has(release.id)}
                     key={release.id}
                     release={release}
                   />

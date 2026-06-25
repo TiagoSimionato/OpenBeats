@@ -1,4 +1,4 @@
-export type DownloadedReleaseRecord = {
+export type LibraryReleaseRecord = {
   album: string;
   albumArtist: string;
   completedAt: string;
@@ -8,14 +8,14 @@ export type DownloadedReleaseRecord = {
   trackCount: number;
 };
 
-export type DownloadedReleasesResponse = {
-  downloadedReleases: DownloadedReleaseRecord[];
+export type LibraryReleasesResponse = {
+  libraryReleases: LibraryReleaseRecord[];
 };
 
-export type DownloadedReleaseResponse = {
-  downloadedRelease: DownloadedReleaseRecord;
+export type LibraryReleaseResponse = {
+  libraryRelease: LibraryReleaseRecord;
 };
 
-export type ScanDownloadedReleasesResponse = {
-  downloadedReleases: DownloadedReleaseRecord[];
+export type ScanLibraryReleasesResponse = {
+  libraryReleases: LibraryReleaseRecord[];
 };

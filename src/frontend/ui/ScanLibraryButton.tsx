@@ -1,6 +1,6 @@
 'use client';
 
-import type { ScanDownloadedReleasesResponse } from 'backend/downloads/types';
+import type { ScanLibraryReleasesResponse } from 'backend/downloads/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { LIBRARY_QUERY_KEY, useScanLibrary } from 'frontend/services';
 import { Spinner } from './Spinner';
@@ -9,7 +9,7 @@ export const ScanLibraryButton = () => {
   const queryClient = useQueryClient();
   const scanLibrary = useScanLibrary({
     options: {
-      onSuccess: async (_data: ScanDownloadedReleasesResponse) => {
+      onSuccess: async (_data: ScanLibraryReleasesResponse) => {
         await queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
       },
     },

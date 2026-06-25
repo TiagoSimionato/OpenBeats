@@ -1,5 +1,5 @@
-import type { ScanDownloadedReleasesResponse } from 'backend/downloads/types';
-import { rescanDownloadedReleases } from 'backend/downloads';
+import type { ScanLibraryReleasesResponse } from 'backend/downloads/types';
+import { scanLibraryReleases } from 'backend/downloads';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { NextResponse } from 'next/server';
 
@@ -8,9 +8,9 @@ type RouteContext = {
 };
 
 export const POST = withErrorHandler(async (_request: Request, _context: RouteContext) => {
-  const downloadedReleases = await rescanDownloadedReleases();
+  const libraryReleases = await scanLibraryReleases();
 
-  return NextResponse.json<ScanDownloadedReleasesResponse>({
-    downloadedReleases,
+  return NextResponse.json<ScanLibraryReleasesResponse>({
+    libraryReleases,
   });
 });

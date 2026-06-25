@@ -1,5 +1,5 @@
-import { ensureDownloadIndexReady } from 'backend/downloads';
+import { scanDownloadedReleasesFromDisk } from 'backend/downloads';
 
 export const register = async () => {
-  await ensureDownloadIndexReady();
+  await scanDownloadedReleasesFromDisk();
 };

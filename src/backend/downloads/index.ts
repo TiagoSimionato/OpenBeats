@@ -1,4 +1,4 @@
-import type { DownloadedReleaseRecord } from './types';
+import type { LibraryReleaseRecord } from './types';
 import { existsSync } from 'node:fs';
 import { mkdir, readdir } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
@@ -32,7 +32,6 @@ type ProbeResponse = {
 
 let databasePromise: null | Promise<Database.Database> = null;
 let databaseInstance: Database.Database | null = null;
-let startupScanPromise: null | Promise<void> = null;
 
 const getCoverPathForRelease = (releaseId: string) => {
   const coverDir = resolve(CONFIGS.COVERS_PATH);
@@ -123,7 +122,7 @@ const walkFiles = async (directoryPath: string): Promise<string[]> => {
   return filePaths;
 };
 
-export const upsertDownloadedRelease = async (record: DownloadedReleaseRecord) => {
+export const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
   const writeRecord = async () => {
     const database = await getDatabase();
 
@@ -183,7 +182,7 @@ export const listDownloadedReleases = async () => {
     ORDER BY completed_at DESC;
   `).all();
 
-  return rows as DownloadedReleaseRecord[];
+  return rows as LibraryReleaseRecord[];
 };
 
 export const getDownloadedRelease = async (releaseId: string) => {
@@ -201,7 +200,7 @@ export const getDownloadedRelease = async (releaseId: string) => {
     WHERE release_id = ?;
   `).get(releaseId);
 
-  return row as DownloadedReleaseRecord | undefined;
+  return row as LibraryReleaseRecord | undefined;
 };
 
 export const scanDownloadedReleasesFromDisk = async () => {
@@ -262,13 +261,7 @@ export const scanDownloadedReleasesFromDisk = async () => {
   await Promise.all(upsertStatements);
 };
 
-export const rescanDownloadedReleases = async () => {
+export const scanLibraryReleases = async () => {
   await scanDownloadedReleasesFromDisk();
   return await listDownloadedReleases();
-};
-
-export const ensureDownloadIndexReady = async () => {
-  startupScanPromise ??= scanDownloadedReleasesFromDisk();
-
-  return startupScanPromise;
 };
