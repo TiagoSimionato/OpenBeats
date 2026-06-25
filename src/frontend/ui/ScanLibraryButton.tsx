@@ -2,7 +2,8 @@
 
 import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
 import { useQueryClient } from '@tanstack/react-query';
-import { LIBRARY_QUERY_KEY, useScanLibrary } from 'frontend/services';
+import { useScanLibrary } from 'frontend/services/api/mutations/scanLibrary';
+import { LIBRARY_QUERY_KEY } from 'frontend/services/api/queries/library';
 import { Spinner } from './Spinner';
 
 export const ScanLibraryButton = () => {

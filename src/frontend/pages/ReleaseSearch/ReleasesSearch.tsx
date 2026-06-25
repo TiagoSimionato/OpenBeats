@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetLibrary } from 'frontend/services/api/queries/library';
-import { useMBQueryRelease } from 'frontend/services/mbApi/queries';
+import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { DownloadQueuePopup } from './components/DownloadQueuePopup';
