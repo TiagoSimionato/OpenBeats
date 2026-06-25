@@ -9,7 +9,7 @@ export type ErrorResponseBody = {
   };
 };
 
-export const toErrorResponse = (error: HttpError) => NextResponse.json<ErrorResponseBody>({
+const toErrorResponse = (error: HttpError) => NextResponse.json<ErrorResponseBody>({
   error: {
     code: error.code,
     message: error.message,
