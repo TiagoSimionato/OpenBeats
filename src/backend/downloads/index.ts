@@ -185,7 +185,7 @@ export const listDownloadedReleases = async () => {
   return rows as LibraryReleaseRecord[];
 };
 
-export const getDownloadedRelease = async (releaseId: string) => {
+export const getLibraryRelease = async (releaseId: string) => {
   const database = await getDatabase();
   const row = database.prepare(`
     SELECT

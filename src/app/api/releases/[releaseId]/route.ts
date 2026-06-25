@@ -10,14 +10,16 @@ type RouteContext = {
   }>;
 };
 
-export const POST = withErrorHandler(async (_request: Request, { params }: RouteContext) => {
-  const { releaseId } = await params;
+export const POST = withErrorHandler(
+  async (_request: Request, { params }: RouteContext): Promise<NextResponse<StartDownloadResponse>> => {
+    const { releaseId } = await params;
 
-  const jobId = libraryManagerService.startDownloadJob(releaseId);
+    const jobId = libraryManagerService.startDownloadJob(releaseId);
 
-  return NextResponse.json<StartDownloadResponse>({
-    jobId,
-  }, {
-    status: HttpStatusCode.Accepted,
-  });
-});
+    return NextResponse.json({
+      jobId,
+    }, {
+      status: HttpStatusCode.Accepted,
+    });
+  },
+);

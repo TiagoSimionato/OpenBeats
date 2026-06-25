@@ -7,10 +7,12 @@ type RouteContext = {
   params: Promise<Record<string, never>>;
 };
 
-export const POST = withErrorHandler(async (_request: Request, _context: RouteContext) => {
-  const libraryReleases = await scanLibraryReleases();
+export const POST = withErrorHandler(
+  async (_request: Request, _context: RouteContext): Promise<NextResponse<ScanLibraryReleasesResponse>> => {
+    const libraryReleases = await scanLibraryReleases();
 
-  return NextResponse.json<ScanLibraryReleasesResponse>({
-    libraryReleases,
-  });
-});
+    return NextResponse.json({
+      libraryReleases,
+    });
+  },
+);
