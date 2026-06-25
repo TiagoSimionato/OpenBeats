@@ -7,7 +7,7 @@ import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downlo
 import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
 import { upsertDownloadedRelease } from 'backend/downloads';
 import { jobService } from 'backend/services/jobs';
-import { mbApi } from 'frontend/services/mbApi';
+import { mbApi } from 'common/api/mbApi';
 
 const MUSICBRAINZ_RELEASE_INC = 'media+recordings+artist-credits+release-groups+labels+tags';
 

@@ -1,8 +1,8 @@
 import type { CoverResponse } from 'frontend/services/caaApi/queries/covers';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
+import { caaApi } from 'common/api/caaApi';
 import { CONFIGS } from 'configs';
-import { caaApi } from 'frontend/services/caaApi';
 
 const getCoverFileExtension = (sourcePathOrUrl: string) => extname(sourcePathOrUrl) || '.jpg';
 

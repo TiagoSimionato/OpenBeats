@@ -1,3 +1,3 @@
-import { GenericAPI } from 'frontend/services/api';
+import { GenericAPI } from './generic';
 
 export const caaApi = GenericAPI('https://coverartarchive.org/');

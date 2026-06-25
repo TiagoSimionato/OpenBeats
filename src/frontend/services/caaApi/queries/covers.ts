@@ -1,6 +1,6 @@
 import type { HookQueryOptions } from 'frontend/services/types';
 import { useQuery } from '@tanstack/react-query';
-import { caaApi } from '..';
+import { caaApi } from 'common/api/caaApi';
 
 type CoverImage = {
   front?: boolean;
