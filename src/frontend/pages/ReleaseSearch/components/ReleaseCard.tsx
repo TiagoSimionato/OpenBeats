@@ -1,6 +1,6 @@
 'use client';
 
-import type { QueryRelease } from 'frontend/services/mbApi/types';
+import type { QueryRelease } from 'common/types/requests/mbApi';
 import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Spinner } from 'frontend/ui/Spinner';

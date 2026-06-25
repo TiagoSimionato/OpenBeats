@@ -1,5 +1,5 @@
-import type { ScanLibraryReleasesResponse } from 'backend/downloads/types';
-import type { HookMutationOptions } from 'frontend/types/reactQuery';
+import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
+import type { HookMutationOptions } from 'frontend/services/types';
 import type { RequestConfig } from '..';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '..';

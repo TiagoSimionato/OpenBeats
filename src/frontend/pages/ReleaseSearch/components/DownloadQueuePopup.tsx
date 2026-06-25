@@ -1,4 +1,4 @@
-import type { DownloadJobStage, DownloadJobStatus } from 'backend/downloader/types';
+import type { DownloadJobStage, DownloadJobStatus } from 'common/types/requests/releases';
 import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
 import { Spinner } from 'frontend/ui/Spinner';
 

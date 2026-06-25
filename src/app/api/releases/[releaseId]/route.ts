@@ -1,4 +1,4 @@
-import type { StartDownloadResponse } from 'backend/downloader/types';
+import type { StartDownloadResponse } from 'common/types/requests/releases';
 import { HttpStatusCode } from 'axios';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { libraryManagerService } from 'backend/services/manager';

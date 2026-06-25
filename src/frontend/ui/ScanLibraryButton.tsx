@@ -1,6 +1,6 @@
 'use client';
 
-import type { ScanLibraryReleasesResponse } from 'backend/downloads/types';
+import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
 import { useQueryClient } from '@tanstack/react-query';
 import { LIBRARY_QUERY_KEY, useScanLibrary } from 'frontend/services';
 import { Spinner } from './Spinner';

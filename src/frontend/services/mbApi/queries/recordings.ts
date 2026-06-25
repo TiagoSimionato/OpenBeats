@@ -1,5 +1,5 @@
-import type { HookQueryOptions } from 'frontend/types/reactQuery';
-import type { QueryReleaseResponse, RecordingsResponse } from '../types';
+import type { QueryReleaseResponse, RecordingsResponse } from 'common/types/requests/mbApi';
+import type { HookQueryOptions } from 'frontend/services/types';
 import { useQuery } from '@tanstack/react-query';
 import { mbApi } from '../index';
 

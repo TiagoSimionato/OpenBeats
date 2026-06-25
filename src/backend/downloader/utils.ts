@@ -1,5 +1,5 @@
-import type { ReleaseResponse, ReleaseTrack } from 'frontend/services/mbApi/types';
-import type { Track } from './types';
+import type { ReleaseResponse, ReleaseTrack } from 'common/types/requests/mbApi';
+import type { Track } from 'common/types/requests/releases';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 

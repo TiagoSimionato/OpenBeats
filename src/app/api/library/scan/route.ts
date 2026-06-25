@@ -1,4 +1,4 @@
-import type { ScanLibraryReleasesResponse } from 'backend/downloads/types';
+import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
 import { scanLibraryReleases } from 'backend/downloads';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { NextResponse } from 'next/server';

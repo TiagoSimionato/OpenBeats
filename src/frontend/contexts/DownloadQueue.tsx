@@ -1,5 +1,5 @@
-import type { DownloadJobProgress, DownloadJobStage, DownloadJobStatus } from 'backend/downloader/types';
-import type { QueryRelease } from 'frontend/services/mbApi/types';
+import type { QueryRelease } from 'common/types/requests/mbApi';
+import type { DownloadJobProgress, DownloadJobStage, DownloadJobStatus } from 'common/types/requests/releases';
 import type { PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { LIBRARY_QUERY_KEY } from 'frontend/services';

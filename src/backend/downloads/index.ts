@@ -1,4 +1,4 @@
-import type { LibraryReleaseRecord } from './types';
+import type { LibraryReleaseRecord } from 'common/types/requests/library';
 import { existsSync } from 'node:fs';
 import { mkdir, readdir } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';

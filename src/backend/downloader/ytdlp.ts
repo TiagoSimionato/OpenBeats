@@ -1,4 +1,4 @@
-import type { Track } from './types';
+import type { Track } from 'common/types/requests/releases';
 import { mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { CONFIGS } from 'configs';

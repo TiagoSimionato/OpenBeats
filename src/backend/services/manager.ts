@@ -1,5 +1,5 @@
-import type { DownloadJobProgress, ReleaseSearchResponse, Track, TrackSearchResult } from 'backend/downloader/types';
-import type { ReleaseResponse } from 'frontend/services/mbApi/types';
+import type { ReleaseResponse } from 'common/types/requests/mbApi';
+import type { DownloadJobProgress, ReleaseSearchResponse, Track, TrackSearchResult } from 'common/types/requests/releases';
 import { dirname } from 'node:path';
 import { downloadReleaseCoverArt } from 'backend/downloader/coverArt';
 import { writeTrackMetadata } from 'backend/downloader/ffmpeg';

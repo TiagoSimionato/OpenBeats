@@ -1,4 +1,4 @@
-import type { ReleaseResponse } from 'frontend/services/mbApi/types';
+import type { ReleaseResponse } from 'common/types/requests/mbApi';
 
 export type Track = {
   'album': string;

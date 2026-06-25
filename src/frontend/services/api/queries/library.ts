@@ -1,5 +1,5 @@
-import type { LibraryReleasesResponse } from 'backend/downloads/types';
-import type { HookQueryOptions } from 'frontend/types/reactQuery';
+import type { LibraryReleasesResponse } from 'common/types/requests/library';
+import type { HookQueryOptions } from 'frontend/services/types';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '..';
 

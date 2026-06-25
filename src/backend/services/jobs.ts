@@ -1,4 +1,4 @@
-import type { DownloadJobProgress, DownloadJobStatus } from '../downloader/types';
+import type { DownloadJobProgress, DownloadJobStatus } from 'common/types/requests/releases';
 import { randomUUID } from 'node:crypto';
 
 type DownloadJobSubscriber = (progress: DownloadJobProgress) => void;

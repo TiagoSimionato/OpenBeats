@@ -1,4 +1,4 @@
-import type { Track } from './types';
+import type { Track } from 'common/types/requests/releases';
 import { rename } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { CONFIGS } from 'configs';
