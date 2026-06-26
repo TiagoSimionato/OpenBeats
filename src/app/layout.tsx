@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'LostBeats',
+  title: 'OpenBeats',
 };
 
 const RootLayout = ({

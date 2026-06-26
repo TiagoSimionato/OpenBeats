@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-const CACHE_PATH = process.env.CACHE_PATH ?? `/opt/lostbeats`;
+const CACHE_PATH = process.env.CACHE_PATH ?? `/opt/openbeats`;
 
 export const CONFIGS = {
   ALLOWED_DEV_ORIGINS: JSON.parse(process.env.ALLOWED_DEV_ORIGINS ?? ''),

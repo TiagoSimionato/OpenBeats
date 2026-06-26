@@ -1,4 +1,4 @@
-# LostBeats
+# OpenBeats
 
 The project goal is to provide a simple and pratical way to manage music libraries for self hosted systems by providing a modern and friendly web user interface.
 

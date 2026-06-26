@@ -2,7 +2,7 @@
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DOWNLOAD_PATH` | Path where tracks are going to be downloaded | /data |
-| `CACHE_PATH` | Path where cover arts and db information will be stored | /opt/lostbeats |
+| `CACHE_PATH` | Path where cover arts and db information will be stored | /opt/openbeats |
 | `FFMPEG_BIN` | Custom path for running the ffmpeg bin | none |
 | `FFPROBE_BIN` | Custom path for running the ffprobe bin  | none |
 | `PYTHON_BIN` | Custom path for running python  | none |
