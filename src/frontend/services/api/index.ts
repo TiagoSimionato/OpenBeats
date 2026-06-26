@@ -1,3 +1,3 @@
-import { createAPI } from 'common/api/createAPI';
+import { createAPI } from 'tsm-utils';
 
 export const api = createAPI('/api');

@@ -1,6 +1,6 @@
-import type { RequestConfig } from 'common/api/createAPI';
 import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
 import type { HookMutationOptions } from 'frontend/services/types';
+import type { RequestConfig } from 'tsm-utils';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '..';
 
