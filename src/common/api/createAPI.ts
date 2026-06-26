@@ -6,7 +6,7 @@ export type RequestConfig<D = unknown> = Pick<
   'headers' | 'params' | 'responseType'
 >;
 
-export const GenericAPI = (
+export const createAPI = (
   baseURL: string,
   configs?: Omit<CreateAxiosDefaults, 'baseURL'>,
 ) => {
@@ -79,5 +79,3 @@ export const GenericAPI = (
       .then(response => response.data),
   };
 };
-
-export const api = GenericAPI('/api');

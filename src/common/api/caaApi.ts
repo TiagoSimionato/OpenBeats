@@ -1,3 +1,3 @@
-import { GenericAPI } from './generic';
+import { createAPI } from './createAPI';
 
-export const caaApi = GenericAPI('https://coverartarchive.org/');
+export const caaApi = createAPI('https://coverartarchive.org/');

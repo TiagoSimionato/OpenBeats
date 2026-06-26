@@ -1,6 +1,6 @@
-import { GenericAPI } from './generic';
+import { createAPI } from './createAPI';
 
-export const mbApi = GenericAPI('https://musicbrainz.org/ws/2/', {
+export const mbApi = createAPI('https://musicbrainz.org/ws/2/', {
   params: {
     fmt: 'json',
   },

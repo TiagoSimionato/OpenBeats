@@ -1,3 +1,3 @@
-import { GenericAPI } from 'common/api/generic';
+import { createAPI } from 'common/api/createAPI';
 
-export const api = GenericAPI('/api');
+export const api = createAPI('/api');
