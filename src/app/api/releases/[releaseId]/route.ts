@@ -1,7 +1,7 @@
 import type { StartDownloadResponse } from 'common/types/requests/releases';
 import { HttpStatusCode } from 'axios';
 import { withErrorHandler } from 'backend/exceptions/handler';
-import { libraryManagerService } from 'backend/services/manager.service';
+import { libraryManagerService } from 'backend/services/libraryManager.service';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {

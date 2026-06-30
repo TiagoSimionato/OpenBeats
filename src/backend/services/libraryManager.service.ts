@@ -3,8 +3,8 @@ import type { DownloadJobProgress, ReleaseSearchResponse, Track, TrackSearchResu
 import { dirname } from 'node:path';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
+import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
-import { dbService } from 'backend/services/db.service';
 import { jobService } from 'backend/services/jobs.service';
 import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
@@ -134,7 +134,7 @@ const startDownloadJob = (releaseId: string): string => {
         const firstDownloadedTrack = response.trackSearches.find(trackSearch => trackSearch.downloadedFilePath);
 
         if (firstDownloadedTrack?.downloadedFilePath) {
-          await dbService.upsertDownloadedRelease({
+          await releasesRepository.upsertDownloadedRelease({
             album: response.release.title ?? 'Unknown Album',
             albumArtist: getArtistLabel(response.release['artist-credit']),
             completedAt: new Date().toISOString(),

@@ -1,6 +1,6 @@
 import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
 import { withErrorHandler } from 'backend/exceptions/handler';
-import { dbService } from 'backend/services/db.service';
+import { releasesRepository } from 'backend/repositories/releases.repository';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {
@@ -9,7 +9,7 @@ type RouteContext = {
 
 export const POST = withErrorHandler(
   async (_request: Request, _context: RouteContext): Promise<NextResponse<ScanLibraryReleasesResponse>> => {
-    const libraryReleases = await dbService.scanLibraryReleases();
+    const libraryReleases = await releasesRepository.scanLibraryReleases();
 
     return NextResponse.json({
       libraryReleases,
