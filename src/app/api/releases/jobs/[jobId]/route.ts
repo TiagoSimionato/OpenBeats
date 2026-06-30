@@ -16,45 +16,7 @@ export const GET = withErrorHandler(
     if (!isJobFound)
       throw new NotFoundError('Job not found');
 
-    const encoder = new TextEncoder();
-    let cleanup = () => {};
-
-    const stream = new ReadableStream<Uint8Array>({
-      cancel: () => {
-        cleanup();
-      },
-      start: (controller) => {
-        const send = (payload: unknown) => {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
-        };
-
-        let heartbeat: ReturnType<typeof setInterval> | undefined;
-        let unsubscribe = () => {};
-
-        cleanup = () => {
-          if (heartbeat) {
-            clearInterval(heartbeat);
-            heartbeat = undefined;
-          }
-          unsubscribe();
-        };
-
-        unsubscribe = jobService.subscribeDownloadJob(jobId, (progress) => {
-          send(progress);
-
-          if (progress.status === 'completed' || progress.status === 'failed') {
-            cleanup();
-            controller.close();
-          }
-        });
-
-        heartbeat = setInterval(() => {
-          controller.enqueue(encoder.encode(':keepalive\n\n'));
-        }, 15000);
-
-        controller.enqueue(encoder.encode(':connected\n\n'));
-      },
-    });
+    const stream = jobService.stream(jobId);
 
     return new Response(stream, {
       headers: {

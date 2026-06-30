@@ -94,9 +94,53 @@ const subscribeDownloadJob = (
   };
 };
 
+const stream = (jobId: string) => {
+  const encoder = new TextEncoder();
+  let cleanup = () => {};
+  const stream = new ReadableStream<Uint8Array>({
+    cancel: () => {
+      cleanup();
+    },
+    start: (controller) => {
+      const send = (payload: unknown) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+      };
+
+      let heartbeat: ReturnType<typeof setInterval> | undefined;
+      let unsubscribe = () => {};
+
+      cleanup = () => {
+        if (heartbeat) {
+          clearInterval(heartbeat);
+          heartbeat = undefined;
+        }
+        unsubscribe();
+      };
+
+      unsubscribe = subscribeDownloadJob(jobId, (progress) => {
+        send(progress);
+
+        if (progress.status === 'completed' || progress.status === 'failed') {
+          cleanup();
+          controller.close();
+        }
+      });
+
+      heartbeat = setInterval(() => {
+        controller.enqueue(encoder.encode(':keepalive\n\n'));
+      }, 15000);
+
+      controller.enqueue(encoder.encode(':connected\n\n'));
+    },
+  });
+
+  return stream;
+};
+
 export const jobService = {
   createDownloadJob,
   getDownloadJobProgress,
+  stream,
   subscribeDownloadJob,
   updateDownloadJob,
 };
