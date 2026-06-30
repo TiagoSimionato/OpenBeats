@@ -2,9 +2,9 @@ import type { LibraryReleaseRecord } from 'common/types/requests/library';
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { getCoverFilePath } from 'backend/downloader/coverArt';
-import { probeAudioFile } from 'backend/downloader/ffprobe';
-import { isAudioFile, walkFiles } from 'backend/downloader/utils';
+import { probeAudioFile } from 'backend/binaries/ffprobe';
+import { coverArtService } from 'backend/services/coverArt.service';
+import { isAudioFile, walkFiles } from 'backend/utils';
 import Database from 'better-sqlite3';
 import { CONFIGS } from 'configs';
 
@@ -20,16 +20,15 @@ const getDatabase = async () => {
   databaseInstance = database;
 
   database.exec(`
-      CREATE TABLE IF NOT EXISTS downloaded_releases (
-        release_id TEXT PRIMARY KEY,
-        album TEXT NOT NULL,
-        album_artist TEXT NOT NULL,
-        download_path TEXT NOT NULL,
-        cover_path TEXT,
-        track_count INTEGER NOT NULL,
-        completed_at TEXT NOT NULL
-      );
-    `);
+    CREATE TABLE IF NOT EXISTS downloaded_releases (
+      release_id TEXT PRIMARY KEY,
+      album TEXT NOT NULL,
+      album_artist TEXT NOT NULL,
+      download_path TEXT NOT NULL,
+      cover_path TEXT,
+      track_count INTEGER NOT NULL,
+      completed_at TEXT NOT NULL
+    );`);
 
   return database;
 };
@@ -133,15 +132,7 @@ const scanReleasesFromDisk = async () => {
   }
 
   const files = await walkFiles(downloadPath);
-  const releaseBuckets = new Map<string, {
-    album: string;
-    albumArtist: string;
-    completedAt: string;
-    coverPath?: string;
-    downloadPath: string;
-    releaseId: string;
-    trackCount: number;
-  }>();
+  const libraryReleases = new Map<string, LibraryReleaseRecord>();
 
   for (const filePath of files) {
     if (!isAudioFile(filePath)) {
@@ -157,11 +148,11 @@ const scanReleasesFromDisk = async () => {
         continue;
       }
 
-      const current = releaseBuckets.get(releaseId) ?? {
+      const current = libraryReleases.get(releaseId) ?? {
         album: tags.album ?? '',
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         completedAt: new Date().toISOString(),
-        coverPath: await getCoverFilePath(releaseId),
+        coverPath: await coverArtService.getCoverFilePath(releaseId),
         downloadPath: dirname(filePath),
         releaseId,
         trackCount: 0,
@@ -169,17 +160,17 @@ const scanReleasesFromDisk = async () => {
 
       current.album = current.album || tags.album || '';
       current.albumArtist = current.albumArtist || tags.album_artist || tags.artist || '';
-      current.coverPath = current.coverPath || await getCoverFilePath(releaseId);
+      current.coverPath = current.coverPath || await coverArtService.getCoverFilePath(releaseId);
       current.downloadPath = dirname(filePath);
       current.trackCount += 1;
-      releaseBuckets.set(releaseId, current);
+      libraryReleases.set(releaseId, current);
     }
     catch {
       // Skip unreadable or unsupported files during startup backfill.
     }
   }
 
-  const upsertStatements = [...releaseBuckets.values()].map(record => upsertDownloadedRelease(record));
+  const upsertStatements = [...libraryReleases.values()].map(record => upsertDownloadedRelease(record));
   await Promise.all(upsertStatements);
 };
 

@@ -6,7 +6,7 @@ import { CONFIGS } from 'configs';
 
 const getCoverFileExtension = (sourcePathOrUrl: string) => extname(sourcePathOrUrl) || '.jpg';
 
-export const getCoverFilePath = async (releaseId: string) => {
+const getCoverFilePath = async (releaseId: string) => {
   const coverDir = resolve(CONFIGS.COVERS_PATH);
   let entries;
 
@@ -22,7 +22,7 @@ export const getCoverFilePath = async (releaseId: string) => {
   return existingCoverEntry ? join(coverDir, existingCoverEntry.name) : undefined;
 };
 
-export const downloadReleaseCoverArt = async (releaseId: string) => {
+const getReleaseCoverArt = async (releaseId: string) => {
   const existingCoverFilePath = await getCoverFilePath(releaseId);
 
   if (existingCoverFilePath) {
@@ -56,4 +56,9 @@ export const downloadReleaseCoverArt = async (releaseId: string) => {
   return {
     coverFilePath,
   };
+};
+
+export const coverArtService = {
+  getCoverFilePath,
+  getReleaseCoverArt,
 };

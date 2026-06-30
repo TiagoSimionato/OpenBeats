@@ -1,8 +1,8 @@
 import type { Track } from 'common/types/requests/releases';
 import { mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { execFileAsync, padTrack, sanitize } from 'backend/utils';
 import { CONFIGS } from 'configs';
-import { execFileAsync, padTrack, sanitize } from './utils';
 
 export const searchYouTubeMusic = async (track: Track) => {
   const query = `${track.title} - ${track.artist}`;
@@ -18,7 +18,7 @@ export const searchYouTubeMusic = async (track: Track) => {
   return JSON.parse(stdout) as { query: string; videoId: string }[];
 };
 
-export const downloadTrackAudio = async ({
+export const runYtdlp = async ({
   track,
   videoId,
 }: {

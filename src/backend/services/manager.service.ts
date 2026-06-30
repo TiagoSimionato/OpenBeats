@@ -1,12 +1,12 @@
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { DownloadJobProgress, ReleaseSearchResponse, Track, TrackSearchResult } from 'common/types/requests/releases';
 import { dirname } from 'node:path';
-import { downloadReleaseCoverArt } from 'backend/downloader/coverArt';
-import { writeTrackMetadata } from 'backend/downloader/ffmpeg';
-import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
-import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
+import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
+import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
+import { coverArtService } from 'backend/services/coverArt.service';
 import { dbService } from 'backend/services/db.service';
 import { jobService } from 'backend/services/jobs.service';
+import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 
 const downloadReleaseAndCollect = async (
@@ -26,7 +26,7 @@ const downloadReleaseAndCollect = async (
   const coverResult: {
     coverError?: string;
     coverFilePath?: string;
-  } = await downloadReleaseCoverArt(releaseId)
+  } = await coverArtService.getReleaseCoverArt(releaseId)
     .then(({ coverFilePath }) => ({
       coverFilePath,
     }))
@@ -63,7 +63,7 @@ const downloadReleaseAndCollect = async (
         stage: 'download',
       });
 
-      const downloadResult: Awaited<ReturnType<typeof downloadTrackAudio>> = await downloadTrackAudio({ track, videoId });
+      const downloadResult: Awaited<ReturnType<typeof runYtdlp>> = await runYtdlp({ track, videoId });
 
       onProgress?.({
         currentTrackTitle: track.title,

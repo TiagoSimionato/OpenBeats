@@ -1,5 +1,5 @@
+import { execFileAsync } from 'backend/utils';
 import { CONFIGS } from 'configs';
-import { execFileAsync } from './utils';
 
 type ProbeTags = {
   'album'?: string;
