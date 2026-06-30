@@ -1021,7 +1021,7 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-axios@^1.16.1, axios@^1.18.1:
+axios@^1.18.1:
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.18.1.tgz#d63f9863bcd8938815c86f9e2abd380189d96dfe"
   integrity sha512-3nTvFlvpn9Zu/RkHUqtc7/+al4UpRW5az71ap5zccp6e8RAYEzhMTecX8Dz1wWDYrPpUoB1HAQEGEAEvUr7S9g==
@@ -3410,13 +3410,12 @@ tslib@^2.4.0, tslib@^2.8.0, tslib@^2.8.1:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.8.1.tgz#612efe4ed235d567e8aba5f2a5fab70280ade83f"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
 
-tsm-utils@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/tsm-utils/-/tsm-utils-0.3.4.tgz#78ca9452366c8d6bbd28961de1a8fedba90b9264"
-  integrity sha512-xd1YoX3GPhxH8135Rx5SCiqu3cvIMF0Yl7dBuvOd98OklEWtyRd+/wOHvT8PABHxvvKcTFfupHv2Wj+8J4zdTw==
+tsm-utils@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/tsm-utils/-/tsm-utils-0.4.0.tgz#18917ea48c7c31b2207bcecb1bef68a6488259db"
+  integrity sha512-J5iB7+ZfNpJUX5qnvp1NQUhCF4IL8iTNbvavz9wXKF7SowR3tQJkew6fw+0cLDKof4P1r9YsdduUPKO3qDKadw==
   dependencies:
     "@antfu/eslint-config" "^9.1.0"
-    axios "^1.18.1"
     eslint "^9.7"
     eslint-plugin-prefer-arrow-functions "^3.9.1"
 
