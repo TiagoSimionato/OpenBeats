@@ -1,132 +1,67 @@
 import type { LibraryReleaseRecord } from 'common/types/requests/library';
 import { existsSync } from 'node:fs';
-import { mkdir, readdir } from 'node:fs/promises';
-import { dirname, extname, join, resolve } from 'node:path';
-import { execFileAsync } from 'backend/downloader/utils';
+import { mkdir } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { getCoverFilePath } from 'backend/downloader/coverArt';
+import { probeAudioFile } from 'backend/downloader/ffprobe';
+import { isAudioFile, walkFiles } from 'backend/downloader/utils';
 import Database from 'better-sqlite3';
 import { CONFIGS } from 'configs';
 
-const AUDIO_FILE_EXTENSIONS = new Set([
-  '.aac',
-  '.flac',
-  '.m4a',
-  '.mp3',
-  '.ogg',
-  '.opus',
-  '.wav',
-]);
-
-type ProbeTags = {
-  'album'?: string;
-  'album_artist'?: string;
-  'artist'?: string;
-  'MusicBrainz Album Artist Id'?: string;
-  'MusicBrainz Album Id'?: string;
-};
-
-type ProbeResponse = {
-  format?: {
-    tags?: ProbeTags;
-  };
-};
-
-let databasePromise: null | Promise<Database.Database> = null;
 let databaseInstance: Database.Database | null = null;
 
-const getCoverPathForRelease = (releaseId: string) => {
-  const coverDir = resolve(CONFIGS.COVERS_PATH);
-
-  if (!existsSync(coverDir)) {
-    return undefined;
-  }
-
-  const candidates = ['.jpg', '.jpeg', '.png', '.webp'];
-
-  for (const extension of candidates) {
-    const candidate = join(coverDir, `${releaseId}${extension}`);
-
-    if (existsSync(candidate)) {
-      return candidate;
-    }
-  }
-
-  return undefined;
-};
-
 const getDatabase = async () => {
-  databasePromise ??= (async () => {
-    await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
+  if (databaseInstance !== null)
+    return databaseInstance;
 
-    const database = new Database(CONFIGS.DB_PATH);
-    databaseInstance = database;
+  await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
 
-    database.exec(`
-        CREATE TABLE IF NOT EXISTS downloaded_releases (
-          release_id TEXT PRIMARY KEY,
-          album TEXT NOT NULL,
-          album_artist TEXT NOT NULL,
-          download_path TEXT NOT NULL,
-          cover_path TEXT,
-          track_count INTEGER NOT NULL,
-          completed_at TEXT NOT NULL
-        );
-      `);
+  const database = new Database(CONFIGS.DB_PATH);
+  databaseInstance = database;
 
-    return database;
-  })();
+  database.exec(`
+      CREATE TABLE IF NOT EXISTS downloaded_releases (
+        release_id TEXT PRIMARY KEY,
+        album TEXT NOT NULL,
+        album_artist TEXT NOT NULL,
+        download_path TEXT NOT NULL,
+        cover_path TEXT,
+        track_count INTEGER NOT NULL,
+        completed_at TEXT NOT NULL
+      );
+    `);
 
-  return databasePromise;
+  return database;
 };
 
 const resetDatabase = async () => {
   databaseInstance?.close();
   databaseInstance = null;
-  databasePromise = null;
   await getDatabase();
 };
 
-const probeAudioFile = async (filePath: string) => {
-  const { stdout } = await execFileAsync(CONFIGS.FFPROBE_BIN, [
-    '-v',
-    'quiet',
-    '-print_format',
-    'json',
-    '-show_format',
-    filePath,
-  ], {
-    maxBuffer: 10 * 1024 * 1024,
-  });
-
-  return JSON.parse(stdout) as ProbeResponse;
-};
-
-const isAudioFile = (filePath: string) => AUDIO_FILE_EXTENSIONS.has(extname(filePath).toLowerCase());
-
-const walkFiles = async (directoryPath: string): Promise<string[]> => {
-  const entries = await readdir(directoryPath, { withFileTypes: true });
-  const filePaths: string[] = [];
-
-  for (const entry of entries) {
-    const entryPath = join(directoryPath, entry.name);
-
-    if (entry.isDirectory()) {
-      filePaths.push(...await walkFiles(entryPath));
-      continue;
-    }
-
-    if (entry.isFile()) {
-      filePaths.push(entryPath);
-    }
-  }
-
-  return filePaths;
-};
-
-export const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
-  const writeRecord = async () => {
+const dbExec = async (statement: string, obj: unknown) => {
+  const execStatement = async () => {
     const database = await getDatabase();
 
-    database.prepare(`
+    database.prepare(statement).run(obj);
+  };
+
+  try {
+    await execStatement();
+  }
+  catch (error) {
+    if ((error as { code?: string }).code !== 'SQLITE_READONLY_DBMOVED') {
+      throw error;
+    }
+
+    await resetDatabase();
+    await execStatement();
+  }
+};
+
+const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
+  dbExec(`
       INSERT INTO downloaded_releases (
         release_id,
         album,
@@ -151,23 +86,10 @@ export const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
         cover_path = excluded.cover_path,
         track_count = excluded.track_count,
         completed_at = excluded.completed_at;
-    `).run(record);
-  };
-
-  try {
-    await writeRecord();
-  }
-  catch (error) {
-    if ((error as { code?: string }).code !== 'SQLITE_READONLY_DBMOVED') {
-      throw error;
-    }
-
-    await resetDatabase();
-    await writeRecord();
-  }
+    `, record);
 };
 
-export const listDownloadedReleases = async () => {
+const listDownloadedReleases = async () => {
   const database = await getDatabase();
   const rows = database.prepare(`
     SELECT
@@ -185,7 +107,7 @@ export const listDownloadedReleases = async () => {
   return rows as LibraryReleaseRecord[];
 };
 
-export const getLibraryRelease = async (releaseId: string) => {
+const getLibraryRelease = async (releaseId: string) => {
   const database = await getDatabase();
   const row = database.prepare(`
     SELECT
@@ -203,7 +125,7 @@ export const getLibraryRelease = async (releaseId: string) => {
   return row as LibraryReleaseRecord | undefined;
 };
 
-export const scanDownloadedReleasesFromDisk = async () => {
+const scanReleasesFromDisk = async () => {
   const downloadPath = resolve(CONFIGS.DOWNLOAD_PATH);
 
   if (!existsSync(downloadPath)) {
@@ -239,7 +161,7 @@ export const scanDownloadedReleasesFromDisk = async () => {
         album: tags.album ?? '',
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         completedAt: new Date().toISOString(),
-        coverPath: getCoverPathForRelease(releaseId),
+        coverPath: await getCoverFilePath(releaseId),
         downloadPath: dirname(filePath),
         releaseId,
         trackCount: 0,
@@ -247,7 +169,7 @@ export const scanDownloadedReleasesFromDisk = async () => {
 
       current.album = current.album || tags.album || '';
       current.albumArtist = current.albumArtist || tags.album_artist || tags.artist || '';
-      current.coverPath = current.coverPath || getCoverPathForRelease(releaseId);
+      current.coverPath = current.coverPath || await getCoverFilePath(releaseId);
       current.downloadPath = dirname(filePath);
       current.trackCount += 1;
       releaseBuckets.set(releaseId, current);
@@ -261,7 +183,16 @@ export const scanDownloadedReleasesFromDisk = async () => {
   await Promise.all(upsertStatements);
 };
 
-export const scanLibraryReleases = async () => {
-  await scanDownloadedReleasesFromDisk();
+const scanLibraryReleases = async () => {
+  await scanReleasesFromDisk();
   return await listDownloadedReleases();
+};
+
+export const dbService = {
+  getDatabase,
+  getLibraryRelease,
+  listDownloadedReleases,
+  scanLibraryReleases,
+  scanReleasesFromDisk,
+  upsertDownloadedRelease,
 };

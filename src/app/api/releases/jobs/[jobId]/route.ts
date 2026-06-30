@@ -1,6 +1,6 @@
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { NotFoundError } from 'backend/exceptions/http';
-import { jobService } from 'backend/services/jobs';
+import { jobService } from 'backend/services/jobs.service';
 
 type RouteContext = {
   params: Promise<{

@@ -5,8 +5,8 @@ import { downloadReleaseCoverArt } from 'backend/downloader/coverArt';
 import { writeTrackMetadata } from 'backend/downloader/ffmpeg';
 import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downloader/utils';
 import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
-import { upsertDownloadedRelease } from 'backend/downloads';
-import { jobService } from 'backend/services/jobs';
+import { dbService } from 'backend/services/db.service';
+import { jobService } from 'backend/services/jobs.service';
 import { mbApi } from 'common/api/mbApi';
 
 const MUSICBRAINZ_RELEASE_INC = 'media+recordings+artist-credits+release-groups+labels+tags';
@@ -138,7 +138,7 @@ const startDownloadJob = (releaseId: string): string => {
         const firstDownloadedTrack = response.trackSearches.find(trackSearch => trackSearch.downloadedFilePath);
 
         if (firstDownloadedTrack?.downloadedFilePath) {
-          await upsertDownloadedRelease({
+          await dbService.upsertDownloadedRelease({
             album: response.release.title ?? 'Unknown Album',
             albumArtist: getArtistLabel(response.release['artist-credit']),
             completedAt: new Date().toISOString(),
