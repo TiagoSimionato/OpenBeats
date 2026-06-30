@@ -1,7 +1,7 @@
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { HookQueryOptions } from 'tsm-utils';
 import { useQuery } from '@tanstack/react-query';
-import { mbApi } from 'common/api/mbApi';
+import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 
 const MUSICBRAINZ_QUERY_QUEY = [
   'musicbrainz',
@@ -22,9 +22,7 @@ export const useMBGetRelease = <Response = ReleaseResponse, TError = Error>({
   useQuery<Response, TError>({
     queryFn: () =>
       mbApi.get<Response>(`release/${releaseId}`, {
-        params: {
-          inc: 'media+recordings+artist-credits+release-groups+labels',
-        },
+        params: MUSICBRAINZ_RELEASE_PARAMS,
       }),
     queryKey: [
       ...MUSICBRAINZ_RELEASE_QUERY_QUEY,

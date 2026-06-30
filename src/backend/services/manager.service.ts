@@ -7,18 +7,14 @@ import { getArtistLabel, mapReleaseTracksToDownloadTracks } from 'backend/downlo
 import { downloadTrackAudio, searchYouTubeMusic } from 'backend/downloader/ytdlp';
 import { dbService } from 'backend/services/db.service';
 import { jobService } from 'backend/services/jobs.service';
-import { mbApi } from 'common/api/mbApi';
-
-const MUSICBRAINZ_RELEASE_INC = 'media+recordings+artist-credits+release-groups+labels+tags';
+import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 
 const downloadReleaseAndCollect = async (
   releaseId: string,
   onProgress?: (progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void,
 ) => {
   const release = await mbApi.get<ReleaseResponse>(`release/${releaseId}`, {
-    params: {
-      inc: MUSICBRAINZ_RELEASE_INC,
-    },
+    params: MUSICBRAINZ_RELEASE_PARAMS,
   });
   const tracks: Track[] = mapReleaseTracksToDownloadTracks(release);
 
