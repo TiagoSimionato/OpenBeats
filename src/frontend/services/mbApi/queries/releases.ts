@@ -1,5 +1,5 @@
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
-import type { HookQueryOptions } from 'frontend/services/types';
+import type { HookQueryOptions } from 'tsm-utils';
 import { useQuery } from '@tanstack/react-query';
 import { mbApi } from 'common/api/mbApi';
 
@@ -12,16 +12,16 @@ const MUSICBRAINZ_RELEASE_QUERY_QUEY = [
   'release',
 ];
 
-export const useMBGetRelease = ({
+export const useMBGetRelease = <Response = ReleaseResponse, TError = Error>({
   options,
   releaseId,
 }: {
-  options?: HookQueryOptions<ReleaseResponse>;
+  options?: HookQueryOptions<Response, TError>;
   releaseId: string;
 }) =>
-  useQuery({
+  useQuery<Response, TError>({
     queryFn: () =>
-      mbApi.get<ReleaseResponse>(`release/${releaseId}`, {
+      mbApi.get<Response>(`release/${releaseId}`, {
         params: {
           inc: 'media+recordings+artist-credits+release-groups+labels',
         },

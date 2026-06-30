@@ -1,16 +1,16 @@
 import type { StartDownloadResponse } from 'common/types/requests/releases';
-import type { HookMutationOptions } from 'frontend/services/types';
-import type { RequestConfig } from 'tsm-utils';
+import type { HookMutationOptions, RequestConfig } from 'tsm-utils';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '..';
 
-export const useDownloadRelease = ({
+export const useDownloadRelease = <Resquest extends string, Response = StartDownloadResponse, Error = unknown>({
+  configs,
   options,
 }: {
   configs?: RequestConfig;
-  options?: HookMutationOptions<string, StartDownloadResponse, unknown>;
-} = {}) => useMutation({
+  options?: HookMutationOptions<Resquest, Response, Error>;
+} = {}) => useMutation<Response, Error, Request>({
   mutationFn: (releaseId: string) =>
-    api.post<StartDownloadResponse>(`releases/${releaseId}`),
+    api.post<Response>(`releases/${releaseId}`, {}, configs),
   ...options,
 });
