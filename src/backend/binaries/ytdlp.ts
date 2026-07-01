@@ -15,7 +15,11 @@ export const searchYouTubeMusic = async (track: Track) => {
     maxBuffer: 10 * 1024 * 1024,
   });
 
-  return JSON.parse(stdout) as { query: string; videoId: string }[];
+  const result = JSON.parse(stdout) as { videoId: string }[];
+
+  console.log(`ytmusic: query [${query}] returned ${result.length} result with main [${result[0].videoId}]`);
+
+  return result;
 };
 
 export const runYtdlp = async ({
@@ -65,6 +69,8 @@ export const runYtdlp = async ({
   if (!filePath) {
     throw new Error('yt-dlp did not return a downloaded file path');
   }
+
+  console.log(`ytdlp: New file at: [${output}]`);
 
   return {
     filePath,
