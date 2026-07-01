@@ -1,5 +1,1 @@
-import { ReleaseSearch } from 'frontend/pages/ReleaseSearch/ReleasesSearch';
-
-const Home = () => <ReleaseSearch />;
-
-export default Home;
+export { ReleaseSearch as default } from 'frontend/pages/ReleaseSearch/ReleasesSearch';

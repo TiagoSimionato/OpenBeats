@@ -10,7 +10,6 @@ export const useDownloadRelease = <Resquest extends string, Response = StartDown
   configs?: RequestConfig;
   options?: HookMutationOptions<Resquest, Response, Error>;
 } = {}) => useMutation<Response, Error, Request>({
-  mutationFn: (releaseId: string) =>
-    api.post<Response>(`releases/${releaseId}`, {}, configs),
+  mutationFn: (releaseId: string) => api.post<Response>(`releases/${releaseId}`, {}, configs),
   ...options,
 });
