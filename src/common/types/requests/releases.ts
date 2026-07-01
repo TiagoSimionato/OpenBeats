@@ -1,5 +1,3 @@
-import type { ReleaseResponse } from 'common/types/requests/mbApi';
-
 export type Track = {
   'album': string;
   'album_artist': string;
@@ -29,24 +27,8 @@ export type Track = {
 };
 
 export type TrackSearchResult = {
-  artist: string;
-  coverError?: string;
   coverFilePath?: string;
-  downloadedFilePath?: string;
-  downloadOutput?: string;
-  ffmpegError?: string;
-  ffmpegOutput?: string;
-  results: unknown[];
-  trackId: string;
-  trackTitle: string;
-  videoId: string;
-  ytdlpError?: string;
-  ytmusicError?: string;
-};
-
-export type ReleaseSearchResponse = {
-  release: ReleaseResponse;
-  trackSearches: TrackSearchResult[];
+  downloadedFilePath: string;
 };
 
 export type DownloadJobStage
@@ -61,11 +43,11 @@ export type DownloadJobStage
 export type DownloadJobStatus = 'completed' | 'failed' | 'running';
 
 export type DownloadJobProgress = {
+  currentTrack: number;
   currentTrackTitle?: string;
   error?: string;
   jobId: string;
   message?: string;
-  processedTracks: number;
   stage: DownloadJobStage;
   status: DownloadJobStatus;
 };

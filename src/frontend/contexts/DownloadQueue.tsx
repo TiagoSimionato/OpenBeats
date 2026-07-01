@@ -91,7 +91,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
     updateQueueItem(releaseId, current => ({
       ...current,
       message: status === 'failed' ? 'Download failed' : 'Download complete',
-      processedTracks: fallbackProgress?.processedTracks ?? current.processedTracks,
+      processedTracks: fallbackProgress?.currentTrack ?? current.processedTracks,
       stage: status === 'failed' ? 'failed' : 'completed',
       status,
       totalTracks: current.totalTracks,
@@ -143,7 +143,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
           updateQueueItem(nextQueuedItem.releaseId, current => ({
             ...current,
             message: nextProgress.message,
-            processedTracks: nextProgress.processedTracks,
+            processedTracks: nextProgress.currentTrack,
             stage: nextProgress.stage,
             status: nextProgress.status,
           }));
@@ -155,7 +155,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
 
         eventSource.onerror = () => {
           finalizeJob(nextQueuedItem.releaseId, 'failed', {
-            processedTracks: 0,
+            currentTrack: 0,
           });
         };
       })

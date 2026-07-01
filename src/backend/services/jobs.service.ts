@@ -1,5 +1,6 @@
 import type { DownloadJobProgress, DownloadJobStatus } from 'common/types/requests/releases';
 import { randomUUID } from 'node:crypto';
+import { libraryManagerService } from './libraryManager.service';
 
 type DownloadJobSubscriber = (progress: DownloadJobProgress) => void;
 
@@ -33,8 +34,8 @@ const createDownloadJob = () => {
   jobs.set(jobId, {
     listeners: new Set(),
     progress: {
+      currentTrack: 0,
       jobId,
-      processedTracks: 0,
       stage: 'queued',
       status: 'running',
     },
@@ -47,7 +48,7 @@ const getDownloadJobProgress = (jobId: string) => jobs.get(jobId)?.progress;
 
 const updateDownloadJob = (
   jobId: string,
-  partial: Omit<Partial<DownloadJobProgress>, 'jobId'>,
+  progressUpdates: Omit<Partial<DownloadJobProgress>, 'jobId'>,
 ) => {
   const job = jobs.get(jobId);
 
@@ -57,7 +58,7 @@ const updateDownloadJob = (
 
   job.progress = {
     ...job.progress,
-    ...partial,
+    ...progressUpdates,
     jobId,
   };
 
@@ -97,6 +98,7 @@ const subscribeDownloadJob = (
 const stream = (jobId: string) => {
   const encoder = new TextEncoder();
   let cleanup = () => {};
+
   const stream = new ReadableStream<Uint8Array>({
     cancel: () => {
       cleanup();
@@ -137,10 +139,21 @@ const stream = (jobId: string) => {
   return stream;
 };
 
+const startDownloadJob = (releaseId: string): string => {
+  const jobId = createDownloadJob();
+
+  libraryManagerService.addReleaseToLibrary(releaseId, partial => updateDownloadJob(jobId, {
+    status: 'running',
+    ...partial,
+  }));
+
+  return jobId;
+};
+
 export const jobService = {
   createDownloadJob,
   getDownloadJobProgress,
+  startDownloadJob,
   stream,
-  subscribeDownloadJob,
   updateDownloadJob,
 };
