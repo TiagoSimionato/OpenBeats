@@ -20,23 +20,26 @@ Should build the app image from local `Dockerfile` and start the app at port 533
 
 ## Roadmap
 
-Below there is a list of planned upcoming changes to keep as reference
+Below there is a list of planned upcoming changes for reference
 
-- Scan files button (to update sqlite)
-- Authorization
+- DB info for each track
+- User db
+- If default password not provided, generate random and console log
+- Generate auth secret during docker build
+- Fix SignInPage layout
 - Replace/Update Metadata from downloaded files
-- Find duplicate tracks
+- Search blacklist
+- Run `yt-dlp --update`
+- Delete local tracks
 - Query artist tracks
 - Query tracks alone
-- Delete local tracks
-- Log executable errors
+- Find duplicate tracks
 - Review endpoint returns
 - Improve ui/ux
 - Open large cover modal on click
 - Cancel downloads
 - Clear cover cache
 - Download again (replace file)
-- Search blacklist
 
 ## Development
 
@@ -44,7 +47,7 @@ There are a few requirements to run the project:
 
 - [yt-dlp binary](https://github.com/yt-dlp/yt-dlp)
 - [ffmpeg binary](https://ffmpeg.org/)
-- Python with ytmusicapi installed
+- Python env with ytmusicapi installed
 - Node and the package manager of your choice (yarn in this example)
 
 Install dependencies by simply running:
