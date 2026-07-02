@@ -1,32 +1,38 @@
-'use client';
+import { auth, signIn } from 'auth';
+import { CredentialsSignin } from 'next-auth';
+import { redirect } from 'next/navigation';
 
-import { getSession, signIn } from 'next-auth/react';
-import { redirect, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+export const SignInPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) => {
+  const callbackUrlParam = (await searchParams).callbackUrl ?? '/';
+  const callbackUrl = [...callbackUrlParam].join('');
+  const session = await auth();
 
-export const SignInPage = () => {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/';
-  const session = getSession();
-
-  useEffect(() => {
-    session.then((e) => {
-      if (e)
-        redirect('/');
-    });
-  // eslint-disable-next-line react/exhaustive-deps
-  }, []);
+  if (session)
+    redirect('/');
 
   return (
     <form
       action={async (formData) => {
-        const { error } = await signIn('credentials', {
-          password: formData.get('password')?.toString() ?? '',
-          redirect: false,
-          username: formData.get('username')?.toString() ?? '',
-        });
-        if (!error)
+        'use server';
+        try {
+          await signIn('credentials', {
+            password: formData.get('password')?.toString() ?? '',
+            redirect: false,
+            username: formData.get('username')?.toString() ?? '',
+          });
           redirect(callbackUrl);
+        }
+        catch (error) {
+          if (error instanceof CredentialsSignin) {
+            console.log('Invalid Credentials');
+            return;
+          }
+          throw error;
+        }
       }}
       className="flex-col flex p-10 gap-4"
     >
