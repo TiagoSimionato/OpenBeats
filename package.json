@@ -29,7 +29,25 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "prettier": "^3.9.4",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ],
+    "arrowParens": "always",
+    "proseWrap": "preserve",
+    "bracketSameLine": false,
+    "experimentalOperatorPosition": "end",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "all",
+    "semi": true,
+    "bracketSpacing": true,
+    "objectWrap": "preserve",
+    "printWidth": 120
   }
 }
