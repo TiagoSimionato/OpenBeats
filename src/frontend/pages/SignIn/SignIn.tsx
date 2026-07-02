@@ -1,4 +1,4 @@
-import { auth, signIn } from 'auth';
+import { auth, signIn } from 'configs/auth';
 import { Input } from 'frontend/ui/Input';
 import { CredentialsSignin } from 'next-auth';
 import { redirect } from 'next/navigation';

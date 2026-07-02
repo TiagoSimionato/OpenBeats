@@ -1,10 +1,10 @@
 import { HttpStatusCode } from 'axios';
-import { CONFIGS } from 'configs';
+import { CONFIGS } from 'configs/constants';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { NextResponse } from 'next/server';
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+export const { auth, signIn, signOut } = NextAuth({
   callbacks: {
     authorized: async ({ auth, request }) => {
       if (!auth) {

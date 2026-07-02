@@ -2,7 +2,7 @@ import type { Track } from 'common/types/requests/releases';
 import { rename } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { execFileAsync } from 'backend/utils';
-import { CONFIGS } from 'configs';
+import { CONFIGS } from 'configs/constants';
 
 export const writeTrackMetadata = async ({
   coverFilePath,

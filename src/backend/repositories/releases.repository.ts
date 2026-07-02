@@ -5,7 +5,7 @@ import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { dbService } from 'backend/services/db.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
-import { CONFIGS } from 'configs';
+import { CONFIGS } from 'configs/constants';
 
 const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
   dbService.dbExec(`

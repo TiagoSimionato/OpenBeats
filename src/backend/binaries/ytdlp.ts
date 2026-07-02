@@ -2,7 +2,7 @@ import type { Track } from 'common/types/requests/releases';
 import { mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { execFileAsync, padTrack, sanitize } from 'backend/utils';
-import { CONFIGS } from 'configs';
+import { CONFIGS } from 'configs/constants';
 
 export const searchYouTubeMusic = async (track: Track) => {
   const query = `${track.title} - ${track.artist}`;

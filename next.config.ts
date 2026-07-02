@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-import { CONFIGS } from 'configs';
+import { CONFIGS } from 'configs/constants';
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: CONFIGS.ALLOWED_DEV_ORIGINS ?? [],

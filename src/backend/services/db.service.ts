@@ -1,6 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import Database from 'better-sqlite3';
-import { CONFIGS } from 'configs';
+import { CONFIGS } from 'configs/constants';
 
 let databaseInstance: Database.Database | null = null;
 
