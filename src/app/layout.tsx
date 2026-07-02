@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-import { Layout } from 'frontend/ui/Layout';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { Providers } from './providers';
-import './globals.css';
+import 'frontend/globals.css';
 
 const geistSans = Geist({
   subsets: [
@@ -32,11 +30,7 @@ const RootLayout = ({
     lang="en"
   >
     <body className="min-h-full flex flex-col">
-      <Providers>
-        <Layout>
-          {children}
-        </Layout>
-      </Providers>
+      {children}
     </body>
   </html>
 );
