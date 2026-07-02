@@ -29,7 +29,7 @@ const RootLayout = ({
     className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     lang="en"
   >
-    <body className="min-h-full flex flex-col">
+    <body className="min-h-full flex flex-col p-4 md:p-6">
       {children}
     </body>
   </html>

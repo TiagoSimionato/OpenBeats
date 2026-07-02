@@ -28,7 +28,7 @@ export const ReleaseSearch = () => {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 py-6">
       <form className="flex gap-2" onSubmit={onSubmit}>
         <input
           className="w-full rounded border border-zinc-300 px-3 py-2"
@@ -37,7 +37,7 @@ export const ReleaseSearch = () => {
           value={inputValue}
         />
         <button
-          className="rounded bg-black px-4 py-2 font-medium text-white"
+          className="rounded bg-black px-4 py-2 font-medium text-white cursor-pointer"
           type="submit"
         >
           Search

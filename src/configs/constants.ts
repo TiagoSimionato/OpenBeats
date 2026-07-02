@@ -21,3 +21,8 @@ export const CONFIGS = {
 
 if (!existsSync(CONFIGS.YTMUSIC_SCRIPT_PATH))
   throw new Error('Cannot find ytmusic script');
+
+export const ROUTES = {
+  HOME: '/',
+  SIGN_IN: '/signin',
+};

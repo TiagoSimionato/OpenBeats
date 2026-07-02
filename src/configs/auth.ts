@@ -1,19 +1,24 @@
 import { HttpStatusCode } from 'axios';
-import { CONFIGS } from 'configs/constants';
+import { CONFIGS, ROUTES } from 'configs/constants';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { NextResponse } from 'next/server';
 
-export const { auth, signIn, signOut } = NextAuth({
+export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     authorized: async ({ auth, request }) => {
+      const origin = request.nextUrl.origin;
       if (!auth) {
         if (request.nextUrl.pathname.includes('/api'))
           return NextResponse.json({}, { status: HttpStatusCode.Unauthorized });
 
         const callbackUrl = request.nextUrl.pathname === '/' ? '' : `?callbackUrl=${encodeURI(request.nextUrl.pathname)}`;
-        const newUrl = new URL(`/signin${callbackUrl}`, request.nextUrl.origin);
+        const newUrl = new URL(`${ROUTES.SIGN_IN}${callbackUrl}`, origin);
         return NextResponse.redirect(newUrl);
+      }
+      if (request.nextUrl.pathname === '/api/auth/signin' || request.nextUrl.pathname === '/api/auth/signout') {
+        if (request.method === 'GET')
+          return NextResponse.redirect(new URL(ROUTES.HOME, origin));
       }
       return !!auth;
     },

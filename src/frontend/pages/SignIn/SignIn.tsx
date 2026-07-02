@@ -1,4 +1,5 @@
 import { auth, signIn } from 'configs/auth';
+import { ROUTES } from 'configs/constants';
 import { Input } from 'frontend/ui/Input';
 import { CredentialsSignin } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -8,12 +9,12 @@ export const SignInPage = async ({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
-  const callbackUrlParam = (await searchParams).callbackUrl ?? '/';
+  const callbackUrlParam = (await searchParams).callbackUrl ?? ROUTES.HOME;
   const callbackUrl = [...callbackUrlParam].join('');
   const session = await auth();
 
   if (session)
-    redirect('/');
+    redirect(ROUTES.HOME);
 
   return (
     <main className="p-10 flex flex-col items-center justify-center gap-8 grow">

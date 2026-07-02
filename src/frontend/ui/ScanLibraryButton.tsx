@@ -26,7 +26,7 @@ export const ScanLibraryButton = () => {
 
   return (
     <button
-      className="rounded ml-auto border min-w-32 border-zinc-300 bg-white px-4 py-2 font-medium text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50"
+      className="rounded ml-auto cursor-pointer border min-w-32 border-zinc-300 bg-white px-4 py-2 font-medium text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50"
       disabled={scanLibrary.isPending}
       onClick={handleRescanLibrary}
       type="button"
