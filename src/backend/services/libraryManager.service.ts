@@ -25,7 +25,7 @@ const addReleaseToLibrary = async (
   const coverResult: {
     coverError?: string;
     coverFilePath?: string;
-  } = await coverArtService.getReleaseCoverArt(releaseId)
+  } = await coverArtService.getReleaseCoverArt(release)
     .catch((error) => {
       console.error(error.message);
       return {

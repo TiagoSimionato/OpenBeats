@@ -63,7 +63,7 @@ export const writeTrackMetadata = async ({
     maxBuffer: 10 * 1024 * 1024,
   });
 
-  console.log(`ffmpeg tagged track ${track.title}`);
+  console.log(`ffmpeg: tagged track [${track.title}]`);
 
   await rename(tempFilePath, filePath);
 

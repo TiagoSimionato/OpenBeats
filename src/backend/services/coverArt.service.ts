@@ -1,4 +1,5 @@
 import type { CoverResponse } from 'common/types/requests/caaApi';
+import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { caaApi } from 'common/api/caaApi';
@@ -22,16 +23,17 @@ const getCoverFilePath = async (releaseId: string) => {
   return existingCoverEntry ? join(coverDir, existingCoverEntry.name) : undefined;
 };
 
-const getReleaseCoverArt = async (releaseId: string) => {
-  const existingCoverFilePath = await getCoverFilePath(releaseId);
+const getReleaseCoverArt = async (release: ReleaseResponse) => {
+  const existingCoverFilePath = await getCoverFilePath(release.id);
 
   if (existingCoverFilePath) {
+    console.log(`cover art: cover already exists for release [${release.title}]`);
     return {
       coverFilePath: existingCoverFilePath,
     };
   }
 
-  const coverResponse = await caaApi.get<CoverResponse>(`release/${releaseId}`);
+  const coverResponse = await caaApi.get<CoverResponse>(`release/${release.id}`);
   const coverImage = coverResponse.images?.find(image => image.front) ?? coverResponse.images?.[0];
 
   if (!coverImage?.image) {
@@ -41,7 +43,7 @@ const getReleaseCoverArt = async (releaseId: string) => {
   const coverImageUrl = new URL(coverImage.image);
   const coverFilePath = join(
     resolve(CONFIGS.COVERS_PATH),
-    `${releaseId}${getCoverFileExtension(coverImageUrl.pathname)}`,
+    `${release.id}${getCoverFileExtension(coverImageUrl.pathname)}`,
   );
 
   await mkdir(dirname(coverFilePath), { recursive: true });
@@ -52,6 +54,8 @@ const getReleaseCoverArt = async (releaseId: string) => {
 
   const buffer = Buffer.from(coverImageResponse);
   await writeFile(coverFilePath, buffer);
+
+  console.log(`cover art: added new cover art for release [${release.title}]`);
 
   return {
     coverFilePath,
