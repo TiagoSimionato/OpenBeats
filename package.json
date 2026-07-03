@@ -48,6 +48,6 @@
     "semi": true,
     "bracketSpacing": true,
     "objectWrap": "preserve",
-    "printWidth": 120
+    "printWidth": 100
   }
 }
