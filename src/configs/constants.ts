@@ -24,5 +24,10 @@ if (!existsSync(CONFIGS.YTMUSIC_SCRIPT_PATH))
 
 export const ROUTES = {
   HOME: '/',
+  SEARCH: '/search',
   SIGN_IN: '/signin',
+};
+
+export const CUSTOM_HEADERS = {
+  PATH_NAME: 'x-pathname',
 };

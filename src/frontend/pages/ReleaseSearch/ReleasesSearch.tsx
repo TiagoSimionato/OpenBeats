@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { DownloadQueuePopup } from './components/DownloadQueuePopup';
 import { ReleaseCard } from './components/ReleaseCard';
 
-export const ReleaseSearch = () => {
+export const ReleaseSearchPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [query, setQuery] = useState('');
 
@@ -20,7 +20,9 @@ export const ReleaseSearch = () => {
 
   const releases = data?.releases ?? [];
   const { data: libraryData } = useGetLibrary();
-  const libraryReleaseIds = new Set(libraryData?.libraryReleases?.map(download => download.releaseId) ?? []);
+  const libraryReleaseIds = new Set(
+    libraryData?.libraryReleases?.map(download => download.releaseId) ?? [],
+  );
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
@@ -37,7 +39,7 @@ export const ReleaseSearch = () => {
           value={inputValue}
         />
         <button
-          className="rounded bg-black px-4 py-2 font-medium text-white cursor-pointer"
+          className="cursor-pointer rounded bg-black px-4 py-2 font-medium text-white"
           type="submit"
         >
           Search
@@ -46,7 +48,7 @@ export const ReleaseSearch = () => {
 
       {isLoading || isFetching
         ? (
-            <div className="flex justify-center items-center gap-3">
+            <div className="flex items-center justify-center gap-3">
               <Spinner color="text-primary" size="lg" />
             </div>
           )

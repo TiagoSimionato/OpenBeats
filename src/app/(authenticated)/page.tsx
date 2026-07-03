@@ -1,1 +1,1 @@
-export { ReleaseSearch as default } from 'frontend/pages/ReleaseSearch/ReleasesSearch';
+export { LibraryPage as default } from 'frontend/pages/Library/Library';

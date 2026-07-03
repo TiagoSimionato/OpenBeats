@@ -1,5 +1,5 @@
 import { HttpStatusCode } from 'axios';
-import { CONFIGS, ROUTES } from 'configs/constants';
+import { CONFIGS, CUSTOM_HEADERS, ROUTES } from 'configs/constants';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { NextResponse } from 'next/server';
@@ -20,7 +20,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         if (request.method === 'GET')
           return NextResponse.redirect(new URL(ROUTES.HOME, origin));
       }
-      return !!auth;
+
+      const headers = new Headers(request.headers);
+      headers.set(CUSTOM_HEADERS.PATH_NAME, request.nextUrl.pathname);
+      return NextResponse.next({ headers });
     },
   },
   providers: [Credentials({
