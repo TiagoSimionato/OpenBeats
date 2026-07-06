@@ -72,7 +72,7 @@ const ytdlpStep = async ({ track, videoId }: { track: Track; videoId: string }, 
 };
 
 const metadataStep = async ({ coverFilePath, filePath, track }: {
-  coverFilePath?: string | undefined;
+  coverFilePath?: string;
   filePath: string;
   track: Track;
 }, onProgress?: OnProgress) => {
@@ -97,11 +97,16 @@ const addReleaseToLibrary = async (
 ) => {
   const { tracks } = await getReleaseMetadataStep(releaseId);
 
-  releasesRepository.upsertRelease(tracks[0]);
+  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
+  const missingTracks = tracks.filter(it =>
+    !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
+  );
 
-  const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
+  releasesRepository.upsertRelease(missingTracks[0]);
 
-  for (const track of tracks.values()) {
+  const coverFilePath = await getCoverArtStep(missingTracks[0], onProgress);
+
+  for (const track of missingTracks.values()) {
     const videoId = await searchYouTubeMusicStep(track, onProgress);
     if (!videoId) {
       continue;
@@ -125,11 +130,12 @@ const addReleaseToLibrary = async (
   };
 
   onProgress?.({
-    currentTrack: tracks[0].Tracktotal,
+    currentTrack: missingTracks[0].Tracktotal,
     message: 'Download completed',
     stage: 'completed',
     status: 'completed',
   });
+  console.log(`finished add ${tracks[0].album} to the library`);
 };
 
 export const libraryManagerService = {

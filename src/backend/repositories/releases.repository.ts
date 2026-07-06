@@ -94,27 +94,31 @@ const upsertRelease = (track: Track) => {
   });
 };
 
+const SELECT_LIBRARY_RELEASE = `
+  SELECT
+    r.id                                AS id,
+    r.album,
+    r.album_artist                      AS albumArtist,
+    r.cover_path                        AS coverPath,
+    r.track_count                       AS trackCount,
+    r.completed_at                      AS completedAt,
+    json_group_array(
+      json_object(
+        'id',           t.id,
+        'title',        t.title,
+        'downloadPath', t.download_path,
+        'trackNumber',  t.track_number,
+        'completedAt',  t.completed_at
+      )
+    )                                   AS tracks
+  FROM tb_releases r
+  JOIN tb_tracks t on t.release_id = r.id
+`;
+
 const listDownloadedReleases = async () => {
   const database = await dbService.getDatabase();
   const rows = database.prepare(`
-    SELECT
-      r.id                                AS id,
-      r.album,
-      r.album_artist                      AS albumArtist,
-      r.cover_path                        AS coverPath,
-      r.track_count                       AS trackCount,
-      r.completed_at                      AS completedAt,
-      json_group_array(
-        json_object(
-         'id',           t.id,
-         'title',        t.title,
-         'downloadPath', t.download_path,
-         'trackNumber',  t.track_number,
-         'completedAt',  t.completed_at
-        )
-      )                                   AS tracks
-    FROM tb_releases r
-    JOIN tb_tracks t on t.release_id = r.id
+    ${SELECT_LIBRARY_RELEASE}
     GROUP BY r.id
     ORDER BY r.completed_at DESC;
   `).all() as any[];
@@ -128,18 +132,16 @@ const listDownloadedReleases = async () => {
 const getLibraryRelease = async (releaseId: string) => {
   const database = await dbService.getDatabase();
   const row = database.prepare(`
-    SELECT
-      id,
-      album,
-      album_artist AS albumArtist,
-      cover_path AS coverPath,
-      track_count AS trackCount,
-      completed_at AS completedAt
-    FROM tb_releases
-    WHERE id = ?;
-  `).get(releaseId);
+    ${SELECT_LIBRARY_RELEASE}
+    WHERE r.id = ?;
+  `).get(releaseId) as any;
 
-  return row as LibraryReleaseData | undefined;
+  if (row) {
+    return {
+      ...row,
+      tracks: JSON.parse(row.tracks),
+    } as LibraryReleaseData | undefined;
+  }
 };
 
 const scanReleasesFromDisk = async () => {
