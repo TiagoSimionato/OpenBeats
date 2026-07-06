@@ -113,7 +113,7 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
             {release['track-count'] ? ` • ${release['track-count']} tracks` : ''}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-start gap-2">
+        <div className="flex min-w-32 shrink-0 flex-col items-stretch gap-2">
           <button
             className="rounded bg-zinc-900 px-3 py-1 text-white disabled:opacity-50"
             disabled={isDownloading || isDownloaded}
