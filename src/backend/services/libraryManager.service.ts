@@ -1,6 +1,5 @@
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
-import type { DownloadJobProgress, Track, TrackSearchResult } from 'common/types/requests/releases';
-import { dirname } from 'node:path';
+import type { DownloadJobProgress, Track } from 'common/types/requests/releases';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
 import { releasesRepository } from 'backend/repositories/releases.repository';
@@ -8,96 +7,115 @@ import { coverArtService } from 'backend/services/coverArt.service';
 import { mapReleaseTracksToDownloadTracks } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 
-const addReleaseToLibrary = async (
-  releaseId: string,
-  onProgress?: (progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void,
-) => {
+type OnProgress = ((progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void) | undefined;
+
+const getReleaseMetadataStep = async (releaseId: string) => {
   const release = await mbApi.get<ReleaseResponse>(`release/${releaseId}`, {
     params: MUSICBRAINZ_RELEASE_PARAMS,
   });
-  const tracks: Track[] = mapReleaseTracksToDownloadTracks(release);
 
+  return {
+    release,
+    tracks: mapReleaseTracksToDownloadTracks(release),
+  };
+};
+
+const getCoverArtStep = async (track: Track, onProgress?: OnProgress): Promise<string | undefined> => {
   onProgress?.({
     message: 'Downloading cover art',
     stage: 'cover',
   });
 
-  const coverResult: {
-    coverError?: string;
-    coverFilePath?: string;
-  } = await coverArtService.getReleaseCoverArt(release)
-    .catch((error) => {
-      console.error(error.message);
-      return {
-        coverError: error instanceof Error ? error.message : 'Unknown cover download error',
-        coverFilePath: undefined,
-      };
-    });
+  const coverFilePath = await coverArtService.getReleaseCoverArt(track);
 
-  const trackSearches: TrackSearchResult[] = [];
+  return coverFilePath;
+};
 
-  for (const [index, track] of tracks.entries()) {
-    const currentTrack = index + 1;
+const searchYouTubeMusicStep = async (track: Track, onProgress?: OnProgress) => {
+  onProgress?.({
+    currentTrack: track.track,
+    currentTrackTitle: track.title,
+    message: `Searching video for ${track.title}`,
+    stage: 'search',
+  });
 
+  const results = await searchYouTubeMusic(track);
+  const videoId = results ? results[0]?.videoId : undefined;
+  if (!videoId) {
     onProgress?.({
-      currentTrack,
+      currentTrack: track.track,
       currentTrackTitle: track.title,
-      message: `Searching video for ${track.title}`,
-      stage: 'search',
+      error: 'No YTMusic videoId found',
     });
+    console.log(`ytmusic: no result found for [${track.title}]`);
+  }
 
-    const results = await searchYouTubeMusic(track);
-    const videoId = results[0]?.videoId;
+  return videoId;
+};
 
+const ytdlpStep = async ({ track, videoId }: { track: Track; videoId: string }, onProgress?: OnProgress) => {
+  onProgress?.({
+    currentTrack: track.track,
+    currentTrackTitle: track.title,
+    message: `Downloading ${track.title}`,
+    stage: 'download',
+  });
+  const trackPath = await runYtdlp({ track, videoId });
+  if (!trackPath) {
+    onProgress?.({
+      currentTrack: track.track,
+      currentTrackTitle: track.title,
+      error: 'ytdlp error',
+    });
+  }
+  return trackPath;
+};
+
+const metadataStep = async ({ coverFilePath, filePath, track }: {
+  coverFilePath?: string | undefined;
+  filePath: string;
+  track: Track;
+}, onProgress?: OnProgress) => {
+  onProgress?.({
+    currentTrack: track.track,
+    currentTrackTitle: track.title,
+    message: `Tagging ${track.title}`,
+    stage: 'metadata',
+  });
+  await writeTrackMetadata({
+    coverFilePath,
+    filePath,
+    track,
+  });
+  track.coverPath = coverFilePath;
+  track.trackPath = filePath;
+};
+
+const addReleaseToLibrary = async (
+  releaseId: string,
+  onProgress?: OnProgress,
+) => {
+  const { tracks } = await getReleaseMetadataStep(releaseId);
+
+  const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
+
+  for (const track of tracks.values()) {
+    const videoId = await searchYouTubeMusicStep(track, onProgress);
     if (!videoId) {
-      onProgress?.({
-        currentTrack,
-        currentTrackTitle: track.title,
-        error: 'No YTMusic videoId found',
-      });
       continue;
     }
 
-    onProgress?.({
-      currentTrack,
-      currentTrackTitle: track.title,
-      message: `Downloading ${track.title}`,
-      stage: 'download',
-    });
-    const ytdlpResult = await runYtdlp({ track, videoId });
+    const trackPath = await ytdlpStep({ track, videoId }, onProgress);
+    if (!trackPath) {
+      continue;
+    }
 
-    onProgress?.({
-      currentTrack,
-      currentTrackTitle: track.title,
-      message: `Tagging ${track.title}`,
-      stage: 'metadata',
-    });
-    await writeTrackMetadata({
-      coverFilePath: coverResult.coverFilePath,
-      filePath: ytdlpResult.filePath,
-      track,
-    });
+    await metadataStep({ coverFilePath, filePath: trackPath, track }, onProgress);
+  };
 
-    trackSearches.push({
-      coverFilePath: coverResult.coverFilePath,
-      downloadedFilePath: ytdlpResult.filePath,
-    });
-  }
-  const firstDownloadedTrack = trackSearches[0];
-
-  if (firstDownloadedTrack?.downloadedFilePath) {
-    await releasesRepository.upsertDownloadedRelease({
-      album: tracks[0].album,
-      albumArtist: tracks[0].artist,
-      completedAt: new Date().toISOString(),
-      coverPath: firstDownloadedTrack.coverFilePath,
-      downloadPath: dirname(firstDownloadedTrack.downloadedFilePath),
-      releaseId: release.id,
-      trackCount: tracks.length,
-    });
-  }
+  releasesRepository.upsertRelease(tracks[0]);
   onProgress?.({
-    currentTrack: trackSearches.length,
+    currentTrack: tracks[0].Tracktotal,
     message: 'Download completed',
     stage: 'completed',
     status: 'completed',

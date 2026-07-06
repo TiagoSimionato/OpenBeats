@@ -1,4 +1,5 @@
 import type { LibraryReleaseRecord } from 'common/types/requests/library';
+import type { Track } from 'common/types/requests/releases';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
@@ -7,7 +8,7 @@ import { dbService } from 'backend/services/db.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 
-const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
+const upsertLibraryRelease = async (record: LibraryReleaseRecord) => {
   dbService.dbExec(`
     INSERT INTO downloaded_releases (
       release_id,
@@ -34,6 +35,18 @@ const upsertDownloadedRelease = async (record: LibraryReleaseRecord) => {
       track_count = excluded.track_count,
       completed_at = excluded.completed_at;
   `, record);
+};
+
+const upsertRelease = (track: Track) => {
+  upsertLibraryRelease({
+    album: track.album,
+    albumArtist: track.artist,
+    completedAt: new Date().toISOString(),
+    coverPath: track.coverPath,
+    downloadPath: dirname(track.trackPath ?? ''),
+    releaseId: track['MusicBrainz Album Id'],
+    trackCount: track.Tracktotal,
+  });
 };
 
 const listDownloadedReleases = async () => {
@@ -118,7 +131,7 @@ const scanReleasesFromDisk = async () => {
     }
   }
 
-  const upsertStatements = [...libraryReleases.values()].map(record => upsertDownloadedRelease(record));
+  const upsertStatements = [...libraryReleases.values()].map(record => upsertLibraryRelease(record));
   await Promise.all(upsertStatements);
 };
 
@@ -132,5 +145,5 @@ export const releasesRepository = {
   listDownloadedReleases,
   scanLibraryReleases,
   scanReleasesFromDisk,
-  upsertDownloadedRelease,
+  upsertRelease,
 };

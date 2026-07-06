@@ -82,6 +82,6 @@ export const runYtdlp = handlePromise(
     return filePath;
   },
   (error) => {
-    console.log(`yt-dlp: ${error}`);
+    console.error(`yt-dlp: ${error}`);
   },
 );

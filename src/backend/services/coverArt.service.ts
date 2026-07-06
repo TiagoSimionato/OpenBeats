@@ -71,7 +71,7 @@ const getReleaseCoverArt = handlePromise(
     return coverFilePath;
   },
   (error) => {
-    console.log(`cover art: ${error.message}`);
+    console.error(`cover art: ${error.message}`);
   },
 );
 
