@@ -30,7 +30,7 @@ const getReleaseCoverArt = handlePromise(
     const existingCoverFilePath = await getCoverFilePath(track['MusicBrainz Album Id']);
 
     if (existingCoverFilePath) {
-      console.log(`cover art: cover already exists for release [${track.title}]`);
+      console.log(`cover art: cover already exists for release [${track.album}]`);
       return existingCoverFilePath;
     }
 
