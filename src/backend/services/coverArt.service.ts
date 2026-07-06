@@ -1,9 +1,11 @@
 import type { CoverResponse } from 'common/types/requests/caaApi';
-import type { ReleaseResponse } from 'common/types/requests/mbApi';
+import type { Track } from 'common/types/requests/releases';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
+import { isAxiosError } from 'axios';
 import { caaApi } from 'common/api/caaApi';
 import { CONFIGS } from 'configs/constants';
+import { handlePromise } from 'tsm-utils';
 
 const getCoverFileExtension = (sourcePathOrUrl: string) => extname(sourcePathOrUrl) || '.jpg';
 
@@ -23,44 +25,55 @@ const getCoverFilePath = async (releaseId: string) => {
   return existingCoverEntry ? join(coverDir, existingCoverEntry.name) : undefined;
 };
 
-const getReleaseCoverArt = async (release: ReleaseResponse) => {
-  const existingCoverFilePath = await getCoverFilePath(release.id);
+const getReleaseCoverArt = handlePromise(
+  async (track: Track) => {
+    const existingCoverFilePath = await getCoverFilePath(track['MusicBrainz Album Id']);
 
-  if (existingCoverFilePath) {
-    console.log(`cover art: cover already exists for release [${release.title}]`);
-    return {
-      coverFilePath: existingCoverFilePath,
-    };
-  }
+    if (existingCoverFilePath) {
+      console.log(`cover art: cover already exists for release [${track.title}]`);
+      return existingCoverFilePath;
+    }
 
-  const coverResponse = await caaApi.get<CoverResponse>(`release/${release.id}`);
-  const coverImage = coverResponse.images?.find(image => image.front) ?? coverResponse.images?.[0];
+    const coverResponse = await caaApi.get<CoverResponse>(`release/${track['MusicBrainz Album Id']}`).catch((error) => {
+      if (isAxiosError(error) && error.status === 404) {
+        return undefined;
+      }
+      console.log(`Unkown cover response error: ${error}`);
+    });
+    if (!coverResponse) {
+      console.log('cover art: no artwork found for this release');
+      return;
+    }
 
-  if (!coverImage?.image) {
-    throw new Error('Cover Art Archive did not return a downloadable cover image');
-  }
+    const coverImage = coverResponse.images?.find(image => image.front) ?? coverResponse.images?.[0];
 
-  const coverImageUrl = new URL(coverImage.image);
-  const coverFilePath = join(
-    resolve(CONFIGS.COVERS_PATH),
-    `${release.id}${getCoverFileExtension(coverImageUrl.pathname)}`,
-  );
+    if (!coverImage?.image) {
+      throw new Error('Cover Art Archive did not return a downloadable cover image');
+    }
 
-  await mkdir(dirname(coverFilePath), { recursive: true });
+    const coverImageUrl = new URL(coverImage.image);
+    const coverFilePath = join(
+      resolve(CONFIGS.COVERS_PATH),
+      `${track['MusicBrainz Album Id']}${getCoverFileExtension(coverImageUrl.pathname)}`,
+    );
 
-  const coverImageResponse = await caaApi.get<ArrayBuffer>(coverImage.image, {
-    responseType: 'arraybuffer',
-  });
+    await mkdir(dirname(coverFilePath), { recursive: true });
 
-  const buffer = Buffer.from(coverImageResponse);
-  await writeFile(coverFilePath, buffer);
+    const coverImageResponse = await caaApi.get<ArrayBuffer>(coverImage.image, {
+      responseType: 'arraybuffer',
+    });
 
-  console.log(`cover art: added new cover art for release [${release.title}]`);
+    const buffer = Buffer.from(coverImageResponse);
+    await writeFile(coverFilePath, buffer);
 
-  return {
-    coverFilePath,
-  };
-};
+    console.log(`cover art: added new cover art for release [${track.album}]`);
+
+    return coverFilePath;
+  },
+  (error) => {
+    console.log(`cover art: ${error.message}`);
+  },
+);
 
 export const coverArtService = {
   getCoverFilePath,

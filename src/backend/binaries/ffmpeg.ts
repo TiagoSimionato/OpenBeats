@@ -3,69 +3,75 @@ import { rename } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { execFileAsync } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
+import { handlePromise } from 'tsm-utils';
 
-export const writeTrackMetadata = async ({
-  coverFilePath,
-  filePath,
-  track,
-}: {
-  coverFilePath?: string;
-  filePath: string;
-  track: Track;
-}) => {
-  const tempFilePath = join(
-    dirname(filePath),
-    `${basename(filePath, extname(filePath))}.metadata${extname(filePath)}`,
-  );
+export const writeTrackMetadata = handlePromise(
+  async ({
+    coverFilePath,
+    filePath,
+    track,
+  }: {
+    coverFilePath?: string;
+    filePath: string;
+    track: Track;
+  }) => {
+    const tempFilePath = join(
+      dirname(filePath),
+      `${basename(filePath, extname(filePath))}.metadata${extname(filePath)}`,
+    );
 
-  const metadataArgs = Object.entries(track).flatMap(([key, value]) => {
-    if (value === undefined || value === null) {
-      return [];
-    }
+    const metadataArgs = Object.entries(track).flatMap(([key, value]) => {
+      if (value === undefined || value === null) {
+        return [];
+      }
 
-    const metadataValue = Array.isArray(value) ? value.join('; ') : String(value);
+      const metadataValue = Array.isArray(value) ? value.join('; ') : String(value);
 
-    return [
-      '-metadata',
-      `${key}=${metadataValue}`,
-    ];
-  });
-
-  const ffmpegArgs = coverFilePath
-    ? [
-        '-y',
-        '-i',
-        filePath,
-        '-i',
-        coverFilePath,
-        '-map',
-        '0:0',
-        '-map',
-        '1:0',
-        '-id3v2_version',
-        '3',
-        ...metadataArgs,
-        tempFilePath,
-      ]
-    : [
-        '-y',
-        '-i',
-        filePath,
-        '-map',
-        '0',
-        '-c',
-        'copy',
-        ...metadataArgs,
-        tempFilePath,
+      return [
+        '-metadata',
+        `${key}=${metadataValue}`,
       ];
+    });
 
-  const { stdout } = await execFileAsync(CONFIGS.FFMPEG_BIN, ffmpegArgs, {
-    maxBuffer: 10 * 1024 * 1024,
-  });
+    const ffmpegArgs = coverFilePath
+      ? [
+          '-y',
+          '-i',
+          filePath,
+          '-i',
+          coverFilePath,
+          '-map',
+          '0:0',
+          '-map',
+          '1:0',
+          '-id3v2_version',
+          '3',
+          ...metadataArgs,
+          tempFilePath,
+        ]
+      : [
+          '-y',
+          '-i',
+          filePath,
+          '-map',
+          '0',
+          '-c',
+          'copy',
+          ...metadataArgs,
+          tempFilePath,
+        ];
 
-  console.log(`ffmpeg: tagged track [${track.title}]`);
+    const { stdout } = await execFileAsync(CONFIGS.FFMPEG_BIN, ffmpegArgs, {
+      maxBuffer: 10 * 1024 * 1024,
+    });
 
-  await rename(tempFilePath, filePath);
+    console.log(`ffmpeg: tagged track [${track.title}]`);
 
-  return stdout.trim();
-};
+    await rename(tempFilePath, filePath);
+
+    return stdout.trim();
+  },
+  (error) => {
+    console.log(`ffmpeg: ${error}`);
+  },
+);

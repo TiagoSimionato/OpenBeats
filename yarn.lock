@@ -3463,10 +3463,10 @@ tslib@^2.4.0, tslib@^2.8.0, tslib@^2.8.1:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.8.1.tgz#612efe4ed235d567e8aba5f2a5fab70280ade83f"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
 
-tsm-utils@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/tsm-utils/-/tsm-utils-0.4.0.tgz#18917ea48c7c31b2207bcecb1bef68a6488259db"
-  integrity sha512-J5iB7+ZfNpJUX5qnvp1NQUhCF4IL8iTNbvavz9wXKF7SowR3tQJkew6fw+0cLDKof4P1r9YsdduUPKO3qDKadw==
+tsm-utils@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/tsm-utils/-/tsm-utils-0.5.0.tgz#a7ba51330624936f3be2d6fb3aa2262ae85af7fd"
+  integrity sha512-5aT6Q+qfD00E6cGo0BZbGs/xByCeWV4xsl6mTWDlFZxIuOpOhxxMqCZyGlo/PglG8gWH+0Ts+BqAjI0BjJlIyA==
   dependencies:
     "@antfu/eslint-config" "^9.1.0"
     eslint "^9.7"
