@@ -20,10 +20,7 @@ const getArtistsLabel = (release: QueryRelease) => {
   }
 
   return artistCredit
-    .map(
-      credit =>
-        `${credit.name ?? credit.artist?.name ?? 'Unknown'}${credit.joinphrase ?? ''}`,
-    )
+    .map(credit => `${credit.name ?? credit.artist?.name ?? 'Unknown'}${credit.joinphrase ?? ''}`)
     .join('');
 };
 
@@ -55,26 +52,24 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
             {release.title ?? 'Untitled release'}
             {isDownloaded
               ? (
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                  <span className="border-primary/30 bg-primary/10 text-primary rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
                     Downloaded
                   </span>
                 )
               : null}
           </p>
-          <p className="text-sm text-zinc-700">
-            {getArtistsLabel(release)}
-          </p>
+          <p className="text-sm text-zinc-700">{getArtistsLabel(release)}</p>
           <p className="text-sm text-zinc-600">
             {release.date ?? 'Unknown date'}
             {release.country ? ` • ${release.country}` : ''}
-            {release['release-group']?.['primary-type'] ? ` • ${release['release-group']['primary-type']}` : ''}
-            {release.status ? ` • ${release.status}` : ''}
-            {release['track-count']
-              ? ` • ${release['track-count']} tracks`
+            {release['release-group']?.['primary-type']
+              ? ` • ${release['release-group']['primary-type']}`
               : ''}
+            {release.status ? ` • ${release.status}` : ''}
+            {release['track-count'] ? ` • ${release['track-count']} tracks` : ''}
           </p>
         </div>
-        <div className="flex shrink-0 items-start flex-col gap-2">
+        <div className="flex shrink-0 flex-col items-start gap-2">
           <button
             className="rounded bg-zinc-900 px-3 py-1 text-white disabled:opacity-50"
             disabled={isDownloading || isDownloaded}
@@ -83,17 +78,14 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
           >
             {isDownloaded && 'Downloaded'}
             {!isDownloaded && isQueued && 'Queued'}
-            {!isDownloaded && isDownloading && !isQueued
-              && (
-                <span className="flex items-center gap-2">
-                  <Spinner color="text-white" size="xs" />
-                  <span>
-                    {queueItem
-                      ? `${queueItem.processedTracks}/${queueItem.totalTracks}`
-                      : 'Starting'}
-                  </span>
+            {!isDownloaded && isDownloading && !isQueued && (
+              <span className="flex items-center gap-2">
+                <Spinner color="text-white" size="xs" />
+                <span>
+                  {queueItem ? `${queueItem.processedTracks}/${queueItem.totalTracks}` : 'Starting'}
                 </span>
-              )}
+              </span>
+            )}
             {!isDownloaded && !isDownloading && 'Download'}
           </button>
           <button
@@ -105,9 +97,7 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
           </button>
           {isDownloading && queueItem
             ? (
-                <p className="max-w-40 text-xs text-zinc-500">
-                  {queueItem.message ?? 'Working...'}
-                </p>
+                <p className="max-w-40 text-xs text-zinc-500">{queueItem.message ?? 'Working...'}</p>
               )
             : null}
         </div>
@@ -118,29 +108,34 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
             <div className="mt-3">
               {isReleaseLoading
                 ? (
-                    <div className="flex justify-center items-center gap-3">
+                    <div className="flex items-center justify-center gap-3">
                       <Spinner size="md" />
                     </div>
                   )
                 : (
                     <ol className="space-y-1 text-sm">
-                      {fullRelease?.media?.flatMap(m => m.tracks ?? []).map(t => (
-                        <li className="flex items-start gap-3" key={t.id ?? `${t.position ?? t.number}-${t.title}`}>
-                          <span className="w-8 text-right text-xs text-zinc-600">
-                            {t.position ?? t.number ?? ''}
-                            .
-                          </span>
-                          <div>
-                            <div className="font-medium">{t.title ?? t.recording?.title}</div>
-                            <div className="text-xs text-zinc-600">
-                              {(t['artist-credit'] ?? t.recording?.['artist-credit'] ?? [])
-                                .map(c => c.name ?? c.artist?.name ?? '')
-                                .filter(Boolean)
-                                .join(', ')}
+                      {fullRelease?.media
+                        ?.flatMap(m => m.tracks ?? [])
+                        .map(t => (
+                          <li
+                            className="flex items-start gap-3"
+                            key={t.id ?? `${t.position ?? t.number}-${t.title}`}
+                          >
+                            <span className="w-8 text-right text-xs text-zinc-600">
+                              {t.position ?? t.number ?? ''}
+                              .
+                            </span>
+                            <div>
+                              <div className="font-medium">{t.title ?? t.recording?.title}</div>
+                              <div className="text-xs text-zinc-600">
+                                {(t['artist-credit'] ?? t.recording?.['artist-credit'] ?? [])
+                                  .map(c => c.name ?? c.artist?.name ?? '')
+                                  .filter(Boolean)
+                                  .join(', ')}
+                              </div>
                             </div>
-                          </div>
-                        </li>
-                      ))}
+                          </li>
+                        ))}
                     </ol>
                   )}
             </div>

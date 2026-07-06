@@ -1,5 +1,9 @@
 import type { QueryRelease } from 'common/types/requests/mbApi';
-import type { DownloadJobProgress, DownloadJobStage, DownloadJobStatus } from 'common/types/requests/releases';
+import type {
+  DownloadJobProgress,
+  DownloadJobStage,
+  DownloadJobStatus,
+} from 'common/types/requests/releases';
 import type { PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDownloadRelease } from 'frontend/services/api/mutations/download';
@@ -26,7 +30,8 @@ const DownloadQueueContext = createContext<DownloadQueueContextProps | null>(nul
 
 type DownloadQueueProviderProps = PropsWithChildren;
 
-const isTerminalStatus = (status: DownloadJobStatus) => status === 'completed' || status === 'failed';
+const isTerminalStatus = (status: DownloadJobStatus) =>
+  status === 'completed' || status === 'failed';
 
 export const DownloadQueueContextProvider = ({ children }: DownloadQueueProviderProps) => {
   const [queue, setQueue] = useState<DownloadQueueItem[]>([]);
@@ -36,18 +41,25 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
   const download = useDownloadRelease();
   const queryClient = useQueryClient();
 
-  const updateQueueItem = useCallback((releaseId: string, update: (current: DownloadQueueItem) => DownloadQueueItem) => {
-    setQueue((currentQueue) => {
-      const nextQueue = currentQueue.map(item => item.releaseId === releaseId ? update(item) : item);
-      return nextQueue;
-    });
-  }, []);
+  const updateQueueItem = useCallback(
+    (releaseId: string, update: (current: DownloadQueueItem) => DownloadQueueItem) => {
+      setQueue((currentQueue) => {
+        const nextQueue = currentQueue.map(item =>
+          item.releaseId === releaseId ? update(item) : item,
+        );
+        return nextQueue;
+      });
+    },
+    [],
+  );
 
   const enqueueRelease = useCallback((release: QueryRelease) => {
     const releaseId = release.id;
 
     setQueue((currentQueue) => {
-      if (currentQueue.some(item => item.releaseId === releaseId && !isTerminalStatus(item.status))) {
+      if (
+        currentQueue.some(item => item.releaseId === releaseId && !isTerminalStatus(item.status))
+      ) {
         return currentQueue;
       }
 
@@ -60,7 +72,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
           stage: 'queued',
           status: 'running',
           title: release.title ?? 'Untitled release',
-          totalTracks: 0,
+          totalTracks: release['track-count'] ?? 0,
         },
       ];
     });
@@ -75,41 +87,53 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
     clearTimerRef.current = null;
   }, []);
 
-  const scheduleRemoval = useCallback((releaseId: string) => {
-    clearRemovalTimer();
+  const scheduleRemoval = useCallback(
+    (releaseId: string) => {
+      clearRemovalTimer();
 
-    clearTimerRef.current = window.setTimeout(() => {
-      setQueue(currentQueue => currentQueue.filter(item => item.releaseId !== releaseId));
-    }, 4000);
-  }, [clearRemovalTimer]);
+      clearTimerRef.current = window.setTimeout(() => {
+        setQueue(currentQueue => currentQueue.filter(item => item.releaseId !== releaseId));
+      }, 4000);
+    },
+    [clearRemovalTimer],
+  );
 
-  const finalizeJob = useCallback((releaseId: string, status: DownloadJobStatus, fallbackProgress?: Pick<DownloadJobProgress, 'processedTracks'>) => {
-    if (activeReleaseIdRef.current !== releaseId) {
-      return;
-    }
+  const finalizeJob = useCallback(
+    (
+      releaseId: string,
+      status: DownloadJobStatus,
+      fallbackProgress?: Pick<DownloadJobProgress, 'currentTrack'>,
+    ) => {
+      if (activeReleaseIdRef.current !== releaseId) {
+        return;
+      }
 
-    updateQueueItem(releaseId, current => ({
-      ...current,
-      message: status === 'failed' ? 'Download failed' : 'Download complete',
-      processedTracks: fallbackProgress?.currentTrack ?? current.processedTracks,
-      stage: status === 'failed' ? 'failed' : 'completed',
-      status,
-      totalTracks: current.totalTracks,
-    }));
+      updateQueueItem(releaseId, current => ({
+        ...current,
+        message: status === 'failed' ? 'Download failed' : 'Download complete',
+        processedTracks: fallbackProgress?.currentTrack ?? current.processedTracks,
+        stage: status === 'failed' ? 'failed' : 'completed',
+        status,
+        totalTracks: current.totalTracks,
+      }));
 
-    eventSourceRef.current?.close();
-    eventSourceRef.current = null;
-    activeReleaseIdRef.current = null;
-    void queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
-    scheduleRemoval(releaseId);
-  }, [queryClient, scheduleRemoval, updateQueueItem]);
+      eventSourceRef.current?.close();
+      eventSourceRef.current = null;
+      activeReleaseIdRef.current = null;
+      void queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+      scheduleRemoval(releaseId);
+    },
+    [queryClient, scheduleRemoval, updateQueueItem],
+  );
 
   const startNextQueuedDownload = useCallback(() => {
     if (activeReleaseIdRef.current) {
       return;
     }
 
-    const nextQueuedItem = queue.find(item => item.stage === 'queued' && item.status === 'running');
+    const nextQueuedItem = queue.find(
+      item => item.stage === 'queued' && item.status === 'running',
+    );
 
     if (!nextQueuedItem) {
       return;
@@ -121,7 +145,8 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
       message: 'Starting download',
     }));
 
-    download.mutateAsync(nextQueuedItem.releaseId)
+    download
+      .mutateAsync(nextQueuedItem.releaseId)
       .then(({ jobId }) => {
         if (activeReleaseIdRef.current !== nextQueuedItem.releaseId) {
           return;
@@ -180,18 +205,17 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
     startNextQueuedDownload();
   }, [queue, startNextQueuedDownload]);
 
-  useEffect(() => () => {
-    eventSourceRef.current?.close();
-    clearRemovalTimer();
-  }, [clearRemovalTimer]);
+  useEffect(
+    () => () => {
+      eventSourceRef.current?.close();
+      clearRemovalTimer();
+    },
+    [clearRemovalTimer],
+  );
 
   const value = useMemo(() => ({ enqueueRelease, queue }), [enqueueRelease, queue]);
 
-  return (
-    <DownloadQueueContext value={value}>
-      {children}
-    </DownloadQueueContext>
-  );
+  return <DownloadQueueContext value={value}>{children}</DownloadQueueContext>;
 };
 
 export const useDownloadQueueContext = () => {
