@@ -22,17 +22,19 @@ Should build the app image from local `Dockerfile` and start the app at port 533
 
 Below there is a list of planned upcoming changes for reference
 
-- DB info for each track
 - User db
 - If default password not provided, generate random and console log
 - Generate auth secret during docker build
-- Fix SignInPage layout
 - Replace/Update Metadata from downloaded files
 - Search blacklist
 - Run `yt-dlp --update`
 - Delete local tracks
 - Query artist tracks
 - Query tracks alone
+- Connect with navidrome and perform a library scan after an update
+- Edit some metadata info individually
+- Only scandb on start if not exists
+- Parallel downloads
 - Find duplicate tracks
 - Review endpoint returns
 - Improve ui/ux
