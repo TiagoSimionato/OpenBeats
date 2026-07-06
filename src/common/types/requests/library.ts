@@ -1,21 +1,39 @@
-export type LibraryReleaseRecord = {
+export type TrackRecord = {
+  completedAt: string;
+  downloadPath: string;
+  id: string;
+  releaseId: string;
+  title: string;
+  trackNumber: number;
+};
+
+export type ReleaseRecord = {
   album: string;
   albumArtist: string;
   completedAt: string;
   coverPath?: string;
-  downloadPath: string;
-  releaseId: string;
+  id: string;
   trackCount: number;
 };
 
+export type LibraryReleaseData = {
+  album: string;
+  albumArtist: string;
+  completedAt: string;
+  coverPath?: string;
+  id: string;
+  trackCount: number;
+  tracks: TrackRecord[];
+};
+
 export type LibraryReleasesResponse = {
-  libraryReleases: LibraryReleaseRecord[];
+  libraryReleases: LibraryReleaseData[];
 };
 
 export type LibraryReleaseResponse = {
-  libraryRelease: LibraryReleaseRecord;
+  libraryRelease: LibraryReleaseData;
 };
 
 export type ScanLibraryReleasesResponse = {
-  libraryReleases: LibraryReleaseRecord[];
+  libraryReleases: LibraryReleaseData[];
 };

@@ -97,6 +97,8 @@ const addReleaseToLibrary = async (
 ) => {
   const { tracks } = await getReleaseMetadataStep(releaseId);
 
+  releasesRepository.upsertRelease(tracks[0]);
+
   const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
 
   for (const track of tracks.values()) {
@@ -111,9 +113,17 @@ const addReleaseToLibrary = async (
     }
 
     await metadataStep({ coverFilePath, filePath: trackPath, track }, onProgress);
+
+    await releasesRepository.upsertLibraryTrack({
+      completedAt: new Date().toISOString(),
+      downloadPath: trackPath,
+      id: track['MusicBrainz Track Id'],
+      releaseId,
+      title: track.title,
+      trackNumber: track.track,
+    });
   };
 
-  releasesRepository.upsertRelease(tracks[0]);
   onProgress?.({
     currentTrack: tracks[0].Tracktotal,
     message: 'Download completed',

@@ -1,38 +1,84 @@
-import type { LibraryReleaseRecord } from 'common/types/requests/library';
+import type { LibraryReleaseData, ReleaseRecord, TrackRecord } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
 import { existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { dbService } from 'backend/services/db.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 
-const upsertLibraryRelease = async (record: LibraryReleaseRecord) => {
+const createDDL = async () => {
+  const database = await dbService.getDatabase();
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS tb_releases (
+      id UUID PRIMARY KEY,
+      album TEXT NOT NULL,
+      album_artist TEXT NOT NULL,
+      cover_path TEXT,
+      track_count INTEGER NOT NULL,
+      completed_at TEXT NOT NULL
+    );`);
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS tb_tracks (
+      id UUID PRIMARY KEY,
+      release_id UUID NOT NULL REFERENCES tb_releases(id),
+      title TEXT NOT NULL,
+      download_path TEXT NOT NULL,
+      track_number INTEGER NOT NULL,
+      completed_at TEXT NOT NULL
+    );`);
+};
+
+const upsertLibraryRelease = async (record: ReleaseRecord) => {
   dbService.dbExec(`
-    INSERT INTO downloaded_releases (
-      release_id,
+    INSERT INTO tb_releases (
+      id,
       album,
       album_artist,
-      download_path,
       cover_path,
       track_count,
       completed_at
     ) VALUES (
-      @releaseId,
+      @id,
       @album,
       @albumArtist,
-      @downloadPath,
       @coverPath,
       @trackCount,
       @completedAt
     )
-    ON CONFLICT(release_id) DO UPDATE SET
+    ON CONFLICT(id) DO UPDATE SET
       album = excluded.album,
       album_artist = excluded.album_artist,
-      download_path = excluded.download_path,
       cover_path = excluded.cover_path,
       track_count = excluded.track_count,
+      completed_at = excluded.completed_at;
+  `, record);
+};
+
+const upsertLibraryTrack = async (record: TrackRecord) => {
+  dbService.dbExec(`
+    INSERT INTO tb_tracks (
+      id,
+      release_id,
+      title,
+      download_path,
+      track_number,
+      completed_at
+    ) VALUES (
+      @id,
+      @releaseId,
+      @title,
+      @downloadPath,
+      @trackNumber,
+      @completedAt
+    )
+    ON CONFLICT(id) DO UPDATE SET
+      release_id = excluded.release_id,
+      title = excluded.title,
+      download_path = excluded.download_path,
+      track_number = excluded.track_number,
       completed_at = excluded.completed_at;
   `, record);
 };
@@ -43,8 +89,7 @@ const upsertRelease = (track: Track) => {
     albumArtist: track.artist,
     completedAt: new Date().toISOString(),
     coverPath: track.coverPath,
-    downloadPath: dirname(track.trackPath ?? ''),
-    releaseId: track['MusicBrainz Album Id'],
+    id: track['MusicBrainz Album Id'],
     trackCount: track.Tracktotal,
   });
 };
@@ -53,36 +98,48 @@ const listDownloadedReleases = async () => {
   const database = await dbService.getDatabase();
   const rows = database.prepare(`
     SELECT
-      release_id AS releaseId,
-      album,
-      album_artist AS albumArtist,
-      download_path AS downloadPath,
-      cover_path AS coverPath,
-      track_count AS trackCount,
-      completed_at AS completedAt
-    FROM downloaded_releases
-    ORDER BY completed_at DESC;
-  `).all();
+      r.id                                AS id,
+      r.album,
+      r.album_artist                      AS albumArtist,
+      r.cover_path                        AS coverPath,
+      r.track_count                       AS trackCount,
+      r.completed_at                      AS completedAt,
+      json_group_array(
+        json_object(
+         'id',           t.id,
+         'title',        t.title,
+         'downloadPath', t.download_path,
+         'trackNumber',  t.track_number,
+         'completedAt',  t.completed_at
+        )
+      )                                   AS tracks
+    FROM tb_releases r
+    JOIN tb_tracks t on t.release_id = r.id
+    GROUP BY r.id
+    ORDER BY r.completed_at DESC;
+  `).all() as any[];
 
-  return rows as LibraryReleaseRecord[];
+  return rows.map(row => ({
+    ...row,
+    tracks: JSON.parse(row.tracks),
+  })) as LibraryReleaseData[];
 };
 
 const getLibraryRelease = async (releaseId: string) => {
   const database = await dbService.getDatabase();
   const row = database.prepare(`
     SELECT
-      release_id AS releaseId,
+      id,
       album,
       album_artist AS albumArtist,
-      download_path AS downloadPath,
       cover_path AS coverPath,
       track_count AS trackCount,
       completed_at AS completedAt
-    FROM downloaded_releases
-    WHERE release_id = ?;
+    FROM tb_releases
+    WHERE id = ?;
   `).get(releaseId);
 
-  return row as LibraryReleaseRecord | undefined;
+  return row as LibraryReleaseData | undefined;
 };
 
 const scanReleasesFromDisk = async () => {
@@ -93,7 +150,8 @@ const scanReleasesFromDisk = async () => {
   }
 
   const files = await walkFiles(downloadPath);
-  const libraryReleases = new Map<string, LibraryReleaseRecord>();
+  const libraryReleases = new Map<string, ReleaseRecord>();
+  const libraryTracks = new Map<string, TrackRecord>();
 
   for (const filePath of files) {
     if (!isAudioFile(filePath)) {
@@ -104,35 +162,48 @@ const scanReleasesFromDisk = async () => {
       const probeResponse = await probeAudioFile(filePath);
       const tags = probeResponse.format?.tags;
       const releaseId = tags?.['MusicBrainz Album Id'];
+      const trackId = tags?.['MusicBrainz Track Id'];
 
-      if (!releaseId) {
+      if (!releaseId || !trackId) {
         continue;
       }
 
-      const current = libraryReleases.get(releaseId) ?? {
+      const currentRelease = libraryReleases.get(releaseId) ?? {
         album: tags.album ?? '',
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         completedAt: new Date().toISOString(),
         coverPath: await coverArtService.getCoverFilePath(releaseId),
-        downloadPath: dirname(filePath),
-        releaseId,
-        trackCount: 0,
+        id: releaseId,
+        trackCount: Number(tags.Tracktotal),
       };
 
-      current.album = current.album || tags.album || '';
-      current.albumArtist = current.albumArtist || tags.album_artist || tags.artist || '';
-      current.coverPath = current.coverPath || await coverArtService.getCoverFilePath(releaseId);
-      current.downloadPath = dirname(filePath);
-      current.trackCount += 1;
-      libraryReleases.set(releaseId, current);
+      const currentTrack = libraryTracks.get(trackId) ?? {
+        completedAt: new Date().toISOString(),
+        downloadPath: filePath,
+        id: trackId,
+        releaseId,
+        title: tags.title ?? '',
+        trackNumber: Number(tags.track),
+      };
+
+      currentRelease.coverPath = currentRelease.coverPath || await coverArtService.getCoverFilePath(releaseId);
+      libraryReleases.set(releaseId, currentRelease);
+      libraryTracks.set(trackId, currentTrack);
     }
-    catch {
-      // Skip unreadable or unsupported files during startup backfill.
+    catch (error) {
+      console.warn(`walk files error: ${error}`);
     }
   }
 
-  const upsertStatements = [...libraryReleases.values()].map(record => upsertLibraryRelease(record));
-  await Promise.all(upsertStatements);
+  const upsertReleasesStatements = [
+    ...libraryReleases.values(),
+  ].map(releaseRecord => upsertLibraryRelease(releaseRecord));
+  await Promise.all(upsertReleasesStatements);
+
+  const upsertTracksStatements = [
+    ...libraryTracks.values(),
+  ].map(trackRecord => upsertLibraryTrack(trackRecord));
+  await Promise.all(upsertTracksStatements);
 };
 
 const scanLibraryReleases = async () => {
@@ -141,9 +212,11 @@ const scanLibraryReleases = async () => {
 };
 
 export const releasesRepository = {
+  createDDL,
   getLibraryRelease,
   listDownloadedReleases,
   scanLibraryReleases,
   scanReleasesFromDisk,
+  upsertLibraryTrack,
   upsertRelease,
 };

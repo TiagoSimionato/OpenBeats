@@ -1,4 +1,5 @@
 import { mkdir } from 'node:fs/promises';
+import { releasesRepository } from 'backend/repositories/releases.repository';
 import Database from 'better-sqlite3';
 import { CONFIGS } from 'configs/constants';
 
@@ -13,16 +14,7 @@ const getDatabase = async () => {
   const database = new Database(CONFIGS.DB_PATH);
   databaseInstance = database;
 
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS downloaded_releases (
-      release_id TEXT PRIMARY KEY,
-      album TEXT NOT NULL,
-      album_artist TEXT NOT NULL,
-      download_path TEXT NOT NULL,
-      cover_path TEXT,
-      track_count INTEGER NOT NULL,
-      completed_at TEXT NOT NULL
-    );`);
+  releasesRepository.createDDL();
 
   return database;
 };

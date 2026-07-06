@@ -21,7 +21,7 @@ export const ReleaseSearchPage = () => {
   const releases = data?.releases ?? [];
   const { data: libraryData } = useGetLibrary();
   const libraryReleaseIds = new Set(
-    libraryData?.libraryReleases?.map(download => download.releaseId) ?? [],
+    libraryData?.libraryReleases?.map(download => download.id) ?? [],
   );
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
