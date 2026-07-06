@@ -2,13 +2,18 @@
 
 import type { QueryRelease } from 'common/types/requests/mbApi';
 import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
+import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
+import { Chip } from 'frontend/ui/Chip';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { CoverPreview } from './CoverPreview';
 
+type libraryStatus = 'added' | 'missing' | 'parcial';
+
+type releaseStatus = 'processing' | 'queued' | libraryStatus;
+
 type ReleaseCardProps = {
-  isDownloaded?: boolean;
   release: QueryRelease;
 };
 
@@ -24,12 +29,57 @@ const getArtistsLabel = (release: QueryRelease) => {
     .join('');
 };
 
-export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps) => {
+const renderChip = (status: releaseStatus) => {
+  switch (status) {
+    case 'added':
+      return <Chip>Downloaded</Chip>;
+    case 'parcial':
+      return <Chip variant="secondary">Partially downloaded</Chip>;
+    default:
+      return null;
+  }
+};
+
+const renderButtonLabel = (status: releaseStatus) => {
+  switch (status) {
+    case 'added':
+      return 'Downloaded';
+    case 'missing':
+      return 'Add to Library';
+    case 'parcial':
+      return 'Try again';
+    case 'processing':
+      return '';
+    case 'queued':
+      return 'Queued';
+    default:
+      return '';
+  }
+};
+
+export const ReleaseCard = ({ release }: ReleaseCardProps) => {
+  const { data: library } = useGetLibrary();
+  const libraryRelease = library?.libraryReleases.find(
+    libraryRelease => libraryRelease.id === release.id,
+  );
+  const isDownloaded = libraryRelease && libraryRelease.tracks.length === libraryRelease.trackCount;
+  const isPartiallyAdded = !isDownloaded && !!libraryRelease;
+
   const { enqueueRelease, queue } = useDownloadQueueContext();
 
   const queueItem = queue.find(item => item.releaseId === String(release.id));
   const isDownloading = queueItem?.status === 'running';
   const isQueued = queueItem?.stage === 'queued' && queueItem?.status === 'running';
+
+  const status: releaseStatus = isQueued
+    ? 'queued'
+    : isDownloading
+      ? 'processing'
+      : isDownloaded
+        ? 'added'
+        : isPartiallyAdded
+          ? 'parcial'
+          : 'missing';
 
   const handleDownload = () => {
     enqueueRelease(release);
@@ -50,13 +100,7 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
         <div className="flex-1">
           <p className="flex items-center gap-2 font-medium">
             {release.title ?? 'Untitled release'}
-            {isDownloaded
-              ? (
-                  <span className="border-primary/30 bg-primary/10 text-primary rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
-                    Downloaded
-                  </span>
-                )
-              : null}
+            {renderChip(status)}
           </p>
           <p className="text-sm text-zinc-700">{getArtistsLabel(release)}</p>
           <p className="text-sm text-zinc-600">
@@ -76,8 +120,7 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
             onClick={handleDownload}
             type="button"
           >
-            {isDownloaded && 'Downloaded'}
-            {!isDownloaded && isQueued && 'Queued'}
+            {renderButtonLabel(status)}
             {!isDownloaded && isDownloading && !isQueued && (
               <span className="flex items-center gap-2">
                 <Spinner color="text-white" size="xs" />
@@ -86,7 +129,6 @@ export const ReleaseCard = ({ isDownloaded = false, release }: ReleaseCardProps)
                 </span>
               </span>
             )}
-            {!isDownloaded && !isDownloading && 'Download'}
           </button>
           <button
             className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"

@@ -1,6 +1,5 @@
 'use client';
 
-import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
@@ -19,10 +18,6 @@ export const ReleaseSearchPage = () => {
   });
 
   const releases = data?.releases ?? [];
-  const { data: libraryData } = useGetLibrary();
-  const libraryReleaseIds = new Set(
-    libraryData?.libraryReleases?.map(download => download.id) ?? [],
-  );
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
@@ -70,11 +65,7 @@ export const ReleaseSearchPage = () => {
               </p>
               <ul className="space-y-2">
                 {releases.map(release => (
-                  <ReleaseCard
-                    isDownloaded={libraryReleaseIds.has(release.id)}
-                    key={release.id}
-                    release={release}
-                  />
+                  <ReleaseCard key={release.id} release={release} />
                 ))}
               </ul>
             </div>
