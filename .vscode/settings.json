@@ -1,7 +1,6 @@
 {
   "eslint.useFlatConfig": true,
   "editor.codeActionsOnSave": [
-    "source.organizeImports",
     "source.removeUnusedImports",
     "source.fixAll.prettier",
     "source.fixAll.eslint"
