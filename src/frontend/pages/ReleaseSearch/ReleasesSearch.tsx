@@ -3,7 +3,6 @@
 import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
-import { DownloadQueuePopup } from './components/DownloadQueuePopup';
 import { ReleaseSearchCard } from './components/ReleaseSearchCard';
 
 export const ReleaseSearchPage = () => {
@@ -71,8 +70,6 @@ export const ReleaseSearchPage = () => {
             </div>
           )
         : null}
-
-      <DownloadQueuePopup />
     </main>
   );
 };

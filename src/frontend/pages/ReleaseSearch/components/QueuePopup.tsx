@@ -1,3 +1,5 @@
+'use client';
+
 import type { DownloadJobStage, DownloadJobStatus } from 'common/types/requests/releases';
 import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
 import { Spinner } from 'frontend/ui/Spinner';
@@ -22,17 +24,17 @@ const stageLabel: Partial<Record<DownloadJobStage, string>> = {
   search: 'Searching',
 };
 
-export const DownloadQueuePopup = () => {
+export const QueuePopup = () => {
   const { queue } = useDownloadQueueContext();
   if (queue.length === 0) {
     return null;
   }
 
   return (
-    <aside className="fixed bottom-4 right-4 z-50 w-full max-w-sm rounded-xl border border-border bg-card/95 p-3 text-foreground shadow-glow backdrop-blur">
+    <aside className="border-border bg-card/95 text-foreground shadow-glow fixed right-4 bottom-4 z-50 w-full max-w-sm rounded-xl border p-3 backdrop-blur">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-sm font-semibold">Download Queue</h2>
-        <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+        <span className="border-primary/30 bg-primary/10 text-primary rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
           {queue.length}
         </span>
       </div>
@@ -44,7 +46,10 @@ export const DownloadQueuePopup = () => {
           const progressPercent = Math.max(0, Math.min(100, Math.round(progressRatio * 100)));
 
           return (
-            <li className="rounded-lg border border-border bg-background/40 p-2" key={item.releaseId}>
+            <li
+              className="border-border bg-background/40 rounded-lg border p-2"
+              key={item.releaseId}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold">{item.title}</p>
@@ -52,11 +57,9 @@ export const DownloadQueuePopup = () => {
                     {item.message ?? stageLabel[item.stage] ?? 'Working'}
                   </p>
                 </div>
-                {!isDone && !isFailed
-                  ? <Spinner color="text-primary" size="xs" />
-                  : null}
+                {!isDone && !isFailed ? <Spinner color="text-primary" size="xs" /> : null}
               </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="bg-secondary mt-2 h-1.5 w-full overflow-hidden rounded-full">
                 <div
                   className={`h-full rounded-full ${isFailed ? 'bg-red-500' : 'bg-primary'}`}
                   style={{ width: `${isFailed ? 100 : progressPercent}%` }}
