@@ -3,6 +3,7 @@ import type { Track } from 'common/types/requests/releases';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
+import { coverArtService } from 'backend/services/coverArt.service';
 import { dbService } from 'backend/services/db.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
@@ -185,7 +186,7 @@ const scanReleasesFromDisk = async () => {
         album: tags.album ?? '',
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         completedAt: new Date().toISOString(),
-        coverPath: existsSync(`${CONFIGS.COVERS_PATH}/${releaseId}.jpg`) ? releaseId : undefined,
+        coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
         id: releaseId,
         releaseDate: tags.date,
         releaseType: tags['MusicBrainz Album Type'] ?? '',

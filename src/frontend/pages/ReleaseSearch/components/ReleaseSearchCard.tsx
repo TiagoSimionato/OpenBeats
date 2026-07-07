@@ -122,7 +122,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
           >
             {renderButtonLabel(status)}
             {!isDownloaded && isDownloading && !isQueued && (
-              <span className="flex items-center gap-2">
+              <span className="flex grow items-center justify-center gap-2">
                 <Spinner color="text-white" size="xs" />
                 <span>
                   {queueItem ? `${queueItem.processedTracks}/${queueItem.totalTracks}` : 'Starting'}

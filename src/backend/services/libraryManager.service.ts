@@ -102,9 +102,10 @@ const addReleaseToLibrary = async (
     !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
   );
 
-  releasesRepository.upsertRelease(missingTracks[0]);
-
   const coverFilePath = await getCoverArtStep(missingTracks[0], onProgress);
+
+  missingTracks[0].coverPath = coverFilePath;
+  releasesRepository.upsertRelease(missingTracks[0]);
 
   for (const track of missingTracks.values()) {
     const videoId = await searchYouTubeMusicStep(track, onProgress);
