@@ -1,6 +1,7 @@
-import { CUSTOM_HEADERS } from 'configs/constants';
-import { headers } from 'next/headers';
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const menuItems = [
   {
@@ -13,9 +14,8 @@ const menuItems = [
   },
 ];
 
-export const Nav = async () => {
-  const headerList = await headers();
-  const pathname = headerList.get(CUSTOM_HEADERS.PATH_NAME);
+export const Nav = () => {
+  const pathname = usePathname();
 
   return (
     <nav>
