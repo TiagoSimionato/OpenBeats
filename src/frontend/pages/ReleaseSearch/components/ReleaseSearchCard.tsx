@@ -57,7 +57,7 @@ const renderButtonLabel = (status: releaseStatus) => {
   }
 };
 
-export const ReleaseCard = ({ release }: ReleaseCardProps) => {
+export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const { data: library } = useGetLibrary();
   const libraryRelease = library?.libraryReleases.find(
     libraryRelease => libraryRelease.id === release.id,

@@ -4,7 +4,7 @@ import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { DownloadQueuePopup } from './components/DownloadQueuePopup';
-import { ReleaseCard } from './components/ReleaseCard';
+import { ReleaseSearchCard } from './components/ReleaseSearchCard';
 
 export const ReleaseSearchPage = () => {
   const [inputValue, setInputValue] = useState('');
@@ -65,7 +65,7 @@ export const ReleaseSearchPage = () => {
               </p>
               <ul className="space-y-2">
                 {releases.map(release => (
-                  <ReleaseCard key={release.id} release={release} />
+                  <ReleaseSearchCard key={release.id} release={release} />
                 ))}
               </ul>
             </div>
