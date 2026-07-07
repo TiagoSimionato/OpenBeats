@@ -1,6 +1,7 @@
 'use client';
 
 import { useCover } from 'frontend/services/caaApi/queries/covers';
+import { Spinner } from 'frontend/ui/Spinner';
 import Image from 'next/image';
 
 export const CoverPreview = ({
@@ -10,32 +11,41 @@ export const CoverPreview = ({
   releaseId: string;
   title?: string;
 }>) => {
-  const { data } = useCover({
+  const { data, isPending } = useCover({
     options: {
       retry: false,
     },
     releaseId,
   });
 
-  const firstImage
-    = data?.images?.find(image => image.front) ?? data?.images?.[0];
+  const firstImage = data?.images?.find(image => image.front) ?? data?.images?.[0];
   const coverUrl
-    = firstImage?.thumbnails?.small
-      ?? firstImage?.thumbnails?.[250]
-      ?? firstImage?.image;
+    = firstImage?.thumbnails?.small ?? firstImage?.thumbnails?.[250] ?? firstImage?.image;
+
+  if (isPending) {
+    return (
+      <div className="flex aspect-square w-24 items-center justify-center">
+        <Spinner size="xl" />
+      </div>
+    );
+  }
 
   if (!coverUrl) {
     return (
-      <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded border border-zinc-200 bg-zinc-100 text-xs text-zinc-500">
-        No cover
-      </div>
+      <Image
+        alt="disc icon"
+        className="aspect-square w-24 shrink-0 scale-70 rounded object-cover"
+        height={500}
+        src="/disc.svg"
+        width={500}
+      />
     );
   }
 
   return (
     <Image
       alt={title ? `${title} cover art` : 'release cover art'}
-      className="h-24 w-24 shrink-0 rounded object-cover"
+      className="aspect-square w-24 shrink-0 rounded object-cover"
       height={500}
       src={coverUrl}
       width={500}
