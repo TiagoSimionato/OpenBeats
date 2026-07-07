@@ -3,7 +3,6 @@ import type { Track } from 'common/types/requests/releases';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
-import { coverArtService } from 'backend/services/coverArt.service';
 import { dbService } from 'backend/services/db.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
@@ -16,7 +15,8 @@ const createDDL = async () => {
       id UUID PRIMARY KEY,
       album TEXT NOT NULL,
       album_artist TEXT NOT NULL,
-      cover_path TEXT,
+      release_type TEXT NOT NULL,
+      release_date TEXT,
       track_count INTEGER NOT NULL,
       completed_at TEXT NOT NULL
     );`);
@@ -37,21 +37,24 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       id,
       album,
       album_artist,
-      cover_path,
+      release_type,
+      release_date,
       track_count,
       completed_at
     ) VALUES (
       @id,
       @album,
       @albumArtist,
-      @coverPath,
+      @releaseType,
+      @releaseDate,
       @trackCount,
       @completedAt
     )
     ON CONFLICT(id) DO UPDATE SET
       album = excluded.album,
       album_artist = excluded.album_artist,
-      cover_path = excluded.cover_path,
+      release_type = excluded.release_type,
+      release_date = excluded.release_date,
       track_count = excluded.track_count,
       completed_at = excluded.completed_at;
   `, record);
@@ -88,8 +91,9 @@ const upsertRelease = (track: Track) => {
     album: track.album,
     albumArtist: track.artist,
     completedAt: new Date().toISOString(),
-    coverPath: track.coverPath,
     id: track['MusicBrainz Album Id'],
+    releaseDate: track.date,
+    releaseType: track['MusicBrainz Album Type'],
     trackCount: track.Tracktotal,
   });
 };
@@ -99,7 +103,8 @@ const SELECT_LIBRARY_RELEASE = `
     r.id                                AS id,
     r.album,
     r.album_artist                      AS albumArtist,
-    r.cover_path                        AS coverPath,
+    r.release_type                      AS releaseType,
+    r.release_date                      AS releaseDate,
     r.track_count                       AS trackCount,
     r.completed_at                      AS completedAt,
     json_group_array(
@@ -174,8 +179,9 @@ const scanReleasesFromDisk = async () => {
         album: tags.album ?? '',
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         completedAt: new Date().toISOString(),
-        coverPath: await coverArtService.getCoverFilePath(releaseId),
         id: releaseId,
+        releaseDate: tags.date,
+        releaseType: tags['MusicBrainz Album Type'] ?? '',
         trackCount: Number(tags.Tracktotal),
       };
 
@@ -188,7 +194,6 @@ const scanReleasesFromDisk = async () => {
         trackNumber: Number(tags.track),
       };
 
-      currentRelease.coverPath = currentRelease.coverPath || await coverArtService.getCoverFilePath(releaseId);
       libraryReleases.set(releaseId, currentRelease);
       libraryTracks.set(trackId, currentTrack);
     }

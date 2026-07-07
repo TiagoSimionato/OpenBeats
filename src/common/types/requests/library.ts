@@ -11,18 +11,13 @@ export type ReleaseRecord = {
   album: string;
   albumArtist: string;
   completedAt: string;
-  coverPath?: string;
   id: string;
+  releaseDate?: string;
+  releaseType: string;
   trackCount: number;
 };
 
-export type LibraryReleaseData = {
-  album: string;
-  albumArtist: string;
-  completedAt: string;
-  coverPath?: string;
-  id: string;
-  trackCount: number;
+export type LibraryReleaseData = ReleaseRecord & {
   tracks: TrackRecord[];
 };
 
