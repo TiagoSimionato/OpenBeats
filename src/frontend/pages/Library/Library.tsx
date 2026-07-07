@@ -5,7 +5,7 @@ export const LibraryPage = async () => {
   const libraryReleases = await releasesRepository.listDownloadedReleases();
 
   return (
-    <div className="flex flex-wrap items-stretch">
+    <div className="flex flex-wrap">
       {libraryReleases.map(release => (
         <ReleaseCard key={release.id} release={release} />
       ))}

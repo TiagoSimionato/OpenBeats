@@ -1,6 +1,7 @@
 'use client';
 
 import { useCover } from 'frontend/services/caaApi/queries/covers';
+import { Icon } from 'frontend/ui/Icon';
 import { Spinner } from 'frontend/ui/Spinner';
 import Image from 'next/image';
 
@@ -32,13 +33,7 @@ export const CoverPreview = ({
 
   if (!coverUrl) {
     return (
-      <Image
-        alt="disc icon"
-        className="aspect-square w-24 shrink-0 scale-70 rounded object-cover"
-        height={500}
-        src="/disc.svg"
-        width={500}
-      />
+      <Icon className="aspect-square w-24 shrink-0 scale-70 rounded object-cover" name="disc" />
     );
   }
 

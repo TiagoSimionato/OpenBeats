@@ -11,6 +11,7 @@ export type ReleaseRecord = {
   album: string;
   albumArtist: string;
   completedAt: string;
+  coverPath?: string;
   id: string;
   releaseDate?: string;
   releaseType: string;

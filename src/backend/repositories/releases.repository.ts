@@ -18,6 +18,7 @@ const createDDL = async () => {
       release_type TEXT NOT NULL,
       release_date TEXT,
       track_count INTEGER NOT NULL,
+      cover_path TEXT,
       completed_at TEXT NOT NULL
     );`);
   database.exec(`
@@ -40,6 +41,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       release_type,
       release_date,
       track_count,
+      cover_path,
       completed_at
     ) VALUES (
       @id,
@@ -48,6 +50,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       @releaseType,
       @releaseDate,
       @trackCount,
+      @coverPath,
       @completedAt
     )
     ON CONFLICT(id) DO UPDATE SET
@@ -56,6 +59,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       release_type = excluded.release_type,
       release_date = excluded.release_date,
       track_count = excluded.track_count,
+      cover_path = excluded.cover_path,
       completed_at = excluded.completed_at;
   `, record);
 };
@@ -91,6 +95,7 @@ const upsertRelease = (track: Track) => {
     album: track.album,
     albumArtist: track.artist,
     completedAt: new Date().toISOString(),
+    coverPath: track.coverPath ? track['MusicBrainz Album Id'] : undefined,
     id: track['MusicBrainz Album Id'],
     releaseDate: track.date,
     releaseType: track['MusicBrainz Album Type'],
@@ -106,6 +111,7 @@ const SELECT_LIBRARY_RELEASE = `
     r.release_type                      AS releaseType,
     r.release_date                      AS releaseDate,
     r.track_count                       AS trackCount,
+    r.cover_path                        AS coverPath,
     r.completed_at                      AS completedAt,
     json_group_array(
       json_object(
@@ -179,6 +185,7 @@ const scanReleasesFromDisk = async () => {
         album: tags.album ?? '',
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         completedAt: new Date().toISOString(),
+        coverPath: existsSync(`${CONFIGS.COVERS_PATH}/${releaseId}.jpg`) ? releaseId : undefined,
         id: releaseId,
         releaseDate: tags.date,
         releaseType: tags['MusicBrainz Album Type'] ?? '',

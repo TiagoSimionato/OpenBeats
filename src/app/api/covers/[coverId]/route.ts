@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { withErrorHandler } from 'backend/exceptions/handler';
-import { BadRequestError, NotFoundError } from 'backend/exceptions/http';
+import { BadRequestError } from 'backend/exceptions/http';
 import { CONFIGS } from 'configs/constants';
+import { redirect } from 'next/navigation';
 
 type RouteContext = {
   params: Promise<{
@@ -16,9 +17,9 @@ export const GET = withErrorHandler(
     if (params.coverId.length !== 36)
       throw new BadRequestError('Malformed id');
 
-    const imageBuffer = await readFile(`${CONFIGS.COVERS_PATH}/${params.coverId}.jpg`).catch((_) => {
-      throw new NotFoundError('Image not found');
-    });
+    const imageBuffer = await readFile(`${CONFIGS.COVERS_PATH}/${params.coverId}.jpg`).catch(_error =>
+      redirect('/disc.svg'),
+    );
 
     return new Response(imageBuffer, {
       headers: {

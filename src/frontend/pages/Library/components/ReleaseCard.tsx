@@ -1,5 +1,7 @@
 import type { LibraryReleaseData } from 'common/types/requests/library';
 import { ROUTES } from 'configs/constants';
+import { Icon } from 'frontend/ui/Icon';
+import Image from 'next/image';
 import { Fragment } from 'react/jsx-runtime';
 
 type ReleaseCardProps = {
@@ -14,15 +16,23 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
   ];
 
   return (
-    <div className="hrow flex w-1/2 max-w-50 p-2">
+    <div className="w-1/2 max-w-50 p-2">
       <a className="flex grow flex-col rounded-2xl" href={ROUTES.RELEASE(release.id)}>
-        <img
-          alt={`${release.album} cover art`}
-          className="aspect-square w-full self-center rounded-2xl"
-          height={250}
-          src={`/api/covers/${release.id}`}
-          width={250}
-        />
+        {release.coverPath
+          ? (
+              <Image
+                alt={`${release.album} cover art`}
+                className="aspect-square w-full rounded-2xl"
+                height={250}
+                loading="eager"
+                src={`/api/covers/${release.coverPath}`}
+                unoptimized
+                width={250}
+              />
+            )
+          : (
+              <Icon className="aspect-square w-full" name="disc-album" />
+            )}
         <div className="flex flex-col gap-0.5 p-2">
           <p>{release.album}</p>
           <p>{release.albumArtist}</p>
