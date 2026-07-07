@@ -1,5 +1,5 @@
 import type { LibraryReleaseData } from 'common/types/requests/library';
-import { ROUTES } from 'configs/constants';
+import { ROUTES } from 'configs/clientConstants';
 import { Icon } from 'frontend/ui/Icon';
 import Image from 'next/image';
 import Link from 'next/link';

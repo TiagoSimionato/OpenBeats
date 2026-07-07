@@ -1,4 +1,4 @@
-import { ROUTES } from 'configs/constants';
+import { ROUTES } from 'configs/clientConstants';
 import { Icon } from 'frontend/ui/Icon';
 import Link from 'next/link';
 
