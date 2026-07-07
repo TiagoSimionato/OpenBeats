@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 type IconProps = {
   className?: string;
-  name: 'disc-album' | 'disc';
+  name: 'disc-album' | 'disc' | 'search-off' | 'search';
 };
 
 export const Icon = ({ className, name }: IconProps) => (
