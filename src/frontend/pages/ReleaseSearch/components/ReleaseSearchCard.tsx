@@ -95,7 +95,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
 
   return (
     <li className="rounded border border-zinc-200 p-3" key={release.id}>
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <CoverPreview releaseId={release.id} title={release.title} />
         <div className="flex-1">
           <p className="flex items-center gap-2 font-medium">
