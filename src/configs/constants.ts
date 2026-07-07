@@ -24,6 +24,7 @@ if (!existsSync(CONFIGS.YTMUSIC_SCRIPT_PATH))
 
 export const ROUTES = {
   HOME: '/',
+  RELEASE: (id: string) => `/releases/${id}`,
   SEARCH: '/search',
   SIGN_IN: '/signin',
 };
