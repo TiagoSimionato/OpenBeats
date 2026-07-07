@@ -1,5 +1,6 @@
 import { ROUTES } from 'configs/constants';
 import { Icon } from 'frontend/ui/Icon';
+import Link from 'next/link';
 
 export const NoReleasesFound = () => (
   <div className="flex grow flex-col items-center justify-center gap-4 text-lg">
@@ -8,10 +9,10 @@ export const NoReleasesFound = () => (
     <p>
       Try going to the
       {' '}
-      <a className="text-primary" href={ROUTES.SEARCH}>
+      <Link className="text-primary" href={ROUTES.SEARCH}>
         {' '}
         Search Page
-      </a>
+      </Link>
       {' '}
       to start building your library or try verifying the library path
     </p>

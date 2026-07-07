@@ -1,5 +1,6 @@
 import { CUSTOM_HEADERS } from 'configs/constants';
 import { headers } from 'next/headers';
+import Link from 'next/link';
 
 const menuItems = [
   {
@@ -21,7 +22,7 @@ export const Nav = async () => {
       <ul className="flex gap-5">
         {menuItems.map(({ href, label }) => (
           <li className={`${pathname === href ? 'text-primary' : ''}`} key={label}>
-            <a href={href}>{label}</a>
+            <Link href={href}>{label}</Link>
           </li>
         ))}
       </ul>

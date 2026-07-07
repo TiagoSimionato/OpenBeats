@@ -2,6 +2,7 @@ import type { LibraryReleaseData } from 'common/types/requests/library';
 import { ROUTES } from 'configs/constants';
 import { Icon } from 'frontend/ui/Icon';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Fragment } from 'react/jsx-runtime';
 
 type ReleaseCardProps = {
@@ -17,7 +18,7 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
 
   return (
     <div className="w-1/2 max-w-50 p-2">
-      <a className="flex grow flex-col rounded-2xl" href={ROUTES.RELEASE(release.id)}>
+      <Link className="flex grow flex-col rounded-2xl" href={ROUTES.RELEASE(release.id)}>
         {release.coverPath
           ? (
               <Image
@@ -45,7 +46,7 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
             ))}
           </p>
         </div>
-      </a>
+      </Link>
     </div>
   );
 };
