@@ -2,6 +2,8 @@ export type TrackRecord = {
   completedAt: string;
   downloadPath: string;
   id: string;
+  musicBrainzReleaseTrackId: string;
+  musicBrainzTrackId: string;
   releaseId: string;
   title: string;
   trackNumber: number;
@@ -10,12 +12,27 @@ export type TrackRecord = {
 export type ReleaseRecord = {
   album: string;
   albumArtist: string;
+  artist?: string;
+  artistSort?: string;
   completedAt: string;
   coverPath?: string;
+  disc: number;
+  discTotal: number;
+  genre: string;
   id: string;
+  musicBrainzAlbumArtistId: string;
+  musicBrainzAlbumId: string;
+  musicBrainzAlbumReleaseCountry?: string;
+  musicBrainzAlbumStatus?: string;
+  musicBrainzArtistId: string;
+  musicBrainzReleaseGroupId: string;
+  originalYear?: number;
+  publisher?: string;
   releaseDate?: string;
   releaseType: string;
+  tmed?: string;
   trackCount: number;
+  ts02?: string;
 };
 
 export type LibraryReleaseData = ReleaseRecord & {
