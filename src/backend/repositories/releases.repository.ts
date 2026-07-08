@@ -219,7 +219,7 @@ const SELECT_LIBRARY_RELEASE = `
         'musicBrainzTrackId',        t.music_brainz_track_id,
         'completedAt',               t.completed_at
       )
-    )                                    AS tracks
+    ORDER BY t.track_number ASC)         AS tracks
   FROM tb_releases r
   JOIN tb_tracks t on t.release_id = r.id
 `;
