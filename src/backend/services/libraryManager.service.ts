@@ -123,7 +123,10 @@ const addReleaseToLibrary = async (
     await releasesRepository.upsertLibraryTrack({
       completedAt: new Date().toISOString(),
       downloadPath: trackPath,
+      genre: track.genre.join('; '),
       id: track['MusicBrainz Track Id'],
+      musicBrainzReleaseTrackId: track['MusicBrainz Release Track Id'],
+      musicBrainzTrackId: track['MusicBrainz Track Id'],
       releaseId,
       title: track.title,
       trackNumber: track.track,

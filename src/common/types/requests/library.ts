@@ -1,6 +1,7 @@
 export type TrackRecord = {
   completedAt: string;
   downloadPath: string;
+  genre: string;
   id: string;
   musicBrainzReleaseTrackId: string;
   musicBrainzTrackId: string;
@@ -18,7 +19,6 @@ export type ReleaseRecord = {
   coverPath?: string;
   disc: number;
   discTotal: number;
-  genre: string;
   id: string;
   musicBrainzAlbumArtistId: string;
   musicBrainzAlbumId: string;
