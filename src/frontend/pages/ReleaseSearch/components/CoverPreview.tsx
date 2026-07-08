@@ -1,17 +1,10 @@
 'use client';
 
 import { useCover } from 'frontend/services/caaApi/queries/covers';
-import { Icon } from 'frontend/ui/Icon';
+import { CoverImage } from 'frontend/ui/CoverImage';
 import { Spinner } from 'frontend/ui/Spinner';
-import Image from 'next/image';
 
-export const CoverPreview = ({
-  releaseId,
-  title,
-}: Readonly<{
-  releaseId: string;
-  title?: string;
-}>) => {
+export const CoverPreview = ({ releaseId, title }: { releaseId: string; title?: string }) => {
   const { data, isPending } = useCover({
     options: {
       retry: false,
@@ -31,19 +24,5 @@ export const CoverPreview = ({
     );
   }
 
-  if (!coverUrl) {
-    return (
-      <Icon className="aspect-square w-24 shrink-0 scale-70 rounded object-cover" name="disc" />
-    );
-  }
-
-  return (
-    <Image
-      alt={title ? `${title} cover art` : 'release cover art'}
-      className="aspect-square w-24 shrink-0 rounded object-cover"
-      height={500}
-      src={coverUrl}
-      width={500}
-    />
-  );
+  return <CoverImage className="rounded" coverURL={coverUrl} releaseName={title ?? ''} size={96} />;
 };
