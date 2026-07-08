@@ -128,31 +128,29 @@ const SELECT_LIBRARY_RELEASE = `
 `;
 
 const listDownloadedReleases = async () => {
-  const database = await dbService.getDatabase();
-  const rows = database.prepare(`
+  const rows = await dbService.list<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     GROUP BY r.id
     ORDER BY r.completed_at DESC;
-  `).all() as any[];
+  `);
 
   return rows.map(row => ({
     ...row,
-    tracks: JSON.parse(row.tracks),
-  })) as LibraryReleaseData[];
+    tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
+  }));
 };
 
 const getLibraryRelease = async (releaseId: string) => {
-  const database = await dbService.getDatabase();
-  const row = database.prepare(`
+  const row = await dbService.get<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     WHERE r.id = ?;
-  `).get(releaseId) as any;
+  `, [releaseId]);
 
   if (row) {
     return {
       ...row,
-      tracks: JSON.parse(row.tracks),
-    } as LibraryReleaseData | undefined;
+      tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
+    };
   }
 };
 
