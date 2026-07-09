@@ -6,8 +6,8 @@ import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
 import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
-import { mapReleaseTracksToDownloadTracks } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
+import { mapReleaseTracksToDownloadTracks } from 'common/utils';
 
 type OnProgress = ((progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void) | undefined;
 
