@@ -1,5 +1,3 @@
-'use client';
-
 export const ROUTES = {
   HOME: '/',
   RELEASE: (id: string) => `/releases/${id}`,

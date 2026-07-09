@@ -1,5 +1,6 @@
 import { HttpStatusCode } from 'axios';
-import { CONFIGS, CUSTOM_HEADERS, ROUTES } from 'configs/constants';
+import { CONFIGS, CUSTOM_HEADERS } from 'configs/constants';
+import { ROUTES } from 'configs/routes';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { NextResponse } from 'next/server';

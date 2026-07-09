@@ -1,5 +1,5 @@
 import { auth, signIn } from 'configs/auth';
-import { ROUTES } from 'configs/constants';
+import { ROUTES } from 'configs/routes';
 import { Input } from 'frontend/ui/Input';
 import { CredentialsSignin } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -17,8 +17,8 @@ export const SignInPage = async ({
     redirect(ROUTES.HOME);
 
   return (
-    <main className="p-10 flex flex-col items-center justify-center gap-8 grow">
-      <h1 className="text-3xl font-semibold text-start">OpenBeats</h1>
+    <main className="flex grow flex-col items-center justify-center gap-8 p-10">
+      <h1 className="text-start text-3xl font-semibold">OpenBeats</h1>
       <form
         action={async (formData) => {
           'use server';
@@ -38,21 +38,11 @@ export const SignInPage = async ({
             throw error;
           }
         }}
-        className="flex-col flex gap-4"
+        className="flex flex-col gap-4"
       >
-        <Input
-          id="username"
-          name="username"
-          placeholder="Username"
-          type="text"
-        />
-        <Input
-          id="password"
-          name="password"
-          placeholder="Password"
-          type="password"
-        />
-        <button className="bg-primary rounded-4xl self-center font-bold px-7 py-2">Sign In</button>
+        <Input id="username" name="username" placeholder="Username" type="text" />
+        <Input id="password" name="password" placeholder="Password" type="password" />
+        <button className="bg-primary self-center rounded-4xl px-7 py-2 font-bold">Sign In</button>
       </form>
     </main>
   );

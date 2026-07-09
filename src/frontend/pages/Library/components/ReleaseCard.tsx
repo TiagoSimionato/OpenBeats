@@ -1,5 +1,5 @@
 import type { LibraryReleaseData } from 'common/types/requests/library';
-import { ROUTES } from 'configs/clientConstants';
+import { ROUTES } from 'configs/routes';
 import { CoverImage } from 'frontend/ui/CoverImage';
 import Link from 'next/link';
 import { Fragment } from 'react/jsx-runtime';
