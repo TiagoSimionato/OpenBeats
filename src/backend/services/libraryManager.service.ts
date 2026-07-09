@@ -1,7 +1,9 @@
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { DownloadJobProgress, Track } from 'common/types/requests/releases';
+import { rm } from 'node:fs/promises';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
+import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { mapReleaseTracksToDownloadTracks } from 'backend/utils';
@@ -142,6 +144,38 @@ const addReleaseToLibrary = async (
   console.log(`finished add ${tracks[0].album} to the library`);
 };
 
+const deleteTrack = async ({ releaseId, trackId }: { releaseId: string; trackId: string }) => {
+  const release = await releasesRepository.getLibraryRelease(releaseId);
+
+  if (!release)
+    throw new NotFoundError('Release not found');
+
+  const track = release.tracks.find(it => it.id === trackId);
+
+  if (track?.downloadPath) {
+    await rm(track.downloadPath).catch(() => {});
+  }
+
+  releasesRepository.deleteTrack(trackId);
+  if (release.tracks.length === 1)
+    releasesRepository.deleteRelease(releaseId);
+};
+
+const deleteRelease = async (releaseId: string) => {
+  const release = await releasesRepository.getLibraryRelease(releaseId);
+
+  if (!release)
+    throw new NotFoundError('Release not found');
+
+  release.tracks.forEach((track) => {
+    rm(track.downloadPath).catch(() => {});
+  });
+
+  releasesRepository.deleteRelease(releaseId);
+};
+
 export const libraryManagerService = {
   addReleaseToLibrary,
+  deleteRelease,
+  deleteTrack,
 };

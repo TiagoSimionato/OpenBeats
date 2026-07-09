@@ -51,7 +51,7 @@ const createDDL = async () => {
 };
 
 const upsertLibraryRelease = async (record: ReleaseRecord) => {
-  dbService.dbExec(`
+  await dbService.dbExec(`
     INSERT INTO tb_releases (
       id,
       album,
@@ -125,7 +125,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
 };
 
 const upsertLibraryTrack = async (record: TrackRecord) => {
-  dbService.dbExec(`
+  await dbService.dbExec(`
     INSERT INTO tb_tracks (
       id,
       release_id,
@@ -186,6 +186,24 @@ const upsertRelease = (track: Track) => {
   });
 };
 
+const deleteRelease = async (releaseId: string) => {
+  await dbService.dbExec(`
+    DELETE FROM tb_tracks
+    WHERE release_id = ?
+  `, releaseId);
+  await dbService.dbExec(`
+    DELETE FROM tb_releases
+    WHERE id = ?
+  `, releaseId);
+};
+
+const deleteTrack = async (trackId: string) => {
+  await dbService.dbExec(`
+    DELETE FROM tb_tracks
+    WHERE id = ?
+  `, trackId);
+};
+
 const SELECT_LIBRARY_RELEASE = `
   SELECT
     r.id                                 AS id,
@@ -211,6 +229,7 @@ const SELECT_LIBRARY_RELEASE = `
     json_group_array(
       json_object(
         'id',                        t.id,
+        'releaseId',                 t.release_id,
         'title',                     t.title,
         'genre',                     t.genre,
         'downloadPath',              t.download_path,
@@ -340,6 +359,8 @@ const scanLibraryReleases = async () => {
 
 export const releasesRepository = {
   createDDL,
+  deleteRelease,
+  deleteTrack,
   getLibraryRelease,
   listDownloadedReleases,
   scanLibraryReleases,

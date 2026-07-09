@@ -120,7 +120,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
       activeReleaseIdRef.current = null;
-      void queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
       scheduleRemoval(releaseId);
     },
     [queryClient, scheduleRemoval, updateQueueItem],
