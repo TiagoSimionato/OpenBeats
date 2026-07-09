@@ -1,7 +1,19 @@
+import type { StartDownloadResponse } from 'common/types/requests/releases';
 import type { HookMutationOptions, RequestConfig } from 'tsm-utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '..';
 import { LIBRARY_QUERY_KEY } from '../queries/library';
+
+export const useAddRelease = <Response = StartDownloadResponse, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<string, Response, Error>;
+} = {}) => useMutation<Response, Error, string>({
+  mutationFn: (releaseId: string) => api.post<Response>(`releases/${releaseId}`, {}, configs),
+  ...options,
+});
 
 type DeleteTrackParameters = { releaseId: string; trackId: string };
 

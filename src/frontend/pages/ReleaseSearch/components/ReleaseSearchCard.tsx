@@ -1,7 +1,7 @@
 'use client';
 
 import type { QueryRelease } from 'common/types/requests/mbApi';
-import { useDownloadQueueContext } from 'frontend/contexts/DownloadQueue';
+import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
 import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Chip } from 'frontend/ui/Chip';

@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
-import { DownloadQueueContextProvider } from 'frontend/contexts/DownloadQueue';
+import { QueueContextProvider } from 'frontend/contexts/QueueContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,8 +24,6 @@ const queryClient = new QueryClient({
 
 export const Providers = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
-    <DownloadQueueContextProvider>
-      {children}
-    </DownloadQueueContextProvider>
+    <QueueContextProvider>{children}</QueueContextProvider>
   </QueryClientProvider>
 );

@@ -6,11 +6,11 @@ import type {
 } from 'common/types/requests/releases';
 import type { PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useDownloadRelease } from 'frontend/services/api/mutations/download';
+import { useAddRelease } from 'frontend/services/api/mutations/library';
 import { LIBRARY_QUERY_KEY } from 'frontend/services/api/queries/library';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-export type DownloadQueueItem = {
+export type QueueItem = {
   jobId?: string;
   message?: string;
   processedTracks: number;
@@ -21,28 +21,28 @@ export type DownloadQueueItem = {
   totalTracks: number;
 };
 
-type DownloadQueueContextProps = {
+type QueueContextProps = {
   enqueueRelease: (release: QueryRelease) => void;
-  queue: DownloadQueueItem[];
+  queue: QueueItem[];
 };
 
-const DownloadQueueContext = createContext<DownloadQueueContextProps | null>(null);
+const QueueContext = createContext<null | QueueContextProps>(null);
 
-type DownloadQueueProviderProps = PropsWithChildren;
+type QueueProviderProps = PropsWithChildren;
 
 const isTerminalStatus = (status: DownloadJobStatus) =>
   status === 'completed' || status === 'failed';
 
-export const DownloadQueueContextProvider = ({ children }: DownloadQueueProviderProps) => {
-  const [queue, setQueue] = useState<DownloadQueueItem[]>([]);
+export const QueueContextProvider = ({ children }: QueueProviderProps) => {
+  const [queue, setQueue] = useState<QueueItem[]>([]);
   const activeReleaseIdRef = useRef<null | string>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const clearTimerRef = useRef<null | number>(null);
-  const download = useDownloadRelease();
+  const { mutateAsync: addRelease } = useAddRelease();
   const queryClient = useQueryClient();
 
   const updateQueueItem = useCallback(
-    (releaseId: string, update: (current: DownloadQueueItem) => DownloadQueueItem) => {
+    (releaseId: string, update: (current: QueueItem) => QueueItem) => {
       setQueue((currentQueue) => {
         const nextQueue = currentQueue.map(item =>
           item.releaseId === releaseId ? update(item) : item,
@@ -145,8 +145,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
       message: 'Starting download',
     }));
 
-    download
-      .mutateAsync(nextQueuedItem.releaseId)
+    addRelease(nextQueuedItem.releaseId)
       .then(({ jobId }) => {
         if (activeReleaseIdRef.current !== nextQueuedItem.releaseId) {
           return;
@@ -199,7 +198,7 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
         activeReleaseIdRef.current = null;
         scheduleRemoval(nextQueuedItem.releaseId);
       });
-  }, [download, finalizeJob, queue, scheduleRemoval, updateQueueItem]);
+  }, [addRelease, finalizeJob, queue, scheduleRemoval, updateQueueItem]);
 
   useEffect(() => {
     startNextQueuedDownload();
@@ -215,11 +214,11 @@ export const DownloadQueueContextProvider = ({ children }: DownloadQueueProvider
 
   const value = useMemo(() => ({ enqueueRelease, queue }), [enqueueRelease, queue]);
 
-  return <DownloadQueueContext value={value}>{children}</DownloadQueueContext>;
+  return <QueueContext value={value}>{children}</QueueContext>;
 };
 
 export const useDownloadQueueContext = () => {
-  const context = use(DownloadQueueContext);
+  const context = use(QueueContext);
 
   if (!context) {
     throw new Error('useDownloadQueueContext must be used within DownloadQueueContextProvider');
