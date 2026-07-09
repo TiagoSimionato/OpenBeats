@@ -53,7 +53,7 @@ export const ReleaseSearchPage = () => {
       {!isLoading && !error
         ? (
             <div className="space-y-3">
-              <p className="text-sm text-zinc-600">
+              <p className="text-lighter text-sm">
                 Found
                 {' '}
                 {data?.count ?? releases.length}

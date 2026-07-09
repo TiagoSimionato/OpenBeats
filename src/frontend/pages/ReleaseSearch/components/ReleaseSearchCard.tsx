@@ -103,7 +103,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
             {renderChip(status)}
           </p>
           <p className="text-sm text-zinc-700">{getArtistsLabel(release)}</p>
-          <p className="text-sm text-zinc-600">
+          <p className="text-lighter text-sm">
             {release.date ?? 'Unknown date'}
             {release.country ? ` • ${release.country}` : ''}
             {release['release-group']?.['primary-type']
@@ -139,7 +139,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
           </button>
           {isDownloading && queueItem
             ? (
-                <p className="max-w-40 text-xs text-zinc-500">{queueItem.message ?? 'Working...'}</p>
+                <p className="text-light max-w-40 text-xs">{queueItem.message ?? 'Working...'}</p>
               )
             : null}
         </div>
@@ -163,13 +163,13 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
                             className="flex items-start gap-3"
                             key={t.id ?? `${t.position ?? t.number}-${t.title}`}
                           >
-                            <span className="w-8 text-right text-xs text-zinc-600">
+                            <span className="text-lighter w-8 text-right text-xs">
                               {t.position ?? t.number ?? ''}
                               .
                             </span>
                             <div>
                               <div className="font-medium">{t.title ?? t.recording?.title}</div>
-                              <div className="text-xs text-zinc-600">
+                              <div className="text-lighter text-xs">
                                 {(t['artist-credit'] ?? t.recording?.['artist-credit'] ?? [])
                                   .map(c => c.name ?? c.artist?.name ?? '')
                                   .filter(Boolean)
