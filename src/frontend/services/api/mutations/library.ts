@@ -16,8 +16,8 @@ export const useDeleteLibraryTrack = <Response = null, Error = unknown>({
 
   return useMutation<Response, Error, DeleteTrackParameters>({
     mutationFn: ({ releaseId, trackId }) => api.delete<Response>(`releases/${releaseId}/tracks/${trackId}`, {}, configs),
-    onSuccess: (_, { releaseId }) => {
-      queryClient.invalidateQueries({ queryKey: [LIBRARY_QUERY_KEY, releaseId] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
     ...options,
   });
@@ -34,8 +34,8 @@ export const useDeleteLibraryRelease = <Response = null, Error = unknown>({
 
   return useMutation<Response, Error, string>({
     mutationFn: (releaseId: string) => api.delete<Response>(`releases/${releaseId}`, {}, configs),
-    onSuccess: (_, releaseId) => {
-      queryClient.invalidateQueries({ queryKey: [LIBRARY_QUERY_KEY, releaseId] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
     ...options,
   });

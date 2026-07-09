@@ -23,6 +23,6 @@ export const useGetLibraryRelease = <Response = LibraryReleaseResponse, TError =
   releaseId: string;
 }) => useQuery<Response, TError>({
   queryFn: () => api.get<Response>(`library/${releaseId}`),
-  queryKey: [LIBRARY_QUERY_KEY, releaseId],
+  queryKey: [...LIBRARY_QUERY_KEY, releaseId],
   ...options,
 });
