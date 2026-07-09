@@ -21,6 +21,8 @@ module.exports = {
         border: 'var(--border)',
         card: 'var(--card)',
         foreground: 'var(--foreground)',
+        light: 'var(--text-light)',
+        lighter: 'var(--text-lighter)',
         muted: 'var(--muted)',
         popover: 'var(--popover)',
         primary: {

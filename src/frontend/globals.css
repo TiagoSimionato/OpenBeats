@@ -12,6 +12,8 @@
   --muted: #141628;
   --border: rgba(168, 85, 247, 0.16);
   --ring: #8b2ce6;
+  --text-light: #71717b;
+  --text-lighter: #52525c;
 }
 
 @theme inline {
@@ -26,6 +28,8 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-ring: var(--ring);
+  --color-light: var(--text-light);
+  --color-lighter: var(--text-lighter);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
