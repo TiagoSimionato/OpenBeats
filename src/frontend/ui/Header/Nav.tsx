@@ -1,15 +1,16 @@
 'use client';
 
+import { ROUTES } from 'configs/routes';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const menuItems = [
   {
-    href: '/',
+    href: ROUTES.HOME,
     label: 'Library',
   },
   {
-    href: '/search',
+    href: ROUTES.SEARCH,
     label: 'Search',
   },
 ];

@@ -1,5 +1,6 @@
 'use client';
 
+import { ROUTES } from 'configs/routes';
 import { signOut } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 
@@ -10,7 +11,7 @@ export const SignOutButton = () => (
       await signOut({
         redirect: false,
       });
-      redirect('/signin');
+      redirect(ROUTES.SIGN_IN);
     }}
   >
     Sign Out
