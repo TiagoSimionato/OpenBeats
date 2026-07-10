@@ -34,7 +34,6 @@ export const CoverImage = ({
       height={size}
       loading={coverId ? 'eager' : 'lazy'}
       src={coverSrc}
-      style={{ width: size }}
       unoptimized={!!coverId}
       width={size}
     />
