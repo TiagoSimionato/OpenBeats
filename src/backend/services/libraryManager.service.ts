@@ -123,7 +123,6 @@ const addReleaseToLibrary = async (
     await metadataStep({ coverFilePath, filePath: trackPath, track }, onProgress);
 
     await releasesRepository.upsertLibraryTrack({
-      completedAt: new Date().toISOString(),
       disc: track.disc,
       downloadPath: trackPath,
       genre: track.genre.join('; '),

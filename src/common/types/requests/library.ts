@@ -1,5 +1,4 @@
 export type TrackRecord = {
-  completedAt: string;
   disc: number;
   downloadPath: string;
   genre: string;
@@ -16,7 +15,6 @@ export type ReleaseRecord = {
   albumArtist: string;
   artist?: string;
   artistSort?: string;
-  completedAt: string;
   coverPath?: string;
   discTotal: number;
   id: string;

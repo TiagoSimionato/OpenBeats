@@ -32,8 +32,7 @@ const createDDL = async () => {
       music_brainz_album_id UUID NOT NULL,
       music_brainz_artist_id UUID NOT NULL,
       music_brainz_release_group_id UUID NOT NULL,
-      cover_path TEXT,
-      completed_at TEXT NOT NULL
+      cover_path TEXT
     );`);
   database.exec(`
     CREATE TABLE IF NOT EXISTS tb_tracks (
@@ -45,8 +44,7 @@ const createDDL = async () => {
       disc INTEGER NOT NULL,
       track_number INTEGER NOT NULL,
       music_brainz_release_track_id UUID NOT NULL,
-      music_brainz_track_id UUID NOT NULL,
-      completed_at TEXT NOT NULL
+      music_brainz_track_id UUID NOT NULL
     );`);
 };
 
@@ -72,8 +70,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       music_brainz_album_id,
       music_brainz_artist_id,
       music_brainz_release_group_id,
-      cover_path,
-      completed_at
+      cover_path
     ) VALUES (
       @id,
       @album,
@@ -94,8 +91,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       @musicBrainzAlbumId,
       @musicBrainzArtistId,
       @musicBrainzReleaseGroupId,
-      @coverPath,
-      @completedAt
+      @coverPath
     )
     ON CONFLICT(id) DO UPDATE SET
       album = excluded.album,
@@ -116,8 +112,7 @@ const upsertLibraryRelease = async (record: ReleaseRecord) => {
       music_brainz_album_id = excluded.music_brainz_album_id,
       music_brainz_artist_id = excluded.music_brainz_artist_id,
       music_brainz_release_group_id = excluded.music_brainz_release_group_id,
-      cover_path = excluded.cover_path,
-      completed_at = excluded.completed_at;
+      cover_path = excluded.cover_path;
   `, record);
 };
 
@@ -132,8 +127,7 @@ const upsertLibraryTrack = async (record: TrackRecord) => {
       disc,
       track_number,
       music_brainz_release_track_id,
-      music_brainz_track_id,
-      completed_at
+      music_brainz_track_id
     ) VALUES (
       @id,
       @releaseId,
@@ -143,8 +137,7 @@ const upsertLibraryTrack = async (record: TrackRecord) => {
       @disc,
       @trackNumber,
       @musicBrainzReleaseTrackId,
-      @musicBrainzTrackId,
-      @completedAt
+      @musicBrainzTrackId
     )
     ON CONFLICT(id) DO UPDATE SET
       release_id = excluded.release_id,
@@ -154,8 +147,7 @@ const upsertLibraryTrack = async (record: TrackRecord) => {
       disc = excluded.disc,
       track_number = excluded.track_number,
       music_brainz_release_track_id = excluded.music_brainz_release_track_id,
-      music_brainz_track_id = excluded.music_brainz_track_id,
-      completed_at = excluded.completed_at;
+      music_brainz_track_id = excluded.music_brainz_track_id;
   `, record);
 };
 
@@ -165,7 +157,6 @@ const upsertRelease = (track: Track) => {
     albumArtist: track.artist,
     artist: track.artist,
     artistSort: track['artist-sort'],
-    completedAt: new Date().toISOString(),
     coverPath: track.coverPath ? track['MusicBrainz Album Id'] : undefined,
     discTotal: track.Disctotal,
     id: track['MusicBrainz Album Id'],
@@ -223,7 +214,6 @@ const SELECT_LIBRARY_RELEASE = `
     r.music_brainz_artist_id             AS musicbrainzArtistId,
     r.music_brainz_release_group_id      AS musicbrainzReleaseGroupId,
     r.cover_path                         AS coverPath,
-    r.completed_at                       AS completedAt,
     json_group_array(
       json_object(
         'id',                        t.id,
@@ -234,8 +224,7 @@ const SELECT_LIBRARY_RELEASE = `
         'disc',                      t.disc,
         'trackNumber',               t.track_number,
         'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
-        'musicBrainzTrackId',        t.music_brainz_track_id,
-        'completedAt',               t.completed_at
+        'musicBrainzTrackId',        t.music_brainz_track_id
       )
     ORDER BY t.track_number ASC)         AS tracks
   FROM tb_releases r
@@ -246,7 +235,7 @@ const listDownloadedReleases = async () => {
   const rows = await dbService.list<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     GROUP BY r.id
-    ORDER BY r.completed_at DESC;
+    ORDER BY r.album ASC;
   `);
 
   return rows.map(row => ({
@@ -300,7 +289,6 @@ const scanReleasesFromDisk = async () => {
         albumArtist: tags.album_artist ?? tags.artist ?? '',
         artist: tags.artist,
         artistSort: tags['artist-sort'],
-        completedAt: new Date().toISOString(),
         coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
         discTotal: Number(tags.Disctotal),
         id: releaseId,
@@ -320,7 +308,6 @@ const scanReleasesFromDisk = async () => {
       };
 
       const currentTrack = libraryTracks.get(trackId) ?? {
-        completedAt: new Date().toISOString(),
         disc: Number(tags.disc),
         downloadPath: filePath,
         genre: tags.genre ?? '',
