@@ -179,11 +179,11 @@ const upsertRelease = (track: Track) => {
 const deleteRelease = async (releaseId: string) => {
   await dbService.dbExec(`
     DELETE FROM tb_tracks
-    WHERE release_id = ?
+    WHERE release_id = ?;
   `, releaseId);
   await dbService.dbExec(`
     DELETE FROM tb_releases
-    WHERE id = ?
+    WHERE id = ?;
   `, releaseId);
 };
 
@@ -248,7 +248,7 @@ const getLibraryRelease = async (releaseId: string) => {
   const row = await dbService.get<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     WHERE r.id = ?;
-  `, [releaseId]);
+  `, releaseId);
 
   if (row) {
     return {

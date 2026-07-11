@@ -1,23 +1,37 @@
+import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { releasesRepository } from 'backend/repositories/releases.repository';
+import { userRepository } from 'backend/repositories/user.repository';
 import Database from 'better-sqlite3';
 import { CONFIGS } from 'configs/constants';
 import { isEmpty } from 'tsm-utils';
 
 let databaseInstance: Database.Database | null = null;
 
-const getDatabase = async () => {
+const initDatabase = async () => {
+  if (!existsSync(CONFIGS.CACHE_PATH)) {
+    await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
+  }
+  if (!existsSync(CONFIGS.DB_PATH)) {
+    const database = new Database(CONFIGS.DB_PATH);
+    databaseInstance = database;
+
+    await userRepository.createDDL();
+    await userRepository.createDefaultUser();
+    await releasesRepository.createDDL();
+
+    return database;
+  }
+  const database = new Database(CONFIGS.DB_PATH);
+  databaseInstance = database;
+  return database;
+};
+
+const getDatabase = () => {
   if (databaseInstance !== null)
     return databaseInstance;
 
-  await mkdir(CONFIGS.CACHE_PATH, { recursive: true });
-
-  const database = new Database(CONFIGS.DB_PATH);
-  databaseInstance = database;
-
-  releasesRepository.createDDL();
-
-  return database;
+  return initDatabase();
 };
 
 const resetDatabase = async () => {
@@ -52,7 +66,7 @@ const list = async <T>(statement: string): Promise<T[]> => {
   return rows as T[];
 };
 
-const get = async <T>(statement: string, args: unknown[]): Promise<T | undefined> => {
+const get = async <T>(statement: string, ...args: unknown[]): Promise<T | undefined> => {
   const database = await getDatabase();
   const row = database.prepare(statement).get(...args) as any;
   if (isEmpty(row))
@@ -64,5 +78,6 @@ export const dbService = {
   dbExec,
   get,
   getDatabase,
+  initDatabase,
   list,
 };

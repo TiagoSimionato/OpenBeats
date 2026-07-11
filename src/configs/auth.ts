@@ -1,4 +1,6 @@
 import { HttpStatusCode } from 'axios';
+import { userRepository } from 'backend/repositories/user.repository';
+import * as bcrypt from 'bcrypt';
 import { CONFIGS, CUSTOM_HEADERS } from 'configs/constants';
 import { ROUTES } from 'configs/routes';
 import NextAuth from 'next-auth';
@@ -28,12 +30,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
   providers: [Credentials({
-    authorize: (credentials) => {
-      if (credentials.username === CONFIGS.DEFAULT_USER && credentials.password === CONFIGS.DEFAULT_PASSWORD) {
-        const user = {
-          name: credentials.username,
+    authorize: async (credentials) => {
+      const username = typeof credentials.username === 'string' ? credentials.username : '';
+      const password = typeof credentials.password === 'string' ? credentials.password : '';
+
+      const user = await userRepository.getUser(username);
+      if (!user) {
+        return null;
+      }
+
+      if (bcrypt.compareSync(password, user.password)) {
+        return {
+          id: user.id,
+          name: username,
         };
-        return user;
       }
       return null;
     },
