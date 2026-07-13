@@ -199,6 +199,8 @@ const SELECT_LIBRARY_RELEASE = `
     r.id                                 AS id,
     r.album,
     r.album_artist                       AS albumArtist,
+    r.artist,
+    r.artist_sort                        AS artistSort,
     r.release_type                       AS releaseType,
     r.release_date                       AS releaseDate,
     r.original_year                      AS originalYear,
@@ -211,8 +213,8 @@ const SELECT_LIBRARY_RELEASE = `
     r.music_brainz_album_status          AS musicBrainzAlbumStatus,
     r.music_brainz_album_artist_id       AS musicBrainzAlbumArtistId,
     r.music_brainz_album_id              AS musicBrainzAlbumId,
-    r.music_brainz_artist_id             AS musicbrainzArtistId,
-    r.music_brainz_release_group_id      AS musicbrainzReleaseGroupId,
+    r.music_brainz_artist_id             AS musicBrainzArtistId,
+    r.music_brainz_release_group_id      AS musicBrainzReleaseGroupId,
     r.cover_path                         AS coverPath,
     json_group_array(
       json_object(
@@ -226,7 +228,7 @@ const SELECT_LIBRARY_RELEASE = `
         'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
         'musicBrainzTrackId',        t.music_brainz_track_id
       )
-    ORDER BY t.track_number ASC)         AS tracks
+    ORDER BY t.disc ASC, t.track_number ASC)         AS tracks
   FROM tb_releases r
   JOIN tb_tracks t on t.release_id = r.id
 `;
@@ -307,7 +309,7 @@ const scanReleasesFromDisk = async () => {
         ts02: tags.TSO2,
       };
 
-      const currentTrack = libraryTracks.get(trackId) ?? {
+      const currentTrack = {
         disc: Number(tags.disc),
         downloadPath: filePath,
         genre: tags.genre ?? '',
