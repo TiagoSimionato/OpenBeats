@@ -1,6 +1,7 @@
+import type { JobResponse } from 'common/types/requests/releases';
 import { HttpStatusCode } from 'axios';
 import { withErrorHandler } from 'backend/exceptions/handler';
-import { libraryManagerService } from 'backend/services/libraryManager.service';
+import { jobService } from 'backend/services/jobs.service';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {
@@ -10,14 +11,16 @@ type RouteContext = {
   }>;
 };
 
-export const DELETE = withErrorHandler(
-  async (_request: Request, { params }: RouteContext): Promise<NextResponse> => {
+export const POST = withErrorHandler(
+  async (_request: Request, { params }: RouteContext): Promise<NextResponse<JobResponse>> => {
     const { releaseId, trackId } = await params;
 
-    await libraryManagerService.deleteTrack({ releaseId, trackId });
+    const jobId = jobService.startTrackJob({ releaseId, trackId });
 
-    return NextResponse.json('', {
-      status: HttpStatusCode.Ok,
+    return NextResponse.json({
+      jobId,
+    }, {
+      status: HttpStatusCode.Accepted,
     });
   },
 );

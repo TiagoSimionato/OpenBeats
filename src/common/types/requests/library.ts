@@ -1,3 +1,8 @@
+export type TrackRequestParams = {
+  releaseId: string;
+  trackId: string;
+};
+
 export type TrackRecord = {
   disc: number;
   downloadPath: string;

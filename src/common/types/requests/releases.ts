@@ -54,6 +54,6 @@ export type DownloadJobProgress = {
   status: DownloadJobStatus;
 };
 
-export type StartDownloadResponse = {
+export type JobResponse = {
   jobId: string;
 };

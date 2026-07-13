@@ -1,9 +1,10 @@
+import type { TrackRequestParams } from 'common/types/requests/library';
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { DownloadJobProgress, Track } from 'common/types/requests/releases';
 import { rm } from 'node:fs/promises';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
-import { NotFoundError } from 'backend/exceptions/http';
+import { NotFoundError, UnprocessableEntityError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
@@ -93,23 +94,13 @@ const metadataStep = async ({ coverFilePath, filePath, track }: {
   track.trackPath = filePath;
 };
 
-const addReleaseToLibrary = async (
-  releaseId: string,
-  onProgress?: OnProgress,
-) => {
-  const { tracks } = await getReleaseMetadataStep(releaseId);
+const addToLibrary = async (tracks: Track[], onProgress?: OnProgress) => {
+  const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
 
-  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
-  const missingTracks = tracks.filter(it =>
-    !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
-  );
+  tracks[0].coverPath = coverFilePath;
+  releasesRepository.upsertRelease(tracks[0]);
 
-  const coverFilePath = await getCoverArtStep(missingTracks[0], onProgress);
-
-  missingTracks[0].coverPath = coverFilePath;
-  releasesRepository.upsertRelease(missingTracks[0]);
-
-  for (const track of missingTracks.values()) {
+  for (const track of tracks.values()) {
     const videoId = await searchYouTubeMusicStep(track, onProgress);
     if (!videoId) {
       continue;
@@ -129,14 +120,14 @@ const addReleaseToLibrary = async (
       id: track['MusicBrainz Track Id'],
       musicBrainzReleaseTrackId: track['MusicBrainz Release Track Id'],
       musicBrainzTrackId: track['MusicBrainz Track Id'],
-      releaseId,
+      releaseId: track['MusicBrainz Album Id'],
       title: track.title,
       trackNumber: track.track,
     });
   };
 
   onProgress?.({
-    currentTrack: missingTracks[0].Tracktotal,
+    currentTrack: tracks[0].Tracktotal,
     message: 'Download completed',
     stage: 'completed',
     status: 'completed',
@@ -144,7 +135,35 @@ const addReleaseToLibrary = async (
   console.log(`finished add ${tracks[0].album} to the library`);
 };
 
-const deleteTrack = async ({ releaseId, trackId }: { releaseId: string; trackId: string }) => {
+const addReleaseToLibrary = async (
+  releaseId: string,
+  onProgress?: OnProgress,
+) => {
+  const { tracks } = await getReleaseMetadataStep(releaseId);
+
+  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
+  const missingTracks = tracks.filter(it =>
+    !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
+  );
+
+  addToLibrary(missingTracks, onProgress);
+};
+
+const addTrackToLibrary = async (
+  { releaseId, trackId }: TrackRequestParams,
+  onProgress?: OnProgress,
+) => {
+  const { tracks: releaseTracks } = await getReleaseMetadataStep(releaseId);
+
+  const track = releaseTracks.find(it => it['MusicBrainz Track Id'] === trackId);
+
+  if (!track)
+    throw new UnprocessableEntityError('Release does not contain requested track');
+
+  addToLibrary([track], onProgress);
+};
+
+const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
   const release = await releasesRepository.getLibraryRelease(releaseId);
 
   if (!release)
@@ -176,6 +195,7 @@ const deleteRelease = async (releaseId: string) => {
 
 export const libraryManagerService = {
   addReleaseToLibrary,
+  addTrackToLibrary,
   deleteRelease,
   deleteTrack,
 };

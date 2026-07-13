@@ -65,7 +65,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const isDownloaded = libraryRelease && libraryRelease.tracks.length === libraryRelease.trackCount;
   const isPartiallyAdded = !isDownloaded && !!libraryRelease;
 
-  const { enqueueRelease, queue } = useDownloadQueueContext();
+  const { enqueueJob, queue } = useDownloadQueueContext();
 
   const queueItem = queue.find(item => item.releaseId === String(release.id));
   const isDownloading = queueItem?.status === 'running';
@@ -82,7 +82,12 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
           : 'missing';
 
   const handleDownload = () => {
-    enqueueRelease(release);
+    enqueueJob({
+      releaseId: release.id,
+      title: release.title ?? '',
+      totalTracks: release['track-count'] ?? 0,
+      type: 'release',
+    });
   };
 
   const [isOpen, setIsOpen] = useState(false);

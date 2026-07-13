@@ -1,4 +1,3 @@
-import type { QueryRelease } from 'common/types/requests/mbApi';
 import type {
   DownloadJobProgress,
   DownloadJobStage,
@@ -6,7 +5,7 @@ import type {
 } from 'common/types/requests/releases';
 import type { PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAddRelease } from 'frontend/services/api/mutations/library';
+import { useAddRelease, useAddTrack } from 'frontend/services/api/mutations/library';
 import { LIBRARY_QUERY_KEY } from 'frontend/services/api/queries/library';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -19,10 +18,20 @@ export type QueueItem = {
   status: DownloadJobStatus;
   title: string;
   totalTracks: number;
+  trackId?: string;
+  type: 'release' | 'track';
+};
+
+type EnqueueArgs = {
+  releaseId: string;
+  title: string;
+  totalTracks: number;
+  trackId?: string;
+  type: QueueItem['type'];
 };
 
 type QueueContextProps = {
-  enqueueRelease: (release: QueryRelease) => void;
+  enqueueJob: (args: EnqueueArgs) => void;
   queue: QueueItem[];
 };
 
@@ -39,6 +48,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
   const eventSourceRef = useRef<EventSource | null>(null);
   const clearTimerRef = useRef<null | number>(null);
   const { mutateAsync: addRelease } = useAddRelease();
+  const { mutateAsync: addTrack } = useAddTrack();
   const queryClient = useQueryClient();
 
   const updateQueueItem = useCallback(
@@ -53,30 +63,35 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
     [],
   );
 
-  const enqueueRelease = useCallback((release: QueryRelease) => {
-    const releaseId = release.id;
+  const enqueueJob = useCallback(
+    ({ releaseId, title, totalTracks, trackId, type }: EnqueueArgs) => {
+      setQueue((currentQueue) => {
+        if (
+          currentQueue.some(
+            item => item.releaseId === releaseId && !isTerminalStatus(item.status),
+          )
+        ) {
+          return currentQueue;
+        }
 
-    setQueue((currentQueue) => {
-      if (
-        currentQueue.some(item => item.releaseId === releaseId && !isTerminalStatus(item.status))
-      ) {
-        return currentQueue;
-      }
-
-      return [
-        ...currentQueue,
-        {
-          message: 'Waiting in queue',
-          processedTracks: 0,
-          releaseId,
-          stage: 'queued',
-          status: 'running',
-          title: release.title ?? 'Untitled release',
-          totalTracks: release['track-count'] ?? 0,
-        },
-      ];
-    });
-  }, []);
+        return [
+          ...currentQueue,
+          {
+            message: 'Waiting in queue',
+            processedTracks: 0,
+            releaseId,
+            stage: 'queued',
+            status: 'running',
+            title,
+            totalTracks,
+            trackId,
+            type,
+          },
+        ];
+      });
+    },
+    [],
+  );
 
   const clearRemovalTimer = useCallback(() => {
     if (!clearTimerRef.current) {
@@ -145,7 +160,13 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
       message: 'Starting download',
     }));
 
-    addRelease(nextQueuedItem.releaseId)
+    (async () =>
+      nextQueuedItem.type === 'release'
+        ? await addRelease(nextQueuedItem.releaseId)
+        : await addTrack({
+            releaseId: nextQueuedItem.releaseId,
+            trackId: nextQueuedItem.trackId ?? '',
+          }))()
       .then(({ jobId }) => {
         if (activeReleaseIdRef.current !== nextQueuedItem.releaseId) {
           return;
@@ -198,7 +219,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
         activeReleaseIdRef.current = null;
         scheduleRemoval(nextQueuedItem.releaseId);
       });
-  }, [addRelease, finalizeJob, queue, scheduleRemoval, updateQueueItem]);
+  }, [addRelease, addTrack, finalizeJob, queue, scheduleRemoval, updateQueueItem]);
 
   useEffect(() => {
     startNextQueuedDownload();
@@ -212,7 +233,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
     [clearRemovalTimer],
   );
 
-  const value = useMemo(() => ({ enqueueRelease, queue }), [enqueueRelease, queue]);
+  const value = useMemo(() => ({ enqueueJob, queue }), [enqueueJob, queue]);
 
   return <QueueContext value={value}>{children}</QueueContext>;
 };

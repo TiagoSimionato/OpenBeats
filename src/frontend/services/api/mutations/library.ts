@@ -1,10 +1,11 @@
-import type { StartDownloadResponse } from 'common/types/requests/releases';
+import type { TrackRequestParams } from 'common/types/requests/library';
+import type { JobResponse } from 'common/types/requests/releases';
 import type { HookMutationOptions, RequestConfig } from 'tsm-utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '..';
 import { LIBRARY_QUERY_KEY } from '../queries/library';
 
-export const useAddRelease = <Response = StartDownloadResponse, Error = unknown>({
+export const useAddRelease = <Response = JobResponse, Error = unknown>({
   configs,
   options,
 }: {
@@ -15,19 +16,28 @@ export const useAddRelease = <Response = StartDownloadResponse, Error = unknown>
   ...options,
 });
 
-type DeleteTrackParameters = { releaseId: string; trackId: string };
+export const useAddTrack = <Response = JobResponse, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<TrackRequestParams, Response, Error>;
+} = {}) => useMutation<Response, Error, TrackRequestParams>({
+  mutationFn: ({ releaseId, trackId }) => api.post<Response>(`releases/${releaseId}/tracks/${trackId}`, {}, configs),
+  ...options,
+});
 
 export const useDeleteLibraryTrack = <Response = null, Error = unknown>({
   configs,
   options,
 }: {
   configs?: RequestConfig;
-  options?: HookMutationOptions<DeleteTrackParameters, Response, Error>;
+  options?: HookMutationOptions<TrackRequestParams, Response, Error>;
 } = {}) => {
   const queryClient = useQueryClient();
 
-  return useMutation<Response, Error, DeleteTrackParameters>({
-    mutationFn: ({ releaseId, trackId }) => api.delete<Response>(`releases/${releaseId}/tracks/${trackId}`, {}, configs),
+  return useMutation<Response, Error, TrackRequestParams>({
+    mutationFn: ({ releaseId, trackId }) => api.delete<Response>(`library/releases/${releaseId}/tracks/${trackId}`, {}, configs),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
@@ -45,7 +55,7 @@ export const useDeleteLibraryRelease = <Response = null, Error = unknown>({
   const queryClient = useQueryClient();
 
   return useMutation<Response, Error, string>({
-    mutationFn: (releaseId: string) => api.delete<Response>(`releases/${releaseId}`, {}, configs),
+    mutationFn: (releaseId: string) => api.delete<Response>(`library/releases/${releaseId}`, {}, configs),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },

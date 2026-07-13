@@ -10,7 +10,7 @@ export const useGetLibrary = <Response = LibraryReleasesResponse, TError = Error
 }: {
   options?: HookQueryOptions<Response, TError>;
 } = {}) => useQuery<Response, TError>({
-  queryFn: () => api.get<Response>('library'),
+  queryFn: () => api.get<Response>('library/releases'),
   queryKey: LIBRARY_QUERY_KEY,
   ...options,
 });
@@ -22,7 +22,7 @@ export const useGetLibraryRelease = <Response = LibraryReleaseResponse, TError =
   options?: HookQueryOptions<Response, TError>;
   releaseId: string;
 }) => useQuery<Response, TError>({
-  queryFn: () => api.get<Response>(`library/${releaseId}`),
+  queryFn: () => api.get<Response>(`library/releases/${releaseId}`),
   queryKey: [...LIBRARY_QUERY_KEY, releaseId],
   ...options,
 });

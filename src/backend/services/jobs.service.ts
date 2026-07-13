@@ -1,3 +1,4 @@
+import type { TrackRequestParams } from 'common/types/requests/library';
 import type { DownloadJobProgress, DownloadJobStatus } from 'common/types/requests/releases';
 import { randomUUID } from 'node:crypto';
 import { libraryManagerService } from './libraryManager.service';
@@ -139,7 +140,7 @@ const stream = (jobId: string) => {
   return stream;
 };
 
-const startDownloadJob = (releaseId: string): string => {
+const startReleaseJob = (releaseId: string): string => {
   const jobId = createDownloadJob();
 
   libraryManagerService.addReleaseToLibrary(releaseId, partial => updateDownloadJob(jobId, {
@@ -150,10 +151,22 @@ const startDownloadJob = (releaseId: string): string => {
   return jobId;
 };
 
+const startTrackJob = ({ releaseId, trackId }: TrackRequestParams): string => {
+  const jobId = createDownloadJob();
+
+  libraryManagerService.addTrackToLibrary({ releaseId, trackId }, partial => updateDownloadJob(jobId, {
+    status: 'running',
+    ...partial,
+  }));
+
+  return jobId;
+};
+
 export const jobService = {
   createDownloadJob,
   getDownloadJobProgress,
-  startDownloadJob,
+  startReleaseJob,
+  startTrackJob,
   stream,
   updateDownloadJob,
 };
