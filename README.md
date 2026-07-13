@@ -20,28 +20,35 @@ Should build the app image from local `Dockerfile` and start the app at port 533
 
 ## Roadmap
 
-Below there is a list of planned upcoming changes for reference
+Below there is a list of planned upcoming changes as reference
 
-- User db
-- If default password not provided, generate random and console log
+- Release page
+  - Delete local tracks (entire release or a single track) (delete cover cache) (delete folder if empty)
+  - Add missing track from a release
+  - Replace/Update Metadata from files
+  - Replace track file
+  - Add or change cover (upload file or from cover art archive)
+- Library page
+  - filter releases by name
+  - choose sorting
+  - pagination
 - Generate auth secret during docker build
-- Replace/Update Metadata from downloaded files
-- Search blacklist
+- Search keywords blacklist
 - Run `yt-dlp --update`
-- Delete local tracks
+- Progress bug with multiple tracks
 - Query artist tracks
-- Query tracks alone
+- Query for single  or few tracks
+- Handle Sign in error
 - Connect with navidrome and perform a library scan after an update
-- Edit some metadata info individually
-- Only scandb on start if not exists
 - Parallel downloads
+- Remove unused svg
 - Find duplicate tracks
-- Review endpoint returns
-- Improve ui/ux
+- Server side queue
 - Open large cover modal on click
 - Cancel downloads
+- Validation endpoint returns are correct
+- Save file path template
 - Clear cover cache
-- Download again (replace file)
 
 ## Development
 
