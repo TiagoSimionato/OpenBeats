@@ -42,6 +42,7 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
   const releaseArtistCredits = release['artist-credit'];
   const releaseGroup = release['release-group'];
   const firstLabel = release['label-info']?.[0]?.label?.name ?? '';
+  const trackTotal = release.media?.reduce((acc, media) => acc + (media['track-count'] ?? 0), 0) ?? 0;
 
   return release.media?.flatMap((media, mediaIndex) => {
     const disc = media.position ?? mediaIndex + 1;
@@ -87,7 +88,7 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
         'title': title,
         'TMED': media.format ?? '',
         'track': track.position ?? 0,
-        'Tracktotal': media['track-count'] ?? 0,
+        'Tracktotal': trackTotal,
         'TSO2': artistSortLabel,
       } satisfies Track;
     }) ?? [];
