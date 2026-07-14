@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 
 const menuItems = [
   {
+    highlight: '/release',
     href: ROUTES.HOME,
     label: 'Library',
   },
@@ -21,11 +22,18 @@ export const Nav = () => {
   return (
     <nav className="basis-full md:basis-auto">
       <ul className="flex gap-5">
-        {menuItems.map(({ href, label }) => (
-          <li className={`${pathname === href ? 'text-primary' : ''}`} key={label}>
-            <Link href={href}>{label}</Link>
-          </li>
-        ))}
+        {menuItems.map(({ highlight, href, label }) => {
+          const shouldHighlight
+            = pathname === ROUTES.HOME
+              ? href === ROUTES.HOME
+              : pathname.startsWith(highlight ?? href);
+
+          return (
+            <li className={`${shouldHighlight ? 'text-primary' : ''}`} key={label}>
+              <Link href={href}>{label}</Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
