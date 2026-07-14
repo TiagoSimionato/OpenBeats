@@ -1,5 +1,6 @@
 import { auth, signIn } from 'configs/auth';
 import { ROUTES } from 'configs/routes';
+import { Button } from 'frontend/ui/Button';
 import { Input } from 'frontend/ui/Input';
 import { CredentialsSignin } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -42,7 +43,9 @@ export const SignInPage = async ({
       >
         <Input id="username" name="username" placeholder="Username" type="text" />
         <Input id="password" name="password" placeholder="Password" type="password" />
-        <button className="bg-primary self-center rounded-4xl px-7 py-2 font-bold">Sign In</button>
+        <Button className="self-center rounded-4xl" size="lg">
+          Sign In
+        </Button>
       </form>
     </main>
   );

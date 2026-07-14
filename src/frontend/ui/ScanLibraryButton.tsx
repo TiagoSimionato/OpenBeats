@@ -4,7 +4,7 @@ import type { ScanLibraryReleasesResponse } from 'common/types/requests/library'
 import { useQueryClient } from '@tanstack/react-query';
 import { useScanLibrary } from 'frontend/services/api/mutations/scanLibrary';
 import { LIBRARY_QUERY_KEY } from 'frontend/services/api/queries/library';
-import { Spinner } from './Spinner';
+import { Button } from './Button';
 
 export const ScanLibraryButton = () => {
   const queryClient = useQueryClient();
@@ -25,19 +25,13 @@ export const ScanLibraryButton = () => {
   };
 
   return (
-    <button
-      className="rounded ml-auto cursor-pointer border min-w-32 border-zinc-300 bg-white px-4 py-2 font-medium text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50"
-      disabled={scanLibrary.isPending}
+    <Button
+      className="ml-auto min-w-32 transition-colors"
+      isLoading={scanLibrary.isPending}
       onClick={handleRescanLibrary}
-      type="button"
+      variant="secondary"
     >
-      {scanLibrary.isPending
-        ? (
-            <span className="flex items-center grow justify-center gap-2">
-              <Spinner color="text-zinc-800" size="lg" />
-            </span>
-          )
-        : 'Scan library'}
-    </button>
+      Scan library
+    </Button>
   );
 };

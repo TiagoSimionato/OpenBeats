@@ -1,5 +1,6 @@
 import type { Track } from 'common/types/requests/releases';
 import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { Button } from 'frontend/ui/Button';
 import { DownloadIcon } from 'lucide-react';
 
 type MBTrackProps = {
@@ -16,7 +17,7 @@ export const MBTRack = ({ track }: MBTrackProps) => {
         {'. '}
         {track.title}
       </p>
-      <DownloadIcon
+      <Button
         onClick={() =>
           enqueueJob({
             releaseId: track['MusicBrainz Album Id'],
@@ -25,7 +26,11 @@ export const MBTRack = ({ track }: MBTrackProps) => {
             trackId: track['MusicBrainz Track Id'],
             type: 'track',
           })}
-      />
+        size="xs"
+        variant="tertiary"
+      >
+        <DownloadIcon />
+      </Button>
     </div>
   );
 };

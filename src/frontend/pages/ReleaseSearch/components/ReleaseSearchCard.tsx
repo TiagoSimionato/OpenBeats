@@ -4,6 +4,7 @@ import type { QueryRelease } from 'common/types/requests/mbApi';
 import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
 import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
+import { Button } from 'frontend/ui/Button';
 import { Chip } from 'frontend/ui/Chip';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
@@ -119,11 +120,11 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
           </p>
         </div>
         <div className="flex min-w-32 shrink-0 flex-col items-stretch gap-2">
-          <button
-            className="rounded bg-zinc-900 px-3 py-1 text-white disabled:opacity-50"
+          <Button
+            className="bg-zinc-900 text-sm font-normal disabled:opacity-50"
             disabled={isDownloading || isDownloaded}
             onClick={handleDownload}
-            type="button"
+            size="sm"
           >
             {renderButtonLabel(status)}
             {!isDownloaded && isDownloading && !isQueued && (
@@ -134,19 +135,15 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
                 </span>
               </span>
             )}
-          </button>
-          <button
-            className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+          </Button>
+          <Button
+            className="text-sm transition-colors hover:bg-zinc-50 hover:text-zinc-900"
             onClick={toggleOpen}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             {isOpen ? 'Hide tracks' : 'Show tracks'}
-          </button>
-          {isDownloading && queueItem
-            ? (
-                <p className="text-light max-w-40 text-xs">{queueItem.message ?? 'Working...'}</p>
-              )
-            : null}
+          </Button>
         </div>
       </div>
 

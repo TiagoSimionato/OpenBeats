@@ -1,6 +1,7 @@
 'use client';
 
 import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
+import { Button } from 'frontend/ui/Button';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { ReleaseSearchCard } from './components/ReleaseSearchCard';
@@ -32,12 +33,7 @@ export const ReleaseSearchPage = () => {
           placeholder="Search for album, release or singles"
           value={inputValue}
         />
-        <button
-          className="cursor-pointer rounded bg-black px-4 py-2 font-medium text-white"
-          type="submit"
-        >
-          Search
-        </button>
+        <Button type="submit">Search</Button>
       </form>
 
       {isLoading || isFetching

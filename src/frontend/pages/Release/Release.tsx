@@ -8,6 +8,7 @@ import { ROUTES } from 'configs/routes';
 import { useDeleteLibraryRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
+import { Button } from 'frontend/ui/Button';
 import { Disc3Icon, SaveIcon, TrashIcon } from 'lucide-react';
 import { notFound, useRouter } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
@@ -73,14 +74,18 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
           <h1 className="text-5xl font-bold">{release.album}</h1>
           <span>{items.join(' • ')}</span>
         </div>
-        <div className="ml-auto flex gap-4">
-          <TrashIcon onClick={() => deleteRelease(releaseId)} />
-          <SaveIcon />
+        <div className="ml-auto flex items-start gap-4">
+          <Button size="xs" variant="tertiary">
+            <TrashIcon onClick={() => deleteRelease(releaseId)} />
+          </Button>
+          <Button size="xs" variant="tertiary">
+            <SaveIcon />
+          </Button>
         </div>
       </div>
       <div className="flex flex-col gap-2">
         {discs.map((tracks, index) => (
-          <Fragment key={tracks.toString()}>
+          <Fragment key={`disc-${tracks[0].libraryTrack?.disc ?? tracks[0].mbTrack?.disc}`}>
             {release.discTotal > 1 && index > 0 && <span className="border-primary border-t" />}
             {release.discTotal > 1 && (
               <div className="flex gap-2 pl-4">
