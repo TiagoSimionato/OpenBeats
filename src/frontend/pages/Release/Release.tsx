@@ -2,15 +2,13 @@
 
 import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { ListTracks } from './components/TrackList';
-import { isAxiosError } from 'axios';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
-import { ROUTES } from 'configs/routes';
 import { useDeleteLibraryRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
 import { Disc3Icon, SaveIcon, TrashIcon } from 'lucide-react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
 import { buildAbout } from './components/buildAbout';
@@ -22,11 +20,7 @@ type ReleasePageProps = {
 };
 
 export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => {
-  const {
-    data: libraryRelease,
-    error,
-    isStale,
-  } = useGetLibraryRelease({
+  const { data: libraryRelease } = useGetLibraryRelease({
     options: {
       initialData: { libraryRelease: defaultRelease },
     },
@@ -39,10 +33,6 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
 
   if (!release)
     return notFound();
-
-  if (isAxiosError(error) && error.status === 404 && !isStale) {
-    redirect(ROUTES.HOME);
-  }
 
   const mbTracks = mbRelease ? mapReleaseTracksToDownloadTracks(mbRelease) : undefined;
 
