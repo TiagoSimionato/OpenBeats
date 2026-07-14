@@ -30,7 +30,7 @@ export const CoverImage = ({
   return (
     <Image
       alt={releaseName ? `${releaseName} cover art` : 'release cover art'}
-      className={className}
+      className={`object-contain ${className}`}
       height={size}
       loading={coverId ? 'eager' : 'lazy'}
       src={coverSrc}
