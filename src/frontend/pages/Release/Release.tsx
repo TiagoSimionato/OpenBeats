@@ -70,20 +70,22 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
 
   return (
     <main className="flex flex-col gap-4">
-      <div className="flex gap-4">
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
-        <div className="flex flex-col justify-end gap-10">
-          <span>{release.releaseType}</span>
-          <h1 className="text-5xl font-bold">{release.album}</h1>
-          <span>{items.join(' • ')}</span>
-        </div>
-        <div className="ml-auto flex items-start gap-4">
-          <Button isLoading={isPending} size="xs" variant="tertiary">
-            <TrashIcon onClick={() => deleteRelease(releaseId)} />
-          </Button>
-          <Button size="xs" variant="tertiary">
-            <SaveIcon />
-          </Button>
+        <div className="flex flex-col">
+          <div className="ml-auto flex items-start gap-4 pb-4">
+            <Button isLoading={isPending} size="xs" variant="tertiary">
+              <TrashIcon onClick={() => deleteRelease(releaseId)} />
+            </Button>
+            <Button size="xs" variant="tertiary">
+              <SaveIcon />
+            </Button>
+          </div>
+          <div className="flex flex-col justify-end gap-10">
+            <span className="hidden sm:block">{release.releaseType}</span>
+            <h1 className="text-center text-5xl font-bold sm:text-start">{release.album}</h1>
+            <span className="text-center sm:text-start">{items.join(' • ')}</span>
+          </div>
         </div>
       </div>
       <div className="flex flex-col gap-2">
