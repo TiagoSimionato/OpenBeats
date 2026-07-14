@@ -1,12 +1,12 @@
-type SpinnerSize = 'lg' | 'md' | 'sm' | 'xl' | 'xs';
+import type { Size } from './sizes';
 
 type SpinnerProps = Readonly<{
   className?: string;
   color?: string;
-  size?: SpinnerSize;
+  size?: Size;
 }>;
 
-const sizeClasses: Record<SpinnerSize, string> = {
+const sizeClasses: Record<Size, string> = {
   lg: 'h-6 w-6 border-2',
   md: 'h-5 w-5 border-2',
   sm: 'h-4 w-4 border-2',
@@ -14,11 +14,7 @@ const sizeClasses: Record<SpinnerSize, string> = {
   xs: 'h-3 w-3 border-[1.5px]',
 };
 
-export const Spinner = ({
-  className = '',
-  color = 'text-primary',
-  size = 'md',
-}: SpinnerProps) => (
+export const Spinner = ({ className = '', color = 'text-primary', size = 'md' }: SpinnerProps) => (
   <span
     aria-label="Loading"
     className={`inline-block animate-spin rounded-full border-solid border-current border-t-transparent ${sizeClasses[size]} ${color} ${className}`.trim()}
