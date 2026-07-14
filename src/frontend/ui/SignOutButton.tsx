@@ -1,13 +1,16 @@
 'use client';
 
+import type { ButtonProps } from './Button';
 import { ROUTES } from 'configs/routes';
 import { signOut } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { Button } from './Button';
 
-export const SignOutButton = () => (
+type SignOutButtonProps = ButtonProps;
+
+export const SignOutButton = ({ className, ...rest }: SignOutButtonProps) => (
   <Button
-    className="font-normal"
+    className={`font-normal ${className}`}
     onClick={async () => {
       await signOut({
         redirect: false,
@@ -16,6 +19,7 @@ export const SignOutButton = () => (
     }}
     size="xs"
     variant="tertiary"
+    {...rest}
   >
     Sign Out
   </Button>

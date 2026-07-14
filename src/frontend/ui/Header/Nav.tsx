@@ -19,7 +19,7 @@ export const Nav = () => {
   const pathname = usePathname();
 
   return (
-    <nav>
+    <nav className="basis-full md:basis-auto">
       <ul className="flex gap-5">
         {menuItems.map(({ href, label }) => (
           <li className={`${pathname === href ? 'text-primary' : ''}`} key={label}>

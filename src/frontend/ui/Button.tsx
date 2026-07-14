@@ -4,7 +4,7 @@ import { Spinner } from './Spinner';
 
 type ButtonVariants = 'primary' | 'secondary' | 'tertiary';
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   isLoading?: boolean;
   size?: Size;
   variant?: ButtonVariants;
