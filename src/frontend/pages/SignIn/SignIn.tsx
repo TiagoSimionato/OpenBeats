@@ -43,7 +43,7 @@ export const SignInPage = async ({
       >
         <Input id="username" name="username" placeholder="Username" type="text" />
         <Input id="password" name="password" placeholder="Password" type="password" />
-        <Button className="self-center rounded-4xl" size="lg">
+        <Button className="self-center rounded-4xl" size="lg" type="submit">
           Sign In
         </Button>
       </form>
