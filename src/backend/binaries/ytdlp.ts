@@ -17,9 +17,11 @@ export const searchYouTubeMusic = handlePromise(
       maxBuffer: 10 * 1024 * 1024,
     });
 
-    const results = JSON.parse(stdout) as { videoId?: string }[];
+    const results = JSON.parse(stdout) as { resultType?: string; videoId?: string }[];
 
-    const videoId = results.find(result => !!result.videoId)?.videoId;
+    const topMatch = results.find(result => result.resultType === 'song' && !!result.videoId) ?? results.find(result => !!result.videoId);
+
+    const videoId = topMatch?.videoId;
 
     console.log(`ytmusic: query [${query}] returned ${results.length} result with main [${videoId}]`);
 
