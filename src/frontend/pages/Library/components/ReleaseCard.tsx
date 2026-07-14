@@ -16,8 +16,11 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
   ];
 
   return (
-    <div className="w-1/2 max-w-50 p-2">
-      <Link className="flex grow flex-col rounded-2xl" href={ROUTES.RELEASE(release.id)}>
+    <div className="w-1/2 p-2 sm:w-auto">
+      <Link
+        className="flex grow flex-col items-center rounded-2xl"
+        href={ROUTES.RELEASE(release.id)}
+      >
         <CoverImage
           className="rounded-2xl"
           coverId={release.coverPath}

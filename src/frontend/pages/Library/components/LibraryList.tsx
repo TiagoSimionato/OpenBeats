@@ -18,7 +18,10 @@ export const LibraryListing = ({ defaultReleases }: LibraryListingProps) => {
     return <NoReleasesFound />;
 
   return (
-    <div className="flex flex-wrap">
+    <div
+      className="flex flex-wrap sm:grid"
+      style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}
+    >
       {releases.map(release => (
         <ReleaseCard key={release.id} release={release} />
       ))}
