@@ -42,8 +42,7 @@ const searchYouTubeMusicStep = async (track: Track, onProgress?: OnProgress) => 
     stage: 'search',
   });
 
-  const results = await searchYouTubeMusic(track);
-  const videoId = results ? results[0]?.videoId : undefined;
+  const videoId = await searchYouTubeMusic(track);
   if (!videoId) {
     onProgress?.({
       currentTrack: track.track,
@@ -132,7 +131,7 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress) => {
     stage: 'completed',
     status: 'completed',
   });
-  console.log(`finished add ${tracks[0].album} to the library`);
+  console.log(`finished adding ${tracks.length === 1 ? tracks[0].title : tracks[0].album} to the library`);
 };
 
 const addReleaseToLibrary = async (

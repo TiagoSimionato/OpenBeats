@@ -7,7 +7,7 @@ import { handlePromise } from 'tsm-utils';
 
 export const searchYouTubeMusic = handlePromise(
   async (track: Track) => {
-    const query = `${track.title} - ${track.artist}`;
+    const query = `${track.title} - ${track.artist} - ${track.album}`;
 
     const { stdout } = await execFileAsync(CONFIGS.PYTHON_BIN, [
       CONFIGS.YTMUSIC_SCRIPT_PATH,
@@ -17,11 +17,13 @@ export const searchYouTubeMusic = handlePromise(
       maxBuffer: 10 * 1024 * 1024,
     });
 
-    const result = JSON.parse(stdout) as { videoId: string }[];
+    const results = JSON.parse(stdout) as { videoId?: string }[];
 
-    console.log(`ytmusic: query [${query}] returned ${result.length} result with main [${result[0].videoId}]`);
+    const videoId = results.find(result => !!result.videoId)?.videoId;
 
-    return result;
+    console.log(`ytmusic: query [${query}] returned ${results.length} result with main [${videoId}]`);
+
+    return videoId;
   },
   (error) => {
     console.log(`ytmusic: ${error}`);
