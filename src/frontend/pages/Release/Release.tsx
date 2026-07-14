@@ -10,7 +10,7 @@ import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
 import { Disc3Icon, SaveIcon, TrashIcon } from 'lucide-react';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
 import { buildAbout } from './components/buildAbout';
@@ -22,23 +22,26 @@ type ReleasePageProps = {
 };
 
 export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => {
-  const { data: libraryRelease, error } = useGetLibraryRelease({
+  const {
+    data: libraryRelease,
+    error,
+    isStale,
+  } = useGetLibraryRelease({
     options: {
       initialData: { libraryRelease: defaultRelease },
     },
     releaseId,
   });
   const { data: mbRelease } = useMBGetRelease({ releaseId });
-  const { mutate: deleteRelease } = useDeleteLibraryRelease();
-  const router = useRouter();
+  const { isPending, mutate: deleteRelease } = useDeleteLibraryRelease();
 
   const release = libraryRelease?.libraryRelease;
 
   if (!release)
     return notFound();
 
-  if (isAxiosError(error) && error.status === 404) {
-    router.push(ROUTES.HOME);
+  if (isAxiosError(error) && error.status === 404 && !isStale) {
+    redirect(ROUTES.HOME);
   }
 
   const mbTracks = mbRelease ? mapReleaseTracksToDownloadTracks(mbRelease) : undefined;
@@ -75,7 +78,7 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
           <span>{items.join(' • ')}</span>
         </div>
         <div className="ml-auto flex items-start gap-4">
-          <Button size="xs" variant="tertiary">
+          <Button isLoading={isPending} size="xs" variant="tertiary">
             <TrashIcon onClick={() => deleteRelease(releaseId)} />
           </Button>
           <Button size="xs" variant="tertiary">
