@@ -72,7 +72,7 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
     <main className="flex flex-col gap-4">
       <div className="flex flex-col items-center gap-4 sm:flex-row">
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
-        <div className="flex flex-col">
+        <div className="flex grow flex-col">
           <div className="ml-auto flex items-start gap-4 pb-4">
             <Button isLoading={isPending} size="xs" variant="tertiary">
               <TrashIcon onClick={() => deleteRelease(releaseId)} />
