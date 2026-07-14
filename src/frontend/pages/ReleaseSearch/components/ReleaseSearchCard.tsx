@@ -101,7 +101,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
 
   return (
     <li className="rounded border border-zinc-200 p-3" key={release.id}>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <CoverPreview releaseId={release.id} title={release.title} />
         <div className="flex-1">
           <p className="flex items-center gap-2 font-medium">
@@ -119,7 +119,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
             {release['track-count'] ? ` • ${release['track-count']} tracks` : ''}
           </p>
         </div>
-        <div className="flex min-w-32 shrink-0 flex-col items-stretch gap-2">
+        <div className="flex min-w-32 shrink-0 basis-full flex-col items-stretch gap-2 sm:basis-auto">
           <Button
             className="bg-zinc-900 text-sm font-normal disabled:opacity-50"
             disabled={isDownloading || isDownloaded}

@@ -3,6 +3,7 @@
 import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Button } from 'frontend/ui/Button';
 import { Spinner } from 'frontend/ui/Spinner';
+import { SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ReleaseSearchCard } from './components/ReleaseSearchCard';
 
@@ -10,7 +11,7 @@ export const ReleaseSearchPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [query, setQuery] = useState('');
 
-  const { data, error, isFetching, isLoading } = useMBQueryRelease({
+  const { data, error, isFetched, isFetching, isLoading } = useMBQueryRelease({
     options: {
       enabled: query.trim().length > 0,
     },
@@ -30,10 +31,12 @@ export const ReleaseSearchPage = () => {
         <input
           className="w-full rounded border border-zinc-300 px-3 py-2"
           onChange={event => setInputValue(event.target.value)}
-          placeholder="Search for album, release or singles"
+          placeholder="Search for album, EP or singles"
           value={inputValue}
         />
-        <Button type="submit">Search</Button>
+        <Button size="sm" type="submit">
+          <SearchIcon />
+        </Button>
       </form>
 
       {isLoading || isFetching
@@ -46,7 +49,7 @@ export const ReleaseSearchPage = () => {
 
       {error ? <p className="text-red-600">Failed to load releases.</p> : null}
 
-      {!isLoading && !error
+      {!isLoading && !error && isFetched
         ? (
             <div className="space-y-3">
               <p className="text-lighter text-sm">
