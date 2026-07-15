@@ -1,5 +1,5 @@
 import type { TrackRecord } from 'common/types/requests/library';
-import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { useAddCustomTrack, useDeleteLibraryTrack } from 'frontend/services/api/mutations/library';
 import { Button } from 'frontend/ui/Button';
 import { Dialog } from 'frontend/ui/Dialog';
@@ -16,7 +16,7 @@ export const LibraryTrack = ({ track }: LibraryTrackProps) => {
   const { mutateAsync: addCustomTrack } = useAddCustomTrack();
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const { enqueueJob } = useDownloadQueueContext();
+  const { enqueueJob } = useQueueContext();
 
   return (
     <div className="flex justify-end gap-4">

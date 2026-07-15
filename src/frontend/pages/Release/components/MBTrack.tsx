@@ -1,5 +1,5 @@
 import type { Track } from 'common/types/requests/releases';
-import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { useAddTrack } from 'frontend/services/api/mutations/library';
 import { Button } from 'frontend/ui/Button';
 import { DownloadIcon } from 'lucide-react';
@@ -9,7 +9,7 @@ type MBTrackProps = {
 };
 
 export const MBTRack = ({ track }: MBTrackProps) => {
-  const { enqueueJob } = useDownloadQueueContext();
+  const { enqueueJob } = useQueueContext();
   const { mutateAsync: addTrack } = useAddTrack();
 
   return (

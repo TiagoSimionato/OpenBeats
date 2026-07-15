@@ -1,7 +1,7 @@
 'use client';
 
 import type { DownloadJobStage, DownloadJobStatus } from 'common/types/requests/releases';
-import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { Spinner } from 'frontend/ui/Spinner';
 
 export type DownloadQueueItem = {
@@ -25,7 +25,7 @@ const stageLabel: Partial<Record<DownloadJobStage, string>> = {
 };
 
 export const QueuePopup = () => {
-  const { queue } = useDownloadQueueContext();
+  const { queue } = useQueueContext();
   if (queue.length === 0) {
     return null;
   }

@@ -222,7 +222,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
   return <QueueContext value={value}>{children}</QueueContext>;
 };
 
-export const useDownloadQueueContext = () => {
+export const useQueueContext = () => {
   const context = use(QueueContext);
 
   if (!context) {

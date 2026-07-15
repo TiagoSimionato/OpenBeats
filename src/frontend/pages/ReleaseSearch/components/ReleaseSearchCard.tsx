@@ -1,7 +1,7 @@
 'use client';
 
 import type { QueryRelease } from 'common/types/requests/mbApi';
-import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { useAddRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
@@ -68,7 +68,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const isDownloaded = libraryRelease && libraryRelease.tracks.length === libraryRelease.trackCount;
   const isPartiallyAdded = !isDownloaded && !!libraryRelease;
 
-  const { enqueueJob, queue } = useDownloadQueueContext();
+  const { enqueueJob, queue } = useQueueContext();
 
   const queueItem = queue.find(item => item.releaseId === String(release.id));
   const isDownloading = queueItem?.status === 'running';
