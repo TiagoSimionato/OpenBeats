@@ -18,13 +18,13 @@ export const Dialog = ({ children, className, open, setOpen }: DialogProps) => (
         }
       }}
     >
-      <div className="border-border bg-card/95 flex flex-col rounded-xl border p-2">
+      <div className="border-border bg-card/95 mx-4 flex flex-col rounded-xl border p-2">
         <div className="self-end">
           <Button onClick={() => setOpen(false)} size="xs" variant="tertiary">
             <XIcon />
           </Button>
         </div>
-        <div className={`p-10 pt-4 ${className}`}>{children}</div>
+        <div className={`p-4 pt-1 md:p-10 md:pt-4 ${className}`}>{children}</div>
       </div>
     </div>
   </dialog>
