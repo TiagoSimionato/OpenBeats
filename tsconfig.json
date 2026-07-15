@@ -8,6 +8,8 @@
       "dom.iterable",
       "esnext"
     ],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "paths": {
@@ -23,6 +25,7 @@
     "resolveJsonModule": true,
     "allowJs": false,
     "strict": true,
+    "strictPropertyInitialization": false,
     "noEmit": true,
     "esModuleInterop": true,
     "isolatedModules": true,

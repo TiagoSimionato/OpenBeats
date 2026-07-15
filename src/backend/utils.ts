@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
+import { validateOrReject } from 'class-validator';
 
 const AUDIO_FILE_EXTENSIONS = new Set([
   '.aac',
@@ -45,3 +46,12 @@ export const sanitize = (s: string) =>
     .replace(/\.+$/g, '');
 
 export const padTrack = (n: number) => String(n ?? 0).padStart(2, '0');
+
+export const buildDTO = async <DTO extends object>(dto: DTO, obj: object) => {
+  const entries = Object.entries(obj);
+  entries.forEach(([key, value]) => {
+    (dto as any)[key] = value;
+  });
+  await validateOrReject(dto);
+  return dto;
+};
