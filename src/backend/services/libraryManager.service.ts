@@ -1,7 +1,8 @@
 import type { TrackRequestParams } from 'common/types/requests/library';
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { DownloadJobProgress, Track } from 'common/types/requests/releases';
-import { rm } from 'node:fs/promises';
+import { rm, rmdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
 import { NotFoundError } from 'backend/exceptions/http';
@@ -186,6 +187,7 @@ const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
 
   if (track?.downloadPath) {
     await rm(track.downloadPath).catch(() => {});
+    await rmdir(dirname(track.downloadPath)).catch(() => {});
   }
 
   releasesRepository.deleteTrack(trackId);
@@ -199,9 +201,18 @@ const deleteRelease = async (releaseId: string) => {
   if (!release)
     throw new NotFoundError('Release not found');
 
-  release.tracks.forEach((track) => {
-    rm(track.downloadPath).catch(() => {});
-  });
+  let releaseDirectory: string = '';
+  for (const track of release.tracks) {
+    if (!releaseDirectory)
+      releaseDirectory = dirname(track.downloadPath);
+
+    await rm(track.downloadPath).catch(() => {});
+  };
+  if (releaseDirectory) {
+    await rmdir(releaseDirectory).catch(() => {});
+    const artistDirectory = dirname(`${releaseDirectory}.xpto`);
+    await rmdir(artistDirectory).catch(() => {});
+  }
 
   releasesRepository.deleteRelease(releaseId);
 };
