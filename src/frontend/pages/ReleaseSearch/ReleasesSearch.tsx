@@ -2,6 +2,7 @@
 
 import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Button } from 'frontend/ui/Button';
+import { Input } from 'frontend/ui/Input';
 import { Spinner } from 'frontend/ui/Spinner';
 import { SearchIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -28,8 +29,8 @@ export const ReleaseSearchPage = () => {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 py-6">
       <form className="flex gap-2" onSubmit={onSubmit}>
-        <input
-          className="w-full rounded border border-zinc-300 px-3 py-2"
+        <Input
+          className="w-full"
           onChange={event => setInputValue(event.target.value)}
           placeholder="Search for album, EP or singles"
           value={inputValue}
