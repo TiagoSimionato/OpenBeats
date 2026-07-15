@@ -34,9 +34,11 @@ export const searchYouTubeMusic = handlePromise(
 
 export const runYtdlp = handlePromise(
   async ({
+    isCustomUrl,
     track,
     videoId,
   }: {
+    isCustomUrl?: boolean;
     track: Track;
     videoId: string;
   }) => {
@@ -66,7 +68,7 @@ export const runYtdlp = handlePromise(
       outputTemplate,
       '--print',
       'after_move:filepath',
-      `https://www.youtube.com/watch?v=${videoId}`,
+      ...(isCustomUrl ? ['--force-overwrite', videoId] : [`https://www.youtube.com/watch?v=${videoId}`]),
     ], {
       maxBuffer: 10 * 1024 * 1024,
     });

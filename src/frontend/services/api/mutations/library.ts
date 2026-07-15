@@ -29,6 +29,17 @@ export const useAddTrack = <Response = JobResponse, Error = unknown>({
   ...options,
 });
 
+export const useAddCustomTrack = <Response = JobResponse, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<TrackRequestParams, Response, Error>;
+} = {}) => useMutation<Response, Error, TrackRequestParams>({
+  mutationFn: ({ releaseId, trackId, url }) => api.post<Response>(`releases/${releaseId}/tracks`, { trackId, url }, configs),
+  ...options,
+});
+
 export const useDeleteLibraryTrack = <Response = null, Error = unknown>({
   configs,
   options,

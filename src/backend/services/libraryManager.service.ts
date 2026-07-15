@@ -4,7 +4,7 @@ import type { DownloadJobProgress, Track } from 'common/types/requests/releases'
 import { rm } from 'node:fs/promises';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
-import { NotFoundError, UnprocessableEntityError } from 'backend/exceptions/http';
+import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
@@ -55,14 +55,15 @@ const searchYouTubeMusicStep = async (track: Track, onProgress?: OnProgress) => 
   return videoId;
 };
 
-const ytdlpStep = async ({ track, videoId }: { track: Track; videoId: string }, onProgress?: OnProgress) => {
+const ytdlpStep = async ({ isCustomUrl, track, videoId }: { isCustomUrl?: boolean; track: Track; videoId: string }, onProgress?: OnProgress) => {
   onProgress?.({
     currentTrack: track.track,
     currentTrackTitle: track.title,
     message: `Downloading ${track.title}`,
     stage: 'download',
   });
-  const trackPath = await runYtdlp({ track, videoId });
+  const trackPath = await runYtdlp({ isCustomUrl, track, videoId });
+  track.trackPath = trackPath;
   if (!trackPath) {
     onProgress?.({
       currentTrack: track.track,
@@ -89,23 +90,30 @@ const metadataStep = async ({ coverFilePath, filePath, track }: {
     filePath,
     track,
   });
-  track.coverPath = coverFilePath;
-  track.trackPath = filePath;
 };
 
-const addToLibrary = async (tracks: Track[], onProgress?: OnProgress) => {
+const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?: string) => {
   const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
 
   tracks[0].coverPath = coverFilePath;
   releasesRepository.upsertRelease(tracks[0]);
 
   for (const track of tracks.values()) {
-    const videoId = await searchYouTubeMusicStep(track, onProgress);
-    if (!videoId) {
-      continue;
-    }
+    track.coverPath = coverFilePath;
 
-    const trackPath = await ytdlpStep({ track, videoId }, onProgress);
+    let trackPath;
+    if (!customUrl) {
+      const videoId = await searchYouTubeMusicStep(track, onProgress);
+      if (!videoId) {
+        continue;
+      }
+
+      trackPath = await ytdlpStep({ track, videoId }, onProgress);
+    }
+    if (customUrl) {
+      console.log(`using custom url: ${customUrl}`);
+      trackPath = await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
+    }
     if (!trackPath) {
       continue;
     }
@@ -149,17 +157,23 @@ const addReleaseToLibrary = async (
 };
 
 const addTrackToLibrary = async (
-  { releaseId, trackId }: TrackRequestParams,
+  { releaseId, trackId, url }: TrackRequestParams,
   onProgress?: OnProgress,
 ) => {
   const { tracks: releaseTracks } = await getReleaseMetadataStep(releaseId);
 
   const track = releaseTracks.find(it => it['MusicBrainz Track Id'] === trackId);
 
-  if (!track)
-    throw new UnprocessableEntityError('Release does not contain requested track');
+  if (!track) {
+    onProgress?.({
+      error: 'Release does not contain requested track',
+      stage: 'failed',
+      status: 'failed',
+    });
+    return;
+  }
 
-  addToLibrary([track], onProgress);
+  addToLibrary([track], onProgress, url);
 };
 
 const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {

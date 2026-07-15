@@ -1,6 +1,7 @@
 export type TrackRequestParams = {
   releaseId: string;
   trackId: string;
+  url?: string;
 };
 
 export type TrackRecord = {

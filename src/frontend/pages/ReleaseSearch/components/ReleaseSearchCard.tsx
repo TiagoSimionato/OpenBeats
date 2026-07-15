@@ -2,6 +2,7 @@
 
 import type { QueryRelease } from 'common/types/requests/mbApi';
 import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { useAddRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
@@ -60,6 +61,7 @@ const renderButtonLabel = (status: releaseStatus) => {
 
 export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const { data: library } = useGetLibrary();
+  const { mutateAsync: addRelease } = useAddRelease();
   const libraryRelease = library?.libraryReleases.find(
     libraryRelease => libraryRelease.id === release.id,
   );
@@ -84,10 +86,10 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
 
   const handleDownload = () => {
     enqueueJob({
+      onStart: () => addRelease(release.id),
       releaseId: release.id,
       title: release.title ?? '',
       totalTracks: release['track-count'] ?? 0,
-      type: 'release',
     });
   };
 

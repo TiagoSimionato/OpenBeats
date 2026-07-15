@@ -1,5 +1,6 @@
 import type { Track } from 'common/types/requests/releases';
 import { useDownloadQueueContext } from 'frontend/contexts/QueueContext';
+import { useAddTrack } from 'frontend/services/api/mutations/library';
 import { Button } from 'frontend/ui/Button';
 import { DownloadIcon } from 'lucide-react';
 
@@ -9,6 +10,7 @@ type MBTrackProps = {
 
 export const MBTRack = ({ track }: MBTrackProps) => {
   const { enqueueJob } = useDownloadQueueContext();
+  const { mutateAsync: addTrack } = useAddTrack();
 
   return (
     <div className="flex justify-end gap-4">
@@ -20,11 +22,14 @@ export const MBTRack = ({ track }: MBTrackProps) => {
       <Button
         onClick={() =>
           enqueueJob({
+            onStart: () =>
+              addTrack({
+                releaseId: track['MusicBrainz Album Id'],
+                trackId: track['MusicBrainz Track Id'],
+              }),
             releaseId: track['MusicBrainz Album Id'],
             title: track.title,
             totalTracks: 1,
-            trackId: track['MusicBrainz Track Id'],
-            type: 'track',
           })}
         size="xs"
         variant="tertiary"

@@ -151,10 +151,10 @@ const startReleaseJob = (releaseId: string): string => {
   return jobId;
 };
 
-const startTrackJob = ({ releaseId, trackId }: TrackRequestParams): string => {
+const startTrackJob = ({ releaseId, trackId, url }: TrackRequestParams): string => {
   const jobId = createDownloadJob();
 
-  libraryManagerService.addTrackToLibrary({ releaseId, trackId }, partial => updateDownloadJob(jobId, {
+  libraryManagerService.addTrackToLibrary({ releaseId, trackId, url }, partial => updateDownloadJob(jobId, {
     status: 'running',
     ...partial,
   }));
