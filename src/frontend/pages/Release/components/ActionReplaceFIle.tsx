@@ -34,13 +34,13 @@ export const ActionReplaceFile = ({ releaseId, title, trackId }: TrackActions) =
           disabled={!inputValue}
           onClick={() => {
             enqueueJob({
+              id: trackId,
               onStart: () =>
                 addCustomTrack({
                   releaseId,
                   trackId,
                   url: inputValue,
                 }),
-              releaseId,
               title,
               totalTracks: 1,
             });

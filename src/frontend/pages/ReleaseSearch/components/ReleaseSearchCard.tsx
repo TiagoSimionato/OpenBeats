@@ -70,7 +70,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
 
   const { enqueueJob, queue } = useQueueContext();
 
-  const queueItem = queue.find(item => item.releaseId === String(release.id));
+  const queueItem = queue.find(item => item.id === String(release.id));
   const isDownloading = queueItem?.status === 'running';
   const isQueued = queueItem?.stage === 'queued' && queueItem?.status === 'running';
 
@@ -86,8 +86,8 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
 
   const handleDownload = () => {
     enqueueJob({
+      id: release.id,
       onStart: () => addRelease(release.id),
-      releaseId: release.id,
       title: release.title ?? '',
       totalTracks: release['track-count'] ?? 0,
     });

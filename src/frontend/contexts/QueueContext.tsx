@@ -9,22 +9,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { LIBRARY_QUERY_KEY } from 'frontend/services/api/queries/library';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-export type QueueItem = {
-  message?: string;
+type EnqueueArgs = {
+  id: string;
   onStart: () => Promise<JobResponse>;
-  processedTracks: number;
-  releaseId: string;
-  stage: DownloadJobStage;
-  status: DownloadJobStatus;
   title: string;
   totalTracks: number;
 };
 
-type EnqueueArgs = {
-  onStart: QueueItem['onStart'];
-  releaseId: string;
-  title: string;
-  totalTracks: number;
+export type QueueItem = EnqueueArgs & {
+  message?: string;
+  processedTracks: number;
+  stage: DownloadJobStage;
+  status: DownloadJobStatus;
 };
 
 type QueueContextProps = {
@@ -41,38 +37,34 @@ const isTerminalStatus = (status: DownloadJobStatus) =>
 
 export const QueueContextProvider = ({ children }: QueueProviderProps) => {
   const [queue, setQueue] = useState<QueueItem[]>([]);
-  const activeReleaseIdRef = useRef<null | string>(null);
+  const activeQueueIdRef = useRef<null | string>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const clearTimerRef = useRef<null | number>(null);
   const queryClient = useQueryClient();
 
   const updateQueueItem = useCallback(
-    (releaseId: string, update: (current: QueueItem) => QueueItem) => {
+    (queueId: string, update: (current: QueueItem) => QueueItem) => {
       setQueue((currentQueue) => {
-        const nextQueue = currentQueue.map(item =>
-          item.releaseId === releaseId ? update(item) : item,
-        );
+        const nextQueue = currentQueue.map(item => (item.id === queueId ? update(item) : item));
         return nextQueue;
       });
     },
     [],
   );
 
-  const enqueueJob = useCallback(({ onStart, releaseId, title, totalTracks }: EnqueueArgs) => {
+  const enqueueJob = useCallback(({ id, onStart, title, totalTracks }: EnqueueArgs) => {
     setQueue((currentQueue) => {
-      if (
-        currentQueue.some(item => item.releaseId === releaseId && !isTerminalStatus(item.status))
-      ) {
+      if (currentQueue.some(item => item.id === id && !isTerminalStatus(item.status))) {
         return currentQueue;
       }
 
       return [
         ...currentQueue,
         {
+          id,
           message: 'Waiting in queue',
           onStart,
           processedTracks: 0,
-          releaseId,
           stage: 'queued',
           status: 'running',
           title,
@@ -92,11 +84,11 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
   }, []);
 
   const scheduleRemoval = useCallback(
-    (releaseId: string) => {
+    (queueId: string) => {
       clearRemovalTimer();
 
       clearTimerRef.current = window.setTimeout(() => {
-        setQueue(currentQueue => currentQueue.filter(item => item.releaseId !== releaseId));
+        setQueue(currentQueue => currentQueue.filter(item => item.id !== queueId));
       }, 4000);
     },
     [clearRemovalTimer],
@@ -104,15 +96,15 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
 
   const finalizeJob = useCallback(
     (
-      releaseId: string,
+      queueId: string,
       status: DownloadJobStatus,
       fallbackProgress?: Pick<DownloadJobProgress, 'currentTrack'>,
     ) => {
-      if (activeReleaseIdRef.current !== releaseId) {
+      if (activeQueueIdRef.current !== queueId) {
         return;
       }
 
-      updateQueueItem(releaseId, current => ({
+      updateQueueItem(queueId, current => ({
         ...current,
         message: status === 'failed' ? 'Download failed' : 'Download complete',
         processedTracks: fallbackProgress?.currentTrack ?? current.processedTracks,
@@ -123,15 +115,15 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
 
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
-      activeReleaseIdRef.current = null;
+      activeQueueIdRef.current = null;
       queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
-      scheduleRemoval(releaseId);
+      scheduleRemoval(queueId);
     },
     [queryClient, scheduleRemoval, updateQueueItem],
   );
 
   const startNextQueuedDownload = useCallback(() => {
-    if (activeReleaseIdRef.current) {
+    if (activeQueueIdRef.current) {
       return;
     }
 
@@ -143,8 +135,8 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
       return;
     }
 
-    activeReleaseIdRef.current = nextQueuedItem.releaseId;
-    updateQueueItem(nextQueuedItem.releaseId, current => ({
+    activeQueueIdRef.current = nextQueuedItem.id;
+    updateQueueItem(nextQueuedItem.id, current => ({
       ...current,
       message: 'Starting download',
     }));
@@ -152,11 +144,11 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
     nextQueuedItem
       .onStart()
       .then(({ jobId }) => {
-        if (activeReleaseIdRef.current !== nextQueuedItem.releaseId) {
+        if (activeQueueIdRef.current !== nextQueuedItem.id) {
           return;
         }
 
-        updateQueueItem(nextQueuedItem.releaseId, current => ({
+        updateQueueItem(nextQueuedItem.id, current => ({
           ...current,
           jobId,
           message: 'Connected to job',
@@ -169,7 +161,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
         eventSource.onmessage = (event) => {
           const nextProgress = JSON.parse(event.data) as DownloadJobProgress;
 
-          updateQueueItem(nextQueuedItem.releaseId, current => ({
+          updateQueueItem(nextQueuedItem.id, current => ({
             ...current,
             message: nextProgress.message,
             processedTracks: nextProgress.currentTrack,
@@ -178,30 +170,30 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
           }));
 
           if (isTerminalStatus(nextProgress.status)) {
-            finalizeJob(nextQueuedItem.releaseId, nextProgress.status, nextProgress);
+            finalizeJob(nextQueuedItem.id, nextProgress.status, nextProgress);
           }
         };
 
         eventSource.onerror = () => {
-          finalizeJob(nextQueuedItem.releaseId, 'failed', {
+          finalizeJob(nextQueuedItem.id, 'failed', {
             currentTrack: 0,
           });
         };
       })
       .catch(() => {
-        if (activeReleaseIdRef.current !== nextQueuedItem.releaseId) {
+        if (activeQueueIdRef.current !== nextQueuedItem.id) {
           return;
         }
 
-        updateQueueItem(nextQueuedItem.releaseId, current => ({
+        updateQueueItem(nextQueuedItem.id, current => ({
           ...current,
           message: 'Failed to start download',
           stage: 'failed',
           status: 'failed',
         }));
 
-        activeReleaseIdRef.current = null;
-        scheduleRemoval(nextQueuedItem.releaseId);
+        activeQueueIdRef.current = null;
+        scheduleRemoval(nextQueuedItem.id);
       });
   }, [finalizeJob, queue, scheduleRemoval, updateQueueItem]);
 

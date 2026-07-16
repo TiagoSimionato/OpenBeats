@@ -12,12 +12,12 @@ export const ActionAddTrack = ({ releaseId, title, trackId }: TrackActions) => {
     <Button
       onClick={() =>
         enqueueJob({
+          id: trackId,
           onStart: () =>
             addTrack({
               releaseId,
               trackId,
             }),
-          releaseId,
           title,
           totalTracks: 1,
         })}

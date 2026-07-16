@@ -47,10 +47,7 @@ export const QueuePopup = () => {
               = item.totalTracks > 0 ? item.processedTracks / item.totalTracks : 0;
             const progressPercent = Math.max(0, Math.min(100, Math.round(progressRatio * 100)));
             return (
-              <li
-                className="border-border bg-background/40 rounded-lg border p-2"
-                key={item.releaseId}
-              >
+              <li className="border-border bg-background/40 rounded-lg border p-2" key={item.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-semibold">{item.title}</p>
