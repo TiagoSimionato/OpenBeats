@@ -24,7 +24,7 @@ export const Dialog = ({ children, className, open, setOpen }: DialogProps) => (
             <XIcon />
           </Button>
         </div>
-        <div className={`p-4 pt-1 md:p-10 md:pt-4 ${className}`}>{children}</div>
+        <div className={`flex flex-col p-4 pt-1 md:p-10 md:pt-4 ${className}`}>{children}</div>
       </div>
     </div>
   </dialog>

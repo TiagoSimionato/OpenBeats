@@ -3,14 +3,14 @@
 import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { ListTracks } from './components/TrackList';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
-import { useDeleteLibraryRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
-import { Disc3Icon, SaveIcon, TrashIcon } from 'lucide-react';
+import { Disc3Icon, SaveIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
+import { ActionDeleteRelease } from './components/ActionDeleteRelease';
 import { buildAbout } from './components/buildAbout';
 import { TrackList } from './components/TrackList';
 
@@ -27,7 +27,6 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
     releaseId,
   });
   const { data: mbRelease } = useMBGetRelease({ releaseId });
-  const { isPending, mutate: deleteRelease } = useDeleteLibraryRelease();
 
   const release = libraryRelease?.libraryRelease;
 
@@ -64,9 +63,7 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
         <div className="flex grow flex-col">
           <div className="ml-auto flex items-start gap-4 pb-4">
-            <Button isLoading={isPending} size="xs" variant="tertiary">
-              <TrashIcon onClick={() => deleteRelease(releaseId)} />
-            </Button>
+            <ActionDeleteRelease releaseId={releaseId} title={release.album} />
             <Button size="xs" variant="tertiary">
               <SaveIcon />
             </Button>
