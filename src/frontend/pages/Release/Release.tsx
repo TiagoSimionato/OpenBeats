@@ -2,12 +2,14 @@
 
 import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { ListTracks } from './components/TrackList';
+import { HttpStatusCode, isAxiosError } from 'axios';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
+import { ROUTES } from 'configs/routes';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
 import { Disc3Icon, SaveIcon } from 'lucide-react';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
@@ -20,18 +22,23 @@ type ReleasePageProps = {
 };
 
 export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => {
-  const { data: libraryRelease } = useGetLibraryRelease({
+  const { data: libraryRelease, error } = useGetLibraryRelease({
     options: {
       initialData: { libraryRelease: defaultRelease },
     },
     releaseId,
   });
   const { data: mbRelease } = useMBGetRelease({ releaseId });
+  const router = useRouter();
 
   const release = libraryRelease?.libraryRelease;
 
   if (!release)
     return notFound();
+
+  if (isAxiosError(error) && error.status === HttpStatusCode.NotFound) {
+    router.replace(ROUTES.HOME);
+  }
 
   const mbTracks = mbRelease ? mapReleaseTracksToDownloadTracks(mbRelease) : undefined;
 
