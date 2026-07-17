@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { BadRequestError } from 'backend/exceptions/http';
-import { coverArtService } from 'backend/services/coverArt.service';
+import { CONFIGS } from 'configs/constants';
 import { redirect } from 'next/navigation';
 
 type RouteContext = {
@@ -17,7 +17,7 @@ export const GET = withErrorHandler(
     if (params.coverId.length !== 36)
       throw new BadRequestError('Malformed id');
 
-    const imageBuffer = await readFile(await coverArtService.getCoverFilePath(params.coverId) ?? '').catch(_error =>
+    const imageBuffer = await readFile(`${CONFIGS.THUMBNAILS_PATH}/${params.coverId}.webp`).catch(_error =>
       redirect('/disc.svg'),
     );
 

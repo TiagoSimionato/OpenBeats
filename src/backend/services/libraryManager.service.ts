@@ -10,6 +10,7 @@ import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
+import { CONFIGS } from 'configs/constants';
 
 type OnProgress = ((progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void) | undefined;
 
@@ -177,24 +178,6 @@ const addTrackToLibrary = async (
   addToLibrary([track], onProgress, url);
 };
 
-const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
-  const release = await releasesRepository.getLibraryRelease(releaseId);
-
-  if (!release)
-    throw new NotFoundError('Release not found');
-
-  const track = release.tracks.find(it => it.id === trackId);
-
-  if (track?.downloadPath) {
-    await rm(track.downloadPath).catch(() => {});
-    await rmdir(dirname(track.downloadPath)).catch(() => {});
-  }
-
-  releasesRepository.deleteTrack(trackId);
-  if (release.tracks.length === 1)
-    releasesRepository.deleteRelease(releaseId);
-};
-
 const deleteRelease = async (releaseId: string) => {
   const release = await releasesRepository.getLibraryRelease(releaseId);
 
@@ -213,8 +196,33 @@ const deleteRelease = async (releaseId: string) => {
     const artistDirectory = dirname(`${releaseDirectory}.xpto`);
     await rmdir(artistDirectory).catch(() => {});
   }
+  const coverPath = await coverArtService.getCoverFilePath(release.id);
+  if (coverPath) {
+    await rm(coverPath).catch(() => {});
+  }
+  await rm(`${CONFIGS.THUMBNAILS_PATH}/${release.id}.webp`).catch(() => {});
 
   releasesRepository.deleteRelease(releaseId);
+};
+
+const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
+  const release = await releasesRepository.getLibraryRelease(releaseId);
+
+  if (!release)
+    throw new NotFoundError('Release not found');
+
+  if (release.tracks.length === 1) {
+    deleteRelease(releaseId);
+    return;
+  }
+
+  const track = release.tracks.find(it => it.id === trackId);
+
+  if (track?.downloadPath) {
+    await rm(track.downloadPath).catch(() => {});
+  }
+
+  releasesRepository.deleteTrack(trackId);
 };
 
 export const libraryManagerService = {

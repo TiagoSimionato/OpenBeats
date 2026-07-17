@@ -15,6 +15,7 @@ export const CONFIGS = {
   FFMPEG_BIN: process.env.FFMPEG_BIN ?? 'ffmpeg',
   FFPROBE_BIN: process.env.FFPROBE_BIN ?? 'ffprobe',
   PYTHON_BIN: process.env.PYTHON_BIN ?? 'python3',
+  THUMBNAILS_PATH: `${CACHE_PATH}/thumbnails`,
   YT_DLP_BIN: process.env.YT_DLP_BIN ?? 'yt-dlp',
   YTMUSIC_SCRIPT_PATH: join(process.cwd(), 'src', 'backend', 'binaries', 'search_ytmusic.py'),
 } as const;

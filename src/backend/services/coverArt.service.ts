@@ -1,13 +1,35 @@
 import type { CoverResponse } from 'common/types/requests/caaApi';
 import type { Track } from 'common/types/requests/releases';
-import { mkdir, readdir, writeFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { isAxiosError } from 'axios';
 import { caaApi } from 'common/api/caaApi';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
 
-const getCoverFileExtension = (sourcePathOrUrl: string) => extname(sourcePathOrUrl) || '.jpg';
+const makeWebp = async (imagePath: string) => {
+  const child = spawn(
+    process.execPath,
+    ['--import', 'tsx', 'src/backend/scripts/imagemin.mts', imagePath, CONFIGS.THUMBNAILS_PATH],
+    { stdio: ['ignore', 'pipe', 'pipe'] },
+  );
+
+  let stderr = '';
+  child.stderr.on('data', (d) => {
+    stderr += d.toString();
+  });
+
+  const [code] = await once(child, 'close') as [number];
+  if (code !== 0) {
+    throw new Error(`cover conversion failed (${code}): ${stderr}`);
+  }
+};
+
+const getCoverFileExtension = (sourcerUrl: string) =>
+  extname(sourcerUrl) || '.jpg'
+;
 
 const getCoverFilePath = async (releaseId: string) => {
   const coverDir = resolve(CONFIGS.COVERS_PATH);
@@ -23,6 +45,22 @@ const getCoverFilePath = async (releaseId: string) => {
   const existingCoverEntry = entries.find(entry => entry.isFile() && entry.name.startsWith(`${releaseId}.`));
 
   return existingCoverEntry ? join(coverDir, existingCoverEntry.name) : undefined;
+};
+
+const saveCAAImage = async (imagePath: string, url: string, isThumbnail?: boolean) => {
+  await mkdir(dirname(imagePath), { recursive: true });
+
+  const imageResponse = await caaApi.get<ArrayBuffer>(url, {
+    responseType: 'arraybuffer',
+  });
+
+  const buffer = Buffer.from(imageResponse);
+  await writeFile(imagePath, buffer);
+
+  if (isThumbnail && getCoverFileExtension(imagePath) !== '.webp') {
+    await makeWebp(imagePath);
+    await rm(imagePath);
+  }
 };
 
 const getReleaseCoverArt = handlePromise(
@@ -51,20 +89,20 @@ const getReleaseCoverArt = handlePromise(
       throw new Error('Cover Art Archive did not return a downloadable cover image');
     }
 
-    const coverImageUrl = new URL(coverImage.image);
     const coverFilePath = join(
       resolve(CONFIGS.COVERS_PATH),
-      `${track['MusicBrainz Album Id']}${getCoverFileExtension(coverImageUrl.pathname)}`,
+      `${track['MusicBrainz Album Id']}${getCoverFileExtension(coverImage.image)}`,
     );
+    await saveCAAImage(coverFilePath, coverImage.image);
 
-    await mkdir(dirname(coverFilePath), { recursive: true });
-
-    const coverImageResponse = await caaApi.get<ArrayBuffer>(coverImage.image, {
-      responseType: 'arraybuffer',
-    });
-
-    const buffer = Buffer.from(coverImageResponse);
-    await writeFile(coverFilePath, buffer);
+    const thumbnailUrl = coverImage.thumbnails?.small ?? coverImage.thumbnails?.[250];
+    if (thumbnailUrl) {
+      const thumbnailPath = join(
+        resolve(CONFIGS.THUMBNAILS_PATH),
+        `${track['MusicBrainz Album Id']}${getCoverFileExtension(thumbnailUrl)}`,
+      );
+      await saveCAAImage(thumbnailPath, thumbnailUrl, true);
+    }
 
     console.log(`cover art: added new cover art for release [${track.album}]`);
 

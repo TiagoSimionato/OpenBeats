@@ -6,9 +6,6 @@ import { Spinner } from 'frontend/ui/Spinner';
 
 export const CoverPreview = ({ releaseId, title }: { releaseId: string; title?: string }) => {
   const { data, isPending } = useCover({
-    options: {
-      retry: false,
-    },
     releaseId,
   });
 
