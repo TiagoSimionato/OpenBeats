@@ -31,7 +31,7 @@ const getCoverArtStep = async (track: Track, onProgress?: OnProgress): Promise<s
     stage: 'cover',
   });
 
-  const coverFilePath = await coverArtService.getReleaseCoverArt(track);
+  const coverFilePath = await coverArtService.getReleaseCoverArt({ releaseId: track['MusicBrainz Album Id'], title: track.album });
 
   return coverFilePath;
 };
@@ -178,6 +178,20 @@ const addTrackToLibrary = async (
   addToLibrary([track], onProgress, url);
 };
 
+const syncReleasesCover = async () => {
+  const releases = await releasesRepository.listLibraryReleases();
+  for (const release of releases) {
+    if (!release.coverPath) {
+      if (await coverArtService.getReleaseCoverArt({ releaseId: release.id, title: release.album })) {
+        releasesRepository.upsertLibraryRelease({
+          ...release,
+          coverPath: release.id,
+        });
+      }
+    }
+  }
+};
+
 const deleteRelease = async (releaseId: string) => {
   const release = await releasesRepository.getLibraryRelease(releaseId);
 
@@ -230,4 +244,5 @@ export const libraryManagerService = {
   addTrackToLibrary,
   deleteRelease,
   deleteTrack,
+  syncReleasesCover,
 };

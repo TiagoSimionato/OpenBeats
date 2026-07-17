@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { dbService } from 'backend/services/db.service';
+import { libraryManagerService } from 'backend/services/libraryManager.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 
@@ -233,7 +234,7 @@ const SELECT_LIBRARY_RELEASE = `
   JOIN tb_tracks t on t.release_id = r.id
 `;
 
-const listDownloadedReleases = async () => {
+const listLibraryReleases = async () => {
   const rows = await dbService.list<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     GROUP BY r.id
@@ -338,11 +339,13 @@ const scanReleasesFromDisk = async () => {
     ...libraryTracks.values(),
   ].map(trackRecord => upsertLibraryTrack(trackRecord));
   await Promise.all(upsertTracksStatements);
+
+  await libraryManagerService.syncReleasesCover();
 };
 
 const scanLibraryReleases = async () => {
   await scanReleasesFromDisk();
-  return await listDownloadedReleases();
+  return await listLibraryReleases();
 };
 
 export const releasesRepository = {
@@ -350,9 +353,10 @@ export const releasesRepository = {
   deleteRelease,
   deleteTrack,
   getLibraryRelease,
-  listDownloadedReleases,
+  listLibraryReleases,
   scanLibraryReleases,
   scanReleasesFromDisk,
+  upsertLibraryRelease,
   upsertLibraryTrack,
   upsertRelease,
 };

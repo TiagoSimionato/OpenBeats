@@ -9,7 +9,7 @@ type RouteContext = {
 
 export const GET = withErrorHandler(
   async (_request: Request, _context: RouteContext): Promise<NextResponse<LibraryReleasesResponse>> => {
-    const libraryReleases = await releasesRepository.listDownloadedReleases();
+    const libraryReleases = await releasesRepository.listLibraryReleases();
 
     return NextResponse.json({
       libraryReleases,

@@ -1,8 +1,8 @@
 import type { CoverResponse } from 'common/types/requests/caaApi';
-import type { Track } from 'common/types/requests/releases';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { isAxiosError } from 'axios';
 import { caaApi } from 'common/api/caaApi';
@@ -33,18 +33,25 @@ const getCoverFileExtension = (sourcerUrl: string) =>
 
 const getCoverFilePath = async (releaseId: string) => {
   const coverDir = resolve(CONFIGS.COVERS_PATH);
-  let entries;
+  const thumbDir = resolve(CONFIGS.THUMBNAILS_PATH);
 
-  try {
-    entries = await readdir(coverDir, { withFileTypes: true });
-  }
-  catch {
+  if (!existsSync(coverDir) || !existsSync(thumbDir)) {
     return undefined;
   }
 
-  const existingCoverEntry = entries.find(entry => entry.isFile() && entry.name.startsWith(`${releaseId}.`));
+  const candidates = ['.jpg', '.jpeg', '.png', '.webp'];
+  const extension = candidates.find((extension) => {
+    if (existsSync(join(coverDir, `${releaseId}${extension}`))) {
+      return true;
+    }
+    return false;
+  });
+  const thumbnailPath = join(thumbDir, `${releaseId}.webp`);
+  const existsThumb = existsSync(thumbnailPath);
 
-  return existingCoverEntry ? join(coverDir, existingCoverEntry.name) : undefined;
+  if (extension && existsThumb) {
+    return `${releaseId}${extension}`;
+  }
 };
 
 const saveCAAImage = async (imagePath: string, url: string, isThumbnail?: boolean) => {
@@ -64,15 +71,15 @@ const saveCAAImage = async (imagePath: string, url: string, isThumbnail?: boolea
 };
 
 const getReleaseCoverArt = handlePromise(
-  async (track: Track) => {
-    const existingCoverFilePath = await getCoverFilePath(track['MusicBrainz Album Id']);
+  async ({ releaseId, title }: { releaseId: string; title: string }) => {
+    const existingCoverFilePath = await getCoverFilePath(releaseId);
 
     if (existingCoverFilePath) {
-      console.log(`cover art: cover already exists for release [${track.album}]`);
+      console.log(`cover art: cover already exists for release [${title}]`);
       return existingCoverFilePath;
     }
 
-    const coverResponse = await caaApi.get<CoverResponse>(`release/${track['MusicBrainz Album Id']}`).catch((error) => {
+    const coverResponse = await caaApi.get<CoverResponse>(`release/${releaseId}`).catch((error) => {
       if (isAxiosError(error) && error.status === 404) {
         return undefined;
       }
@@ -91,7 +98,7 @@ const getReleaseCoverArt = handlePromise(
 
     const coverFilePath = join(
       resolve(CONFIGS.COVERS_PATH),
-      `${track['MusicBrainz Album Id']}${getCoverFileExtension(coverImage.image)}`,
+      `${releaseId}${getCoverFileExtension(coverImage.image)}`,
     );
     await saveCAAImage(coverFilePath, coverImage.image);
 
@@ -99,12 +106,12 @@ const getReleaseCoverArt = handlePromise(
     if (thumbnailUrl) {
       const thumbnailPath = join(
         resolve(CONFIGS.THUMBNAILS_PATH),
-        `${track['MusicBrainz Album Id']}${getCoverFileExtension(thumbnailUrl)}`,
+        `${releaseId}${getCoverFileExtension(thumbnailUrl)}`,
       );
       await saveCAAImage(thumbnailPath, thumbnailUrl, true);
     }
 
-    console.log(`cover art: added new cover art for release [${track.album}]`);
+    console.log(`cover art: added new cover art for release [${title}]`);
 
     return coverFilePath;
   },
