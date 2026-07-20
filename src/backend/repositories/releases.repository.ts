@@ -270,7 +270,6 @@ const scanReleasesFromDisk = async () => {
 
   const files = await walkFiles(downloadPath);
   const libraryReleases = new Map<string, ReleaseRecord>();
-  const libraryTracks = new Map<string, TrackRecord>();
 
   for (const filePath of files) {
     if (!isAudioFile(filePath)) {
@@ -280,65 +279,65 @@ const scanReleasesFromDisk = async () => {
     try {
       const probeResponse = await probeAudioFile(filePath);
       const tags = probeResponse.format?.tags;
-      const releaseId = tags?.['MusicBrainz Album Id'];
-      const trackId = tags?.['MusicBrainz Track Id'];
+      const releaseId = tags?.['MusicBrainz Album Id'] ?? tags?.MUSICBRAINZ_ALBUMID;
+      const trackId = tags?.['MusicBrainz Track Id'] ?? tags?.MUSICBRAINZ_TRACKID ?? tags?.['MusicBrainz Release Track Id'] ?? tags?.MUSICBRAINZ_RELEASETRACKID;
 
-      if (!releaseId || !trackId) {
+      if (!releaseId || !trackId || !tags) {
         continue;
       }
 
-      const currentRelease = libraryReleases.get(releaseId) ?? {
-        album: tags.album ?? '',
-        albumArtist: tags.album_artist ?? tags.artist ?? '',
-        artist: tags.artist,
-        artistSort: tags['artist-sort'],
-        coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
-        discTotal: Number(tags.Disctotal),
-        id: releaseId,
-        musicBrainzAlbumArtistId: tags['MusicBrainz Album Artist Id'] ?? '',
-        musicBrainzAlbumId: tags['MusicBrainz Album Id'] ?? '',
-        musicBrainzAlbumReleaseCountry: tags['MusicBrainz Album Release Country'],
-        musicBrainzAlbumStatus: tags['MusicBrainz Album Status'],
-        musicBrainzArtistId: tags['MusicBrainz Artist Id'] ?? '',
-        musicBrainzReleaseGroupId: tags['MusicBrainz Release Group Id'] ?? '',
-        originalYear: Number(tags.originalyear),
-        publisher: tags.publisher,
-        releaseDate: tags.date,
-        releaseType: tags['MusicBrainz Album Type'] ?? '',
-        tmed: tags.TMED,
-        trackCount: Number(tags.Tracktotal),
-        ts02: tags.TSO2,
-      };
+      const discParts = tags.disc?.split('/') ?? [];
+      const disc = Number((discParts?.length > 1 ? discParts?.[0] : tags.disc) ?? 1);
+      const discTotal = Number((discParts?.length > 1 ? discParts?.[1] : tags.Disctotal ?? tags.DISCTOTAL) ?? 1);
+
+      const trackParts = tags.track?.split('/');
+      const track = Number((trackParts?.length ?? 0 > 1 ? trackParts?.[0] : tags.track) ?? 1);
+      const trackTotal = Number((trackParts?.length ?? 0 > 1 ? trackParts?.[1] : tags.Tracktotal ?? tags.TOTALTRACKS ?? tags.TRACKTOTAL) ?? 1);
+
+      if (!libraryReleases.get(releaseId)) {
+        const currentRelease = {
+          album: tags.album ?? tags.ALBUM ?? '',
+          albumArtist: tags.album_artist ?? tags.artist ?? '',
+          artist: tags.artist ?? tags.ARTIST ?? tags.ARTISTS,
+          artistSort: tags['artist-sort'] ?? tags.ARTISTSORT,
+          coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
+          discTotal,
+          id: releaseId,
+          musicBrainzAlbumArtistId: tags['MusicBrainz Album Artist Id'] ?? tags.MUSICBRAINZ_ALBUMARTISTID ?? '',
+          musicBrainzAlbumId: releaseId,
+          musicBrainzAlbumReleaseCountry: tags['MusicBrainz Album Release Country'] ?? tags.RELEASECOUNTRY,
+          musicBrainzAlbumStatus: tags['MusicBrainz Album Status'] ?? tags.RELEASESTATUS,
+          musicBrainzArtistId: tags['MusicBrainz Artist Id'] ?? tags.MUSICBRAINZ_ARTISTID ?? '',
+          musicBrainzReleaseGroupId: tags['MusicBrainz Release Group Id'] ?? tags.MUSICBRAINZ_RELEASEGROUPID ?? '',
+          originalYear: Number(tags.originalyear ?? tags.ORIGINALYEAR),
+          publisher: tags.publisher ?? tags.LABEL,
+          releaseDate: tags.ORIGINALDATE ?? tags.date ?? tags.DATE,
+          releaseType: tags['MusicBrainz Album Type'] ?? tags.RELEASETYPE ?? '',
+          tmed: tags.TMED ?? tags.MEDIA,
+          trackCount: trackTotal,
+          ts02: tags.TSO2,
+        };
+        libraryReleases.set(releaseId, currentRelease);
+        await upsertLibraryRelease(currentRelease);
+      }
 
       const currentTrack = {
-        disc: Number(tags.disc),
+        disc,
         downloadPath: filePath,
-        genre: tags.genre ?? '',
+        genre: tags.genre ?? tags.GENRE ?? '',
         id: trackId,
-        musicBrainzReleaseTrackId: tags['MusicBrainz Release Track Id'] ?? '',
-        musicBrainzTrackId: tags['MusicBrainz Track Id'] ?? '',
+        musicBrainzReleaseTrackId: tags['MusicBrainz Release Track Id'] ?? tags.MUSICBRAINZ_RELEASETRACKID ?? '',
+        musicBrainzTrackId: tags?.['MusicBrainz Track Id'] ?? tags?.MUSICBRAINZ_TRACKID ?? '',
         releaseId,
-        title: tags.title ?? '',
-        trackNumber: Number(tags.track),
+        title: tags.title ?? tags.TITLE ?? '',
+        trackNumber: track,
       };
-
-      libraryReleases.set(releaseId, currentRelease);
-      libraryTracks.set(trackId, currentTrack);
+      await upsertLibraryTrack(currentTrack);
     }
     catch (error) {
       console.warn(`walk files error: ${error}`);
     }
   }
-
-  const upsertReleasesStatements = [
-    ...libraryReleases.values(),
-  ].map(releaseRecord => upsertLibraryRelease(releaseRecord));
-  await Promise.all(upsertReleasesStatements);
-
-  const upsertTracksStatements = [
-    ...libraryTracks.values(),
-  ].map(trackRecord => upsertLibraryTrack(trackRecord));
-  await Promise.all(upsertTracksStatements);
 
   await libraryManagerService.syncReleasesCover();
 };

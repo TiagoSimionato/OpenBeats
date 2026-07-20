@@ -8,7 +8,7 @@ export const register = async () => {
     if (!existsSync(CONFIGS.DB_PATH)) {
       await dbService.initDatabase();
       const { releasesRepository } = await import('backend/repositories/releases.repository');
-      await releasesRepository.scanReleasesFromDisk();
+      releasesRepository.scanReleasesFromDisk();
     }
     else {
       await dbService.initDatabase();
