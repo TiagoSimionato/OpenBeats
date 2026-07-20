@@ -32,7 +32,7 @@ const toErrorResponse = (error: HttpError | ValidationError): NextResponse<Error
   });
 };
 
-export const withErrorHandler = <TContext = Record<string, never>>(
+export const withErrorHandler = <TContext>(
   handler: (
     request: NextRequest,
     context: TContext,
