@@ -22,7 +22,7 @@ export const CoverImage = ({
   if (!coverId && !coverURL) {
     if (iconFallback === 'disc')
       return <Disc3Icon className="scale-70 rounded" size={size} strokeWidth={1.25} />;
-    return <Icon className="aspect-square w-full" name="disc-album" />;
+    return <Icon className="aspect-square" name="disc-album" size={size} />;
   }
 
   const coverSrc = coverURL ?? `/api/covers/${coverId}`;
