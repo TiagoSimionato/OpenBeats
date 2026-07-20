@@ -23,18 +23,16 @@ Should build the app image from local `Dockerfile` and start the app at port 533
 Below there is a list of planned upcoming changes as reference
 
 - Release page
-  - Delete local tracks (entire release or a single track) (delete cover cache) (delete folder if empty)
-  - Add missing track from a release
-  - Replace/Update Metadata from files
-  - Replace track file
+  - Replace/Update Metadata from files (move file if changing artists or release name)
   - Add or change cover (upload file or from cover art archive)
 - Library page
   - filter releases by name
   - choose sorting
   - pagination
 - Generate auth secret during docker build
-- Search keywords blacklist
 - Run `yt-dlp --update`
+- ytmusic-api npm
+- Search keywords blacklist
 - Progress bug with multiple tracks
 - Query artist tracks
 - Query for single  or few tracks
@@ -46,9 +44,10 @@ Below there is a list of planned upcoming changes as reference
 - Server side queue
 - Open large cover modal on click
 - Cancel downloads
-- Validation endpoint returns are correct
 - Save file path template
 - Clear cover cache
+- Custom tracks not recognized
+- Import local audio files
 
 ## Development
 
