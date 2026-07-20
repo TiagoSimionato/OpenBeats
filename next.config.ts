@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       new URL('https://coverartarchive.org/release/**'),
     ],
   },
+  logging: { incomingRequests: CONFIGS.LOG_INCOMING_REQUESTS },
   output: 'standalone',
   reactCompiler: true,
 };
