@@ -7,7 +7,7 @@ services:
     container_name: openbeats_server
     restart: unless-stopped
     volumes:
-      - ${LIBRARY_PATH}/openbeats:/data
+      - ${LIBRARY_PATH}:/data
       - ./openbeats:/opt/openbeats
     ports:
       - '5334:5334'
