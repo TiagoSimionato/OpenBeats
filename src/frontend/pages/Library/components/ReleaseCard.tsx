@@ -11,25 +11,22 @@ type ReleaseCardProps = {
 export const ReleaseCard = ({ release }: ReleaseCardProps) => {
   const footerData = [
     `${release.trackCount} tracks`,
-    release.releaseType,
+    release.releaseType.split(';')[0],
     ...(release.releaseDate ? [release.releaseDate.split('-')[0]] : []),
   ];
 
   return (
     <div className="w-1/2 p-2 sm:w-auto">
-      <Link
-        className="flex grow flex-col items-center rounded-2xl"
-        href={ROUTES.RELEASE(release.id)}
-      >
+      <Link className="flex grow flex-col rounded-2xl" href={ROUTES.RELEASE(release.id)}>
         <CoverImage
           className="rounded-2xl"
           coverId={release.coverPath}
           iconFallback="disc-album"
           releaseName={release.album}
         />
-        <div className="flex flex-col gap-0.5 p-2">
-          <p>{release.album}</p>
-          <p>{release.albumArtist}</p>
+        <div className="flex flex-col gap-0.5 p-2 capitalize">
+          <p className="line-clamp-2">{release.album}</p>
+          <p className="line-clamp-2">{release.albumArtist}</p>
           <p>
             {footerData.map((item, index) => (
               <Fragment key={item}>

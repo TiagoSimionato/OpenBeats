@@ -79,8 +79,8 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
               <SaveIcon />
             </Button>
           </div>
-          <div className="flex flex-col justify-end gap-10">
-            <span className="hidden sm:block">{release.releaseType}</span>
+          <div className="flex flex-col justify-end gap-10 capitalize">
+            <span className="hidden sm:block">{release.releaseType.split(';')[0]}</span>
             <h1 className="text-center text-5xl font-bold sm:text-start">{release.album}</h1>
             <span className="text-center sm:text-start">{items.join(' • ')}</span>
           </div>

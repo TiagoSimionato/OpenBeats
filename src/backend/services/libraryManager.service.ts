@@ -246,7 +246,7 @@ const scanReleasesFromDisk = async () => {
           originalYear: Number(tags.originalyear ?? tags.ORIGINALYEAR ?? 0),
           publisher: tags.publisher ?? tags.LABEL,
           releaseDate: tags.ORIGINALDATE ?? tags.date ?? tags.DATE,
-          releaseType: tags['MusicBrainz Album Type'] ?? tags.RELEASETYPE ?? '',
+          releaseType: (tags['MusicBrainz Album Type'] ?? tags.RELEASETYPE)?.split(';')[0] ?? '',
           tmed: tags.TMED ?? tags.MEDIA,
           trackCount: trackTotal,
           ts02: tags.TSO2,
