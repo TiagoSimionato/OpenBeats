@@ -44,7 +44,11 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
 
   const listTracks: ListTracks[] = mbTracks
     ? mbTracks.map(mbTrack => ({
-        libraryTrack: release.tracks.find(it => it.id === mbTrack['MusicBrainz Track Id']),
+        libraryTrack: release.tracks.find(
+          it =>
+            it.id === mbTrack['MusicBrainz Track Id']
+            || it.id === mbTrack['MusicBrainz Release Track Id'],
+        ),
         mbTrack,
       }))
     : release.tracks.map(track => ({
