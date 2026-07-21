@@ -1,5 +1,6 @@
 import { ScanLibraryButton } from '../ScanLibraryButton';
 import { SignOutButton } from '../SignOutButton';
+import { SyncCoversButton } from '../SyncCoverButton';
 import { Nav } from './Nav';
 
 export const Header = () => (
@@ -8,5 +9,6 @@ export const Header = () => (
     <SignOutButton className="ml-auto md:order-last md:ml-0" />
     <Nav />
     <ScanLibraryButton />
+    <SyncCoversButton />
   </header>
 );
