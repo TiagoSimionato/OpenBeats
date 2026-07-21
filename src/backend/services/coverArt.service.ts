@@ -50,7 +50,7 @@ const getCoverFilePath = async (releaseId: string) => {
   const existsThumb = existsSync(thumbnailPath);
 
   if (extension && existsThumb) {
-    return `${releaseId}${extension}`;
+    return join(coverDir, `${releaseId}${extension}`);
   }
 };
 

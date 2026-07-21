@@ -7,7 +7,7 @@ import { handlePromise } from 'tsm-utils';
 
 export const searchYouTubeMusic = handlePromise(
   async (track: Track) => {
-    const query = `title ${track.title} - ${track.artist} - ${track.album}`;
+    const query = `${track.title} - ${track.artist} - ${track.album}`;
 
     const { stdout } = await execFileAsync(CONFIGS.PYTHON_BIN, [
       CONFIGS.YTMUSIC_SCRIPT_PATH,
