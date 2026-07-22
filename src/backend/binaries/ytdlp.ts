@@ -4,24 +4,20 @@ import { join, resolve } from 'node:path';
 import { execFileAsync, padTrack, sanitize } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
+import YTMusic from 'ytmusic-api';
 
-export const searchYouTubeMusic = handlePromise(
+export const searchYTMusic = handlePromise(
   async (track: Track) => {
+    const ytmusic = new YTMusic();
+    await ytmusic.initialize();
+
     const query = `${track.title} - ${track.artist} - ${track.album}`;
 
-    const { stdout } = await execFileAsync(CONFIGS.PYTHON_BIN, [
-      CONFIGS.YTMUSIC_SCRIPT_PATH,
-      query,
-      '1',
-    ], {
-      maxBuffer: 10 * 1024 * 1024,
-    });
+    const results = await ytmusic.searchSongs(query);
 
-    const results = JSON.parse(stdout) as { resultType?: string; title?: string; videoId?: string }[];
+    const topMatch = results.find(result => result.name?.toLowerCase() === track.title.toLowerCase() && result.artist.name.toLowerCase() === track.artist.toLowerCase()) ?? results.find(result => result.name?.toLowerCase() === track.title.toLowerCase()) ?? results[0];
 
-    const topMatch = results.find(result => result.resultType === 'song' && !!result.videoId && result.title?.toLowerCase() === track.title.toLowerCase()) ?? results.find(result => !!result.videoId);
-
-    const videoId = topMatch?.videoId;
+    const videoId = topMatch?.type === 'SONG' ? topMatch?.videoId : undefined;
 
     console.log(`ytmusic: query [${query}] returned ${results.length} result with main [${videoId}]`);
 

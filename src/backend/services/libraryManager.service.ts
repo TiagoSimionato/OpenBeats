@@ -6,7 +6,7 @@ import { rm, rmdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
-import { runYtdlp, searchYouTubeMusic } from 'backend/binaries/ytdlp';
+import { runYtdlp, searchYTMusic } from 'backend/binaries/ytdlp';
 import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
@@ -47,7 +47,8 @@ const searchYouTubeMusicStep = async (track: Track, onProgress?: OnProgress) => 
     stage: 'search',
   });
 
-  const videoId = await searchYouTubeMusic(track);
+  const videoId = await searchYTMusic(track);
+
   if (!videoId) {
     onProgress?.({
       currentTrack: track.track,

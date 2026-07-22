@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const CACHE_PATH = process.env.CACHE_PATH ?? `/opt/openbeats`;
@@ -18,11 +17,7 @@ export const CONFIGS = {
   PYTHON_BIN: process.env.PYTHON_BIN ?? 'python3',
   THUMBNAILS_PATH: `${CACHE_PATH}/thumbnails`,
   YT_DLP_BIN: process.env.YT_DLP_BIN ?? 'yt-dlp',
-  YTMUSIC_SCRIPT_PATH: join(process.cwd(), 'src', 'backend', 'binaries', 'search_ytmusic.py'),
 } as const;
-
-if (!existsSync(CONFIGS.YTMUSIC_SCRIPT_PATH))
-  throw new Error('Cannot find ytmusic script');
 
 export const CUSTOM_HEADERS = {
   PATH_NAME: 'x-pathname',
