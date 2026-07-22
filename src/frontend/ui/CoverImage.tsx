@@ -1,17 +1,22 @@
 import { Icon } from 'frontend/ui/Icon';
 import { Disc3Icon } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
+import { Button } from './Button';
+import { Dialog } from './Dialog';
 
 type CoverProps = {
   className?: string;
   coverId?: string;
   coverURL?: string;
+  fullSizeSrc?: string;
   iconFallback?: 'disc-album' | 'disc';
   releaseName: string;
   size?: number;
+  withModal?: boolean;
 };
 
-export const CoverImage = ({
+const Cover = ({
   className,
   coverId,
   coverURL,
@@ -38,4 +43,30 @@ export const CoverImage = ({
       width={size}
     />
   );
+};
+
+const ModelCover = (props: CoverProps) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} size="xs" variant="tertiary">
+        <Cover {...props} />
+      </Button>
+      <Dialog open={open} setOpen={setOpen}>
+        <img
+          alt={`${props.releaseName} cover art`}
+          className="h-auto w-auto"
+          src={props.fullSizeSrc}
+        />
+      </Dialog>
+    </>
+  );
+};
+
+export const CoverImage = (props: CoverProps) => {
+  if (props.withModal) {
+    return <ModelCover {...props} />;
+  }
+  return <Cover {...props} />;
 };

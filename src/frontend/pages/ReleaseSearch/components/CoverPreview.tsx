@@ -21,5 +21,14 @@ export const CoverPreview = ({ releaseId, title }: { releaseId: string; title?: 
     );
   }
 
-  return <CoverImage className="rounded" coverURL={coverUrl} releaseName={title ?? ''} size={96} />;
+  return (
+    <CoverImage
+      className="rounded"
+      coverURL={coverUrl}
+      fullSizeSrc={firstImage?.image}
+      releaseName={title ?? ''}
+      size={96}
+      withModal={!!coverUrl}
+    />
+  );
 };
