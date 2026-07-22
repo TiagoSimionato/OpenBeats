@@ -12,7 +12,7 @@ import { handlePromise } from 'tsm-utils';
 const makeWebp = async (imagePath: string) => {
   const child = spawn(
     process.execPath,
-    ['--import', 'tsx', 'src/backend/scripts/imagemin.mts', imagePath, CONFIGS.THUMBNAILS_PATH],
+    ['src/backend/scripts/imagemin.mjs', imagePath, CONFIGS.THUMBNAILS_PATH],
     { stdio: ['ignore', 'pipe', 'pipe'] },
   );
 
