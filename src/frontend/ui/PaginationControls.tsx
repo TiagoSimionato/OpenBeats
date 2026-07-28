@@ -52,7 +52,7 @@ export const PaginationControls = ({ className, pages, ...rest }: PaginationCont
 
   return (
     <div className={`flex justify-end gap-4 ${className}`} {...rest}>
-      <p>Item per page:</p>
+      <p>Items per page:</p>
       <select onChange={handlePerPageChange} value={perPage}>
         <option value={18}>18</option>
         <option value={36}>36</option>
