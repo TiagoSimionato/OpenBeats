@@ -3,7 +3,7 @@
 import type { QueryRelease } from 'common/types/requests/mbApi';
 import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { useAddRelease } from 'frontend/services/api/mutations/library';
-import { useGetLibrary } from 'frontend/services/api/queries/library';
+import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
 import { Chip } from 'frontend/ui/Chip';
@@ -60,11 +60,9 @@ const renderButtonLabel = (status: releaseStatus) => {
 };
 
 export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
-  const { data: library } = useGetLibrary();
+  const { data: libraryData } = useGetLibraryRelease({ releaseId: release.id });
   const { mutateAsync: addRelease } = useAddRelease();
-  const libraryRelease = library?.libraryReleases.find(
-    libraryRelease => libraryRelease.id === release.id,
-  );
+  const libraryRelease = libraryData?.libraryRelease;
   const isDownloaded = libraryRelease && libraryRelease.tracks.length === libraryRelease.trackCount;
   const isPartiallyAdded = !isDownloaded && !!libraryRelease;
 

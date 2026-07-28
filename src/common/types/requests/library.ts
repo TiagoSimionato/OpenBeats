@@ -1,3 +1,5 @@
+import type { Paged } from './paged';
+
 export type TrackRequestParams = {
   releaseId: string;
   trackId: string;
@@ -49,9 +51,7 @@ export type LibraryReleaseData = ReleaseRecord & {
   tracks: TrackRecord[];
 };
 
-export type LibraryReleasesResponse = {
-  libraryReleases: LibraryReleaseData[];
-};
+export type LibraryReleasesResponse = Paged<LibraryReleaseData>;
 
 export type LibraryReleaseResponse = {
   libraryRelease: LibraryReleaseData;

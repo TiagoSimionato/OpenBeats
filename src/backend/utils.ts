@@ -3,6 +3,7 @@ import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { validateOrReject } from 'class-validator';
+import { Pagination } from './requestss/pagination.module';
 
 const AUDIO_FILE_EXTENSIONS = new Set([
   '.aac',
@@ -55,3 +56,12 @@ export const buildDTO = async <DTO extends object>(dto: DTO, obj: object) => {
   await validateOrReject(dto);
   return dto;
 };
+
+export const buildPagination = async (obj: object) => {
+  const pagination = await buildDTO(new Pagination(), obj);
+  if (pagination.perPage > 100)
+    pagination.perPage = 100;
+  return pagination;
+};
+
+export const paginationFilters = (pagination: Pagination) => `LIMIT ${pagination.perPage} OFFSET ${(pagination.page - 1) * pagination.perPage}`;

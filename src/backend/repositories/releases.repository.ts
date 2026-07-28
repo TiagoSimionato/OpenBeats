@@ -1,6 +1,8 @@
+import type { Pagination } from 'backend/requestss/pagination.module';
 import type { LibraryReleaseData, ReleaseRecord, TrackRecord } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
 import { dbService } from 'backend/services/db.service';
+import { paginationFilters } from 'backend/utils';
 
 const createDDL = async () => {
   const database = await dbService.getDatabase();
@@ -231,13 +233,31 @@ const listLibraryReleases = async () => {
   const rows = await dbService.list<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     GROUP BY r.id
-    ORDER BY r.album ASC;
+    ORDER BY r.album ASC
   `);
 
   return rows.map(row => ({
     ...row,
     tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
   }));
+};
+
+const listLibraryReleasesPaged = async (pagination: Pagination) => {
+  const rows = await dbService.list<LibraryReleaseData>(`
+    ${SELECT_LIBRARY_RELEASE}
+    GROUP BY r.id
+    ORDER BY r.album ASC
+    ${paginationFilters(pagination)};
+  `);
+  const count = (await dbService.get<{ count: number }>('SELECT COUNT(*) as count FROM tb_releases r'))?.count ?? 0;
+
+  return {
+    data: rows.map(row => ({
+      ...row,
+      tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
+    })),
+    pages: Math.ceil(count / pagination.perPage),
+  };
 };
 
 const getLibraryRelease = async (releaseId: string) => {
@@ -260,6 +280,7 @@ export const releasesRepository = {
   deleteTrack,
   getLibraryRelease,
   listLibraryReleases,
+  listLibraryReleasesPaged,
   upsertLibraryRelease,
   upsertLibraryTrack,
   upsertRelease,

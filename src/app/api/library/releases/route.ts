@@ -1,6 +1,8 @@
 import type { LibraryReleasesResponse } from 'common/types/requests/library';
+import type { NextRequest } from 'next/server';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { releasesRepository } from 'backend/repositories/releases.repository';
+import { buildPagination } from 'backend/utils';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {
@@ -8,11 +10,15 @@ type RouteContext = {
 };
 
 export const GET = withErrorHandler(
-  async (_request: Request, _context: RouteContext): Promise<NextResponse<LibraryReleasesResponse>> => {
-    const libraryReleases = await releasesRepository.listLibraryReleases();
+  async (request: NextRequest, _context: RouteContext): Promise<NextResponse<LibraryReleasesResponse>> => {
+    const paginationParams = {
+      page: Number(request.nextUrl.searchParams.get('page') ?? 1),
+      perPage: Number(request.nextUrl.searchParams.get('perPage') ?? 18),
+    };
+    const pagination = await buildPagination(paginationParams);
 
-    return NextResponse.json({
-      libraryReleases,
-    });
+    const pagedLibraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination);
+
+    return NextResponse.json(pagedLibraryReleases);
   },
 );
