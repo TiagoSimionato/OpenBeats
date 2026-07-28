@@ -98,11 +98,11 @@ const getReleaseCoverArt = handlePromise(
 
     const coverFilePath = join(
       resolve(CONFIGS.COVERS_PATH),
-      `${releaseId}${getCoverFileExtension(coverImage.image)}`,
+      `${releaseId}${getCoverFileExtension(coverImage.thumbnails[1200])}`,
     );
-    await saveCAAImage(coverFilePath, coverImage.image);
+    await saveCAAImage(coverFilePath, coverImage.thumbnails[1200]);
 
-    const thumbnailUrl = coverImage.thumbnails?.small ?? coverImage.thumbnails?.[250];
+    const thumbnailUrl = coverImage.thumbnails?.small ?? coverImage.thumbnails[250];
     if (thumbnailUrl) {
       const thumbnailPath = join(
         resolve(CONFIGS.THUMBNAILS_PATH),
