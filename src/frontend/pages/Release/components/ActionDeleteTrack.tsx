@@ -1,11 +1,14 @@
+import type { ReleasePageParams } from '../type';
 import type { TrackActions } from './types';
 import { useDeleteLibraryTrack } from 'frontend/services/api/mutations/library';
 import { Button } from 'frontend/ui/Button';
 import { Dialog } from 'frontend/ui/Dialog';
 import { TrashIcon } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
-export const ActionDeleteTrack = ({ releaseId, title, trackId }: TrackActions) => {
+export const ActionDeleteTrack = ({ title, trackId }: TrackActions) => {
+  const { releaseId } = useParams<ReleasePageParams>();
   const { isPending, mutate: deleteTrack } = useDeleteLibraryTrack();
   const [open, setOpen] = useState(false);
 

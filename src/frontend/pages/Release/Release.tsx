@@ -2,14 +2,14 @@
 
 import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { ListTracks } from './components/TrackList';
+import type { ReleasePageParams } from './type';
 import { HttpStatusCode, isAxiosError } from 'axios';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
 import { ROUTES } from 'configs/routes';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
-import { Button } from 'frontend/ui/Button';
-import { Disc3Icon, SaveIcon } from 'lucide-react';
-import { notFound, useRouter } from 'next/navigation';
+import { Disc3Icon } from 'lucide-react';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
@@ -18,10 +18,10 @@ import { TrackList } from './components/TrackList';
 
 type ReleasePageProps = {
   defaultRelease?: LibraryReleaseData;
-  releaseId: string;
 };
 
-export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => {
+export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
+  const { releaseId } = useParams<ReleasePageParams>();
   const { data: libraryRelease, error } = useGetLibraryRelease({
     options: {
       initialData: { libraryRelease: defaultRelease },
@@ -74,10 +74,7 @@ export const ReleasePage = ({ defaultRelease, releaseId }: ReleasePageProps) => 
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
         <div className="flex grow flex-col">
           <div className="ml-auto flex items-start gap-4 pb-4">
-            <ActionDeleteRelease releaseId={releaseId} title={release.album} />
-            <Button size="xs" variant="tertiary">
-              <SaveIcon />
-            </Button>
+            <ActionDeleteRelease title={release.album} />
           </div>
           <div className="flex flex-col justify-end gap-10 capitalize">
             <span className="hidden sm:block">{release.releaseType.split(';')[0]}</span>

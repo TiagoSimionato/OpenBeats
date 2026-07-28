@@ -13,7 +13,7 @@ export const LibraryTrack = ({ track }: LibraryTrackProps) => (
       {'. '}
       {track?.title}
     </p>
-    <ActionReplaceFile releaseId={track.releaseId} title={track.title} trackId={track.id} />
-    <ActionDeleteTrack releaseId={track.releaseId} title={track.title} trackId={track.id} />
+    <ActionReplaceFile title={track.title} trackId={track.id} />
+    <ActionDeleteTrack title={track.title} trackId={track.id} />
   </div>
 );

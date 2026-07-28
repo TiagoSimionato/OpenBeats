@@ -13,15 +13,7 @@ export const MBTRack = ({ track }: MBTrackProps) => (
       {'. '}
       {track.title}
     </p>
-    <ActionReplaceFile
-      releaseId={track['MusicBrainz Album Id']}
-      title={track.title}
-      trackId={track['MusicBrainz Track Id']}
-    />
-    <ActionAddTrack
-      releaseId={track['MusicBrainz Album Id']}
-      title={track.title}
-      trackId={track['MusicBrainz Track Id']}
-    />
+    <ActionReplaceFile title={track.title} trackId={track['MusicBrainz Track Id']} />
+    <ActionAddTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
   </div>
 );
