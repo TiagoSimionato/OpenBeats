@@ -1,5 +1,6 @@
 import type { Track } from 'common/types/requests/releases';
 import { ActionAddTrack } from './ActionAddTrack';
+import { ActionImportTrack } from './ActionImportTrack';
 import { ActionReplaceFile } from './ActionReplaceFIle';
 
 type MBTrackProps = {
@@ -13,6 +14,7 @@ export const MBTRack = ({ track }: MBTrackProps) => (
       {'. '}
       {track.title}
     </p>
+    <ActionImportTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
     <ActionReplaceFile title={track.title} trackId={track['MusicBrainz Track Id']} />
     <ActionAddTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
   </div>

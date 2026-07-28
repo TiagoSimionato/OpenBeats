@@ -1,5 +1,6 @@
 import type { TrackRecord } from 'common/types/requests/library';
 import { ActionDeleteTrack } from './ActionDeleteTrack';
+import { ActionImportTrack } from './ActionImportTrack';
 import { ActionReplaceFile } from './ActionReplaceFIle';
 
 type LibraryTrackProps = {
@@ -13,6 +14,7 @@ export const LibraryTrack = ({ track }: LibraryTrackProps) => (
       {'. '}
       {track?.title}
     </p>
+    <ActionImportTrack title={track.title} trackId={track.id} />
     <ActionReplaceFile title={track.title} trackId={track.id} />
     <ActionDeleteTrack title={track.title} trackId={track.id} />
   </div>

@@ -1,4 +1,4 @@
-import type { TrackRequestParams } from 'common/types/requests/library';
+import type { ImportTrackRequest, TrackRequestParams } from 'common/types/requests/library';
 import type { JobResponse } from 'common/types/requests/releases';
 import type { HookMutationOptions, RequestConfig } from 'tsm-utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -35,6 +35,17 @@ export const useAddCustomTrack = <Response = JobResponse, Error = unknown>({
   options?: HookMutationOptions<TrackRequestParams, Response, Error>;
 } = {}) => useMutation<Response, Error, TrackRequestParams>({
   mutationFn: ({ releaseId, trackId, url }) => api.post<Response>(`releases/${releaseId}/tracks`, { trackId, url }, configs),
+  ...options,
+});
+
+export const useImportTrack = <Response = JobResponse, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<ImportTrackRequest, Response, Error>;
+} = {}) => useMutation<Response, Error, ImportTrackRequest>({
+  mutationFn: ({ formData, releaseId, trackId }) => api.post<Response>(`releases/${releaseId}/tracks/${trackId}/import`, formData, configs),
   ...options,
 });
 

@@ -2,15 +2,15 @@ import type { ReleaseRecord, TrackRequestParams } from 'common/types/requests/li
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { DownloadJobProgress, Track } from 'common/types/requests/releases';
 import { existsSync } from 'node:fs';
-import { rm, rmdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { mkdir, rm, rmdir, writeFile } from 'node:fs/promises';
+import { dirname, extname, join, resolve } from 'node:path';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { runYtdlp, searchYTMusic } from 'backend/binaries/ytdlp';
 import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
-import { isAudioFile, walkFiles } from 'backend/utils';
+import { isAudioFile, padTrack, walkFiles } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
 import { CONFIGS } from 'configs/constants';
@@ -98,7 +98,7 @@ const metadataStep = async ({ coverFilePath, filePath, track }: {
   });
 };
 
-const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?: string) => {
+const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?: string, file?: File) => {
   const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
 
   tracks[0].coverPath = coverFilePath;
@@ -108,17 +108,26 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
     track.coverPath = coverFilePath;
 
     let trackPath;
-    if (!customUrl) {
+    if (customUrl && !file) {
+      console.log(`using custom url: ${customUrl}`);
+      trackPath = await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
+    }
+    if (!customUrl && !!file) {
+      const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
+      const outputDir = join(absoluteLibraryPath, track.album_artist, track.album);
+      await mkdir(outputDir, { recursive: true });
+
+      trackPath = join(outputDir, `${padTrack(track.track)}. ${track.title}${extname(file.name)}`);
+      const bytes = await file.arrayBuffer();
+      await writeFile(trackPath, Buffer.from(bytes));
+    }
+    if (!customUrl && !file) {
       const videoId = await searchYouTubeMusicStep(track, onProgress);
       if (!videoId) {
         continue;
       }
 
       trackPath = await ytdlpStep({ track, videoId }, onProgress);
-    }
-    if (customUrl) {
-      console.log(`using custom url: ${customUrl}`);
-      trackPath = await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
     }
     if (!trackPath) {
       continue;
@@ -163,7 +172,7 @@ const addReleaseToLibrary = async (
 };
 
 const addTrackToLibrary = async (
-  { releaseId, trackId, url }: TrackRequestParams,
+  { file, releaseId, trackId, url }: TrackRequestParams & { file?: File },
   onProgress?: OnProgress,
 ) => {
   const { tracks: releaseTracks } = await getReleaseMetadataStep(releaseId);
@@ -179,7 +188,7 @@ const addTrackToLibrary = async (
     return;
   }
 
-  addToLibrary([track], onProgress, url);
+  addToLibrary([track], onProgress, url, file);
 };
 
 const syncReleasesCover = async () => {

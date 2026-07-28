@@ -162,9 +162,21 @@ const startTrackJob = ({ releaseId, trackId, url }: TrackRequestParams): string 
   return jobId;
 };
 
+const startImportJob = ({ file, releaseId, trackId }: Omit<TrackRequestParams, 'url'> & { file: File }): string => {
+  const jobId = createDownloadJob();
+
+  libraryManagerService.addTrackToLibrary({ file, releaseId, trackId }, partial => updateDownloadJob(jobId, {
+    status: 'running',
+    ...partial,
+  }));
+
+  return jobId;
+};
+
 export const jobService = {
   createDownloadJob,
   getDownloadJobProgress,
+  startImportJob,
   startReleaseJob,
   startTrackJob,
   stream,
