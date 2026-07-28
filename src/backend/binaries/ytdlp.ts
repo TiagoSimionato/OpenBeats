@@ -39,7 +39,6 @@ export const runYtdlp = handlePromise(
     videoId: string;
   }) => {
     const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
-    await mkdir(absoluteLibraryPath, { recursive: true });
 
     const albumArtist = sanitize(track.album_artist || 'Unknown Artist');
     const album = sanitize(track.album || 'Unknown Album');
