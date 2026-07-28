@@ -14,7 +14,13 @@ export const ActionDeleteTrack = ({ title, trackId }: TrackActions) => {
 
   return (
     <>
-      <Button isLoading={isPending} onClick={() => setOpen(true)} size="xs" variant="tertiary">
+      <Button
+        isLoading={isPending}
+        onClick={() => setOpen(true)}
+        size="xs"
+        title="Delete track"
+        variant="tertiary"
+      >
         <TrashIcon />
       </Button>
       <Dialog className="gap-8 md:max-w-200" open={open} setOpen={setOpen}>

@@ -18,7 +18,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} size="xs" variant="tertiary">
+      <Button onClick={() => setOpen(true)} size="xs" title="Replace track file" variant="tertiary">
         <FileMusicIcon />
       </Button>
       <Dialog className="gap-4" open={open} setOpen={setOpen}>

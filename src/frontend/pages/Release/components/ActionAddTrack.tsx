@@ -25,6 +25,7 @@ export const ActionAddTrack = ({ title, trackId }: TrackActions) => {
           totalTracks: 1,
         })}
       size="xs"
+      title="Add Track to Library"
       variant="tertiary"
     >
       <DownloadIcon />
