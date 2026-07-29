@@ -33,6 +33,9 @@ Below there is a list of planned upcoming changes as reference
 - Generate auth secret during docker build
 - Queue popup Progress bug with multiple tracks
 - Query artist tracks
+- Handle pagination build error
+- RSgain
+- Error page
 - Query for single  or few tracks
 - Handle Sign in error
 - Connect with navidrome and perform a library scan after an update
