@@ -244,12 +244,12 @@ const scanReleasesFromDisk = async () => {
       }
 
       const discParts = tags.disc?.split('/') ?? [];
-      const disc = Number((discParts?.length > 1 ? discParts?.[0] : tags.disc) ?? 1);
-      const discTotal = Number((discParts?.length > 1 ? discParts?.[1] : tags.Disctotal ?? tags.DISCTOTAL) ?? 1);
+      const disc = Number((discParts.length > 1 ? discParts[0] : tags.disc) ?? 1);
+      const discTotal = Number((discParts.length > 1 ? discParts[1] : (tags.Disctotal ?? tags.DISCTOTAL)) ?? 1);
 
-      const trackParts = tags.track?.split('/');
-      const track = Number((trackParts?.length ?? 0 > 1 ? trackParts?.[0] : tags.track) ?? 1);
-      const trackTotal = Number((trackParts?.length ?? 0 > 1 ? trackParts?.[1] : tags.Tracktotal ?? tags.TOTALTRACKS ?? tags.TRACKTOTAL) ?? 1);
+      const trackParts = tags.track?.split('/') ?? [];
+      const track = Number((trackParts.length > 1 ? trackParts[0] : tags.track) ?? 1);
+      const trackTotal = Number((trackParts.length > 1 ? trackParts[1] : (tags.Tracktotal ?? tags.TOTALTRACKS ?? tags.TRACKTOTAL)) ?? 1);
 
       if (!libraryReleases.get(releaseId)) {
         const currentRelease = {
