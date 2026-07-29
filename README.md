@@ -24,16 +24,14 @@ Below there is a list of planned upcoming changes as reference
 
 - Release page
   - Replace/Update Metadata from files (move file if changing artists or release name)
-  - Add or change cover (upload file or from cover art archive)
+  - Add or change cover (upload file or from cover art archive) (select desired size)
 - Library page
   - filter releases by name
   - choose sorting
-  - pagination
+- Pagination server redirect if page > pages
+- PaginationControl with page buttons
 - Generate auth secret during docker build
-- Run `yt-dlp --update`
-- ytmusic-api npm
-- Search keywords blacklist
-- Progress bug with multiple tracks
+- Queue popup Progress bug with multiple tracks
 - Query artist tracks
 - Query for single  or few tracks
 - Handle Sign in error
@@ -42,12 +40,11 @@ Below there is a list of planned upcoming changes as reference
 - Remove unused svg
 - Find duplicate tracks
 - Server side queue
-- Open large cover modal on click
 - Cancel downloads
 - Save file path template
 - Clear cover cache
 - Custom tracks not recognized
-- Import local audio files
+- Search keywords blacklist
 
 ## Development
 
