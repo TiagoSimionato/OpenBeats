@@ -45,7 +45,7 @@ export const PaginationControls = ({ className, pages, ...rest }: PaginationCont
   );
 
   useEffect(() => {
-    if (page > pages) {
+    if (page > pages && pages > 0) {
       handlePageChange(pages);
     }
   }, [page, pages, handlePageChange]);
