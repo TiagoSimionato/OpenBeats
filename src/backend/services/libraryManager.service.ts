@@ -17,10 +17,19 @@ import { CONFIGS } from 'configs/constants';
 
 type OnProgress = ((progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void) | undefined;
 
-const getReleaseMetadataStep = async (releaseId: string) => {
+const getReleaseMetadataStep = async (releaseId: string, onProgress?: OnProgress) => {
   const release = await mbApi.get<ReleaseResponse>(`release/${releaseId}`, {
     params: MUSICBRAINZ_RELEASE_PARAMS,
+  }).catch(() => {
+    onProgress?.({
+      error: 'Error fetching metadata',
+      stage: 'failed',
+      status: 'failed',
+    });
   });
+
+  if (!release)
+    return;
 
   return {
     release,
@@ -161,34 +170,38 @@ const addReleaseToLibrary = async (
   releaseId: string,
   onProgress?: OnProgress,
 ) => {
-  const { tracks } = await getReleaseMetadataStep(releaseId);
+  const metadata = await getReleaseMetadataStep(releaseId, onProgress);
+  const tracks = metadata?.tracks;
+  if (tracks) {
+    const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
+    const missingTracks = tracks.filter(it =>
+      !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
+    );
 
-  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
-  const missingTracks = tracks.filter(it =>
-    !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
-  );
-
-  addToLibrary(missingTracks, onProgress);
+    addToLibrary(missingTracks, onProgress);
+  }
 };
 
 const addTrackToLibrary = async (
   { file, releaseId, trackId, url }: TrackRequestParams & { file?: File },
   onProgress?: OnProgress,
 ) => {
-  const { tracks: releaseTracks } = await getReleaseMetadataStep(releaseId);
+  const metadata = await getReleaseMetadataStep(releaseId);
+  const releaseTracks = metadata?.tracks;
+  if (releaseTracks) {
+    const track = releaseTracks.find(it => it['MusicBrainz Track Id'] === trackId || it['MusicBrainz Release Track Id'] === trackId);
 
-  const track = releaseTracks.find(it => it['MusicBrainz Track Id'] === trackId || it['MusicBrainz Release Track Id'] === trackId);
+    if (!track) {
+      onProgress?.({
+        error: 'Release does not contain requested track',
+        stage: 'failed',
+        status: 'failed',
+      });
+      return;
+    }
 
-  if (!track) {
-    onProgress?.({
-      error: 'Release does not contain requested track',
-      stage: 'failed',
-      status: 'failed',
-    });
-    return;
+    addToLibrary([track], onProgress, url, file);
   }
-
-  addToLibrary([track], onProgress, url, file);
 };
 
 const syncReleasesCover = async () => {
