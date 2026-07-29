@@ -56,7 +56,3 @@ export type LibraryReleasesResponse = Paged<LibraryReleaseData>;
 export type LibraryReleaseResponse = {
   libraryRelease: LibraryReleaseData;
 };
-
-export type ScanLibraryReleasesResponse = {
-  libraryReleases: LibraryReleaseData[];
-};

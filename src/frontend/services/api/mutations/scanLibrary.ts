@@ -1,9 +1,8 @@
-import type { ScanLibraryReleasesResponse } from 'common/types/requests/library';
 import type { HookMutationOptions, RequestConfig } from 'tsm-utils';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '..';
 
-export const useScanLibrary = <Resquest = void, Response = ScanLibraryReleasesResponse, Error = unknown>({
+export const useScanLibrary = <Resquest = void, Response = null, Error = unknown>({
   configs,
   options,
 }: {
