@@ -50,7 +50,7 @@ export const runYtdlp = handlePromise(
 
     const outputTemplate = join(dir, `${trackNumber}. ${title}.%(ext)s`);
 
-    const { stdout } = await execFileAsync(CONFIGS.YT_DLP_BIN, [
+    const { stderr, stdout } = await execFileAsync(CONFIGS.YT_DLP_BIN, [
       '--ignore-errors',
       '--format',
       'bestaudio',
@@ -67,6 +67,10 @@ export const runYtdlp = handlePromise(
     ], {
       maxBuffer: 10 * 1024 * 1024,
     });
+
+    if (/WARNING: Your yt-dlp version .* is older than 90 days!/.test(stderr)) {
+      execFileAsync(CONFIGS.YT_DLP_BIN, ['--update']).then(() => console.log('ytdlp: updated'));
+    }
 
     const output = stdout.trim();
     const filePath = output
