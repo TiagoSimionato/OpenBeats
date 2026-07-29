@@ -31,8 +31,8 @@ export const QueuePopup = () => {
   }
 
   return (
-    <aside className="fixed right-0 bottom-4 left-0 z-50 w-full px-4">
-      <div className="border-border bg-card/95 text-foreground ml-auto max-w-sm rounded-xl border p-3 backdrop-blur">
+    <aside className="pointer-events-none fixed right-0 bottom-4 left-0 z-50 w-full px-4">
+      <div className="border-border bg-card/95 text-foreground pointer-events-auto ml-auto max-w-sm rounded-xl border p-3 backdrop-blur">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-semibold">Download Queue</h2>
           <span className="border-primary/30 bg-primary/10 text-primary rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
