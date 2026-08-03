@@ -1,6 +1,6 @@
 import type { Track } from 'common/types/requests/releases';
 import { rename } from 'node:fs/promises';
-import { basename, dirname, extname, join } from 'node:path';
+import { basename, extname, join, resolve } from 'node:path';
 import { execFileAsync } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
@@ -16,7 +16,7 @@ export const writeTrackMetadata = handlePromise(
     track: Track;
   }) => {
     const tempFilePath = join(
-      dirname(filePath),
+      resolve(CONFIGS.CACHE_PATH),
       `${basename(filePath, extname(filePath))}.metadata${extname(filePath)}`,
     );
 
