@@ -11,7 +11,7 @@ const styles = {
 
 export const Chip = ({ children, variant = 'primary' }: ChipProps) => (
   <span
-    className={`${styles[variant]} rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase`}
+    className={`${styles[variant]} rounded-full border px-2 py-0.5 text-center text-[10px] font-semibold tracking-wide uppercase`}
   >
     {children}
   </span>
