@@ -96,11 +96,13 @@ const getReleaseCoverArt = handlePromise(
       throw new Error('Cover Art Archive did not return a downloadable cover image');
     }
 
+    const imageSrc = coverImage.thumbnails?.[1200] ?? coverImage.image;
+
     const coverFilePath = join(
       resolve(CONFIGS.COVERS_PATH),
-      `${releaseId}${getCoverFileExtension(coverImage.thumbnails[1200])}`,
+      `${releaseId}${getCoverFileExtension(imageSrc)}`,
     );
-    await saveCAAImage(coverFilePath, coverImage.thumbnails[1200]);
+    await saveCAAImage(coverFilePath, imageSrc);
 
     const thumbnailUrl = coverImage.thumbnails?.small ?? coverImage.thumbnails[250];
     if (thumbnailUrl) {
