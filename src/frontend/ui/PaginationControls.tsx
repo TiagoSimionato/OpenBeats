@@ -25,7 +25,7 @@ export const PaginationControls = ({ className, pages, ...rest }: PaginationCont
       searchParams.delete('perPage');
     }
 
-    router.replace(`${pathname}?${searchParams.toString()}`, { scroll: false });
+    router.push(`${pathname}?${searchParams.toString()}`, { scroll: false });
   };
 
   const handlePageChange = useCallback(
@@ -39,7 +39,7 @@ export const PaginationControls = ({ className, pages, ...rest }: PaginationCont
         searchParams.delete('page');
       }
 
-      router.replace(`${pathname}?${searchParams.toString()}`, { scroll: false });
+      router.push(`${pathname}?${searchParams.toString()}`, { scroll: false });
     },
     [params, pathname, router],
   );
