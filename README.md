@@ -1,5 +1,7 @@
 # OpenBeats
 
+<img width="1910" height="918" alt="image" src="https://github.com/user-attachments/assets/53b52bd2-93c8-49dc-a507-83f4c2b4d087" />
+
 The project goal is to provide a simple and pratical way to manage music libraries for self hosted systems by providing a modern and friendly web user interface.
 
 ## Installing
