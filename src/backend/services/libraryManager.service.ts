@@ -10,7 +10,7 @@ import { runYtdlp, searchYTMusic } from 'backend/binaries/ytdlp';
 import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
-import { isAudioFile, padTrack, walkFiles } from 'backend/utils';
+import { isAudioFile, walkFiles } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 import { mapReleaseTracksToDownloadTracks } from 'common/utils';
 import { CONFIGS } from 'configs/constants';
@@ -126,7 +126,7 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
       const outputDir = join(absoluteLibraryPath, track.album_artist, track.album);
       await mkdir(outputDir, { recursive: true });
 
-      trackPath = join(outputDir, `${padTrack(track.track)}. ${track.title}${extname(file.name)}`);
+      trackPath = join(outputDir, `${track.track}. ${track.title}${extname(file.name)}`);
       const bytes = await file.arrayBuffer();
       await writeFile(trackPath, Buffer.from(bytes));
     }
