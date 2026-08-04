@@ -5,6 +5,7 @@ services:
     build:
       context: .
     container_name: openbeats_server
+    image: openbeats
     restart: unless-stopped
     volumes:
       - ${LIBRARY_PATH}:/data
