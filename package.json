@@ -21,11 +21,11 @@
     "imagemin": "^9.0.1",
     "imagemin-webp": "^8.0.0",
     "lucide-react": "^1.23.0",
-    "next": "16.2.6",
-    "next-auth": "^5.0.0-beta.31",
+    "next": "16.3.0",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "tsm-utils": "^0.6.1",
+    "tsm-utils": "^0.6.2",
     "ytmusic-api": "^5.3.1"
   },
   "devDependencies": {
