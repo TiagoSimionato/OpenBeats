@@ -1,6 +1,6 @@
 import type { Track } from 'common/types/requests/releases';
 import { randomUUID } from 'node:crypto';
-import { rename } from 'node:fs/promises';
+import { copyFile, rm } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { execFileAsync } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
@@ -16,7 +16,7 @@ export const writeTrackMetadata = handlePromise(
     filePath: string;
     track: Track;
   }) => {
-    const tempFilePath = join( // UUID
+    const tmpFilePath = join(
       resolve(CONFIGS.CACHE_PATH),
       `${randomUUID()}.metadata${extname(filePath)}`,
     );
@@ -52,7 +52,7 @@ export const writeTrackMetadata = handlePromise(
           '-id3v2_version',
           '3',
           ...metadataArgs,
-          tempFilePath,
+          tmpFilePath,
         ]
       : [
           '-y',
@@ -67,7 +67,7 @@ export const writeTrackMetadata = handlePromise(
           '-c',
           'copy',
           ...metadataArgs,
-          tempFilePath,
+          tmpFilePath,
         ];
 
     const { stdout } = await execFileAsync(CONFIGS.FFMPEG_BIN, ffmpegArgs, {
@@ -76,7 +76,8 @@ export const writeTrackMetadata = handlePromise(
 
     console.log(`ffmpeg: tagged track [${track.title}]`);
 
-    await rename(tempFilePath, filePath);
+    await copyFile(tmpFilePath, filePath);
+    await rm(tmpFilePath);
 
     return stdout.trim();
   },
