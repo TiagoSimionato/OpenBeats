@@ -1,6 +1,7 @@
 import type { Track } from 'common/types/requests/releases';
+import { randomUUID } from 'node:crypto';
 import { rename } from 'node:fs/promises';
-import { basename, extname, join, resolve } from 'node:path';
+import { extname, join, resolve } from 'node:path';
 import { execFileAsync } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
@@ -15,9 +16,9 @@ export const writeTrackMetadata = handlePromise(
     filePath: string;
     track: Track;
   }) => {
-    const tempFilePath = join(
+    const tempFilePath = join( // UUID
       resolve(CONFIGS.CACHE_PATH),
-      `${basename(filePath, extname(filePath))}.metadata${extname(filePath)}`,
+      `${randomUUID()}.metadata${extname(filePath)}`,
     );
 
     const metadataArgs = Object.entries(track).flatMap(([key, value]) => {
