@@ -26,16 +26,13 @@ Below there is a list of planned upcoming changes as reference
 
 - Release page
   - Replace/Update Metadata from files (move file if changing artists or release name)
-  - Add or change cover (upload file or from cover art archive) (select desired size)
   - Genre
 - Library page
-  - filter releases by name
   - filter by partial releases
   - choose sorting
 - Missing favicon
 - Remove extra releases on library scan
 - Unkown date on release search card sometimes untrue (mb response)
-- Replace file, enter to submit
 - Retry ytdlp 403
 - Improve genre matching logic
 - Sometimes queue stays on forever (mb query metadata fails)
@@ -46,6 +43,7 @@ Below there is a list of planned upcoming changes as reference
 - Query artist tracks
 - Handle pagination build error
 - RSgain
+- Settings default cover size
 - Error page
 - Query for single  or few tracks
 - Handle Sign in error
@@ -80,11 +78,6 @@ Then, run the development server:
 ```bash
 yarn dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
 
 ```
 docker save -o openbeats.tar openbeats
