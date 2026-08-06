@@ -15,9 +15,10 @@ export const GET = withErrorHandler(
       page: Number(request.nextUrl.searchParams.get('page') ?? 1),
       perPage: Number(request.nextUrl.searchParams.get('perPage') ?? 18),
     };
+    const query = request.nextUrl.searchParams.get('query');
     const pagination = await buildPagination(paginationParams);
 
-    const pagedLibraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination);
+    const pagedLibraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination, query);
 
     return NextResponse.json(pagedLibraryReleases);
   },

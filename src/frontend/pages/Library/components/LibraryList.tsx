@@ -4,6 +4,7 @@ import type { LibraryReleaseData } from 'common/types/requests/library';
 import { useGetLibrary } from 'frontend/services/api/queries/library';
 import { PaginationControls } from 'frontend/ui/PaginationControls';
 import { NoReleasesFound } from './NoReleasesFound';
+import { QueryLibrary } from './QueryLibrary';
 import { ReleaseCard } from './ReleaseCard';
 
 type LibraryListingProps = {
@@ -17,7 +18,8 @@ export const LibraryListing = ({ defaultPages, defaultReleases }: LibraryListing
   const releases = libraryData?.data ?? defaultReleases;
 
   return (
-    <>
+    <main className="flex grow flex-col gap-4">
+      <QueryLibrary />
       {releases.length === 0 && <NoReleasesFound />}
       {releases.length > 0 && (
         <div
@@ -33,6 +35,6 @@ export const LibraryListing = ({ defaultPages, defaultReleases }: LibraryListing
         className={releases.length === 0 ? 'hidden' : ''}
         pages={libraryData?.pages ?? defaultPages}
       />
-    </>
+    </main>
   );
 };

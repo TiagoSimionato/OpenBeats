@@ -242,13 +242,19 @@ const listLibraryReleases = async () => {
   }));
 };
 
-const listLibraryReleasesPaged = async (pagination: Pagination) => {
+const listLibraryReleasesPaged = async (pagination: Pagination, query?: null | string) => {
+  const formatQuery = `%${query ?? ''}%`;
+
   const rows = await dbService.list<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
+    WHERE r.album LIKE ?
+      OR r.album_artist LIKE ?
+      OR t.title LIKE ?
     GROUP BY r.id
     ORDER BY r.album ASC
     ${paginationFilters(pagination)};
-  `);
+  `, formatQuery, formatQuery, formatQuery)
+    ;
   const count = (await dbService.get<{ count: number }>('SELECT COUNT(*) as count FROM tb_releases r'))?.count ?? 0;
 
   return {

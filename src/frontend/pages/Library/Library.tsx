@@ -10,8 +10,9 @@ export const LibraryPage = async ({ searchParams }: { searchParams: SearchParams
     page: Number(params.page ?? 1),
     perPage: Number(params.perPage ?? 18),
   };
+  const query = Array.isArray(params.query) ? params.query.join('') : params.query;
   const pagination = await buildPagination(paginationParams);
-  const libraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination);
+  const libraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination, query);
 
   return (
     <LibraryListing defaultPages={libraryReleases.pages} defaultReleases={libraryReleases.data} />

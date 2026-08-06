@@ -60,9 +60,9 @@ const dbExec = async (statement: string, obj: unknown) => {
   }
 };
 
-const list = async <T>(statement: string): Promise<T[]> => {
+const list = async <T>(statement: string, ...args: unknown[]): Promise<T[]> => {
   const database = await getDatabase();
-  const rows = database.prepare(statement).all();
+  const rows = database.prepare(statement).all(...args);
   return rows as T[];
 };
 
