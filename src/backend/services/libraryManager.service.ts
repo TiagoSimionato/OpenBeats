@@ -209,6 +209,11 @@ const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
   const libraryRelease = await releasesRepository.getLibraryRelease(releaseId)
     ?? throwError(new UnprocessableEntityError('Release not found'));
 
+  const existingCoverFilePath = await coverArtService.getCoverFilePath(releaseId);
+  if (existingCoverFilePath) {
+    await rm(existingCoverFilePath);
+  }
+
   const coverFilePath = await coverArtService.getReleaseCoverArt({ releaseId, title: libraryRelease.album });
   if (coverFilePath) {
     libraryRelease.coverPath = libraryRelease.id;
@@ -222,6 +227,35 @@ const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
     return;
   }
   throw new UnprocessableEntityError('Could not add release cover');
+};
+
+const importReleaseCover = async ({ file, releaseId }: { file: File; releaseId: string }) => {
+  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId)
+    ?? throwError(new UnprocessableEntityError('Release not found'));
+
+  const existingCoverFilePath = await coverArtService.getCoverFilePath(releaseId);
+  if (existingCoverFilePath) {
+    await rm(existingCoverFilePath);
+  }
+
+  const coverFilePath = join(
+    resolve(CONFIGS.COVERS_PATH),
+    `${releaseId}${extname(file.name)}`,
+  );
+
+  const bytes = await file.arrayBuffer();
+  await writeFile(coverFilePath, Buffer.from(bytes));
+  await coverArtService.makeWebp(coverFilePath);
+
+  if (!libraryRelease.coverPath) {
+    libraryRelease.coverPath = libraryRelease.id;
+    releasesRepository.upsertLibraryRelease(libraryRelease);
+  }
+
+  const tracks = mapLibraryReleaseToTracks(libraryRelease);
+  for (const track of tracks) {
+    await metadataStep({ coverFilePath, filePath: track.trackPath, track });
+  }
 };
 
 const syncReleasesCover = async () => {
@@ -377,6 +411,7 @@ export const libraryManagerService = {
   addTrackToLibrary,
   deleteRelease,
   deleteTrack,
+  importReleaseCover,
   scanLibraryReleases,
   scanReleasesFromDisk,
   syncReleasesCover,

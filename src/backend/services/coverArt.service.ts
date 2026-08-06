@@ -125,4 +125,5 @@ const getReleaseCoverArt = handlePromise(
 export const coverArtService = {
   getCoverFilePath,
   getReleaseCoverArt,
+  makeWebp,
 };

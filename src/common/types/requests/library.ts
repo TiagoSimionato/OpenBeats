@@ -12,6 +12,8 @@ export type ImportTrackRequest = {
   trackId: string;
 };
 
+export type ImportCoverRequest = { formData: FormData; releaseId: string };
+
 export type TrackRecord = {
   disc: number;
   downloadPath: string;

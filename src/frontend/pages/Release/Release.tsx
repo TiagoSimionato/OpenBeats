@@ -14,6 +14,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
 import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
+import { ActionImportReleaseCover } from './components/ActionImportReleaseCover';
 import { buildAbout } from './components/buildAbout';
 import { TrackList } from './components/TrackList';
 
@@ -75,6 +76,7 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
         <div className="flex grow flex-col">
           <div className="ml-auto flex items-start gap-4 pb-4">
+            <ActionImportReleaseCover />
             <ActionAddReleaseCover />
             <ActionDeleteRelease title={release.album} />
           </div>

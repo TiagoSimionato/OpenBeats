@@ -1,4 +1,4 @@
-import type { ImportTrackRequest, TrackRequestParams } from 'common/types/requests/library';
+import type { ImportCoverRequest, ImportTrackRequest, TrackRequestParams } from 'common/types/requests/library';
 import type { JobResponse } from 'common/types/requests/releases';
 import type { HookMutationOptions, RequestConfig } from 'tsm-utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ export const useAddRelease = <Response = JobResponse, Error = unknown>({
   ...options,
 });
 
-export const useAddReleaseCover = <Response = JobResponse, Error = unknown>({
+export const useAddReleaseCover = <Response = null, Error = unknown>({
   configs,
   options,
 }: {
@@ -27,6 +27,24 @@ export const useAddReleaseCover = <Response = JobResponse, Error = unknown>({
 
   return useMutation<Response, Error, string>({
     mutationFn: (releaseId: string) => api.post<Response>(`library/releases/${releaseId}/cover`, {}, configs),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+    },
+    ...options,
+  });
+};
+
+export const useImportReleaseCover = <Response = null, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<ImportCoverRequest, Response, Error>;
+} = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Response, Error, ImportCoverRequest>({
+    mutationFn: ({ formData, releaseId }) => api.post<Response>(`library/releases/${releaseId}/cover/import`, formData, configs),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
