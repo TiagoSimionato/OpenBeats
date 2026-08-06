@@ -16,6 +16,22 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
   const [inputValue, setInputValue] = useState('');
   const [open, setOpen] = useState(false);
 
+  const handleSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
+    event.preventDefault();
+    enqueueJob({
+      id: trackId,
+      onStart: () =>
+        addCustomTrack({
+          releaseId,
+          trackId,
+          url: inputValue,
+        }),
+      title,
+      totalTracks: 1,
+    });
+    setOpen(false);
+  };
+
   return (
     <>
       <Button onClick={() => setOpen(true)} size="xs" title="Replace track file" variant="tertiary">
@@ -27,31 +43,16 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
           {' '}
           <span className="text-primary">{title}</span>
         </p>
-        <Input
-          onChange={event => setInputValue(event.target.value)}
-          placeholder="Custom URL"
-          value={inputValue}
-        />
-        <Button
-          className="self-center"
-          disabled={!inputValue}
-          onClick={() => {
-            enqueueJob({
-              id: trackId,
-              onStart: () =>
-                addCustomTrack({
-                  releaseId,
-                  trackId,
-                  url: inputValue,
-                }),
-              title,
-              totalTracks: 1,
-            });
-            setOpen(false);
-          }}
-        >
-          Replace file
-        </Button>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <Input
+            onChange={event => setInputValue(event.target.value)}
+            placeholder="Custom URL"
+            value={inputValue}
+          />
+          <Button className="self-center" disabled={!inputValue} type="submit">
+            Replace file
+          </Button>
+        </form>
       </Dialog>
     </>
   );
