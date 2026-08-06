@@ -7,12 +7,13 @@ import { dirname, extname, join, resolve } from 'node:path';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { runYtdlp, searchYTMusic } from 'backend/binaries/ytdlp';
-import { NotFoundError } from 'backend/exceptions/http';
+import { throwError } from 'backend/exceptions/handler';
+import { NotFoundError, UnprocessableEntityError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
-import { mapReleaseTracksToDownloadTracks } from 'common/utils';
+import { mapLibraryReleaseToTracks, mapMBResponseToTracks } from 'common/utils';
 import { CONFIGS } from 'configs/constants';
 
 type OnProgress = ((progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void) | undefined;
@@ -33,7 +34,7 @@ const getReleaseMetadataStep = async (releaseId: string, onProgress?: OnProgress
 
   return {
     release,
-    tracks: mapReleaseTracksToDownloadTracks(release),
+    tracks: mapMBResponseToTracks(release),
   };
 };
 
@@ -204,6 +205,25 @@ const addTrackToLibrary = async (
   }
 };
 
+const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
+  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId)
+    ?? throwError(new UnprocessableEntityError('Release not found'));
+
+  const coverFilePath = await coverArtService.getReleaseCoverArt({ releaseId, title: libraryRelease.album });
+  if (coverFilePath) {
+    libraryRelease.coverPath = libraryRelease.id;
+    releasesRepository.upsertLibraryRelease(libraryRelease);
+
+    const tracks = mapLibraryReleaseToTracks(libraryRelease);
+    for (const track of tracks) {
+      await metadataStep({ coverFilePath, filePath: track.trackPath, track });
+    }
+
+    return;
+  }
+  throw new UnprocessableEntityError('Could not add release cover');
+};
+
 const syncReleasesCover = async () => {
   const releases = await releasesRepository.listLibraryReleases();
   for (const release of releases) {
@@ -352,6 +372,7 @@ const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
 };
 
 export const libraryManagerService = {
+  addReleaseCover,
   addReleaseToLibrary,
   addTrackToLibrary,
   deleteRelease,

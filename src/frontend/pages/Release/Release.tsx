@@ -4,7 +4,7 @@ import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { ListTracks } from './components/TrackList';
 import type { ReleasePageParams } from './type';
 import { HttpStatusCode, isAxiosError } from 'axios';
-import { mapReleaseTracksToDownloadTracks } from 'common/utils';
+import { mapMBResponseToTracks } from 'common/utils';
 import { ROUTES } from 'configs/routes';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
@@ -12,6 +12,7 @@ import { Disc3Icon } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
+import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
 import { buildAbout } from './components/buildAbout';
 import { TrackList } from './components/TrackList';
@@ -40,7 +41,7 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
     router.replace(ROUTES.HOME);
   }
 
-  const mbTracks = mbRelease ? mapReleaseTracksToDownloadTracks(mbRelease) : undefined;
+  const mbTracks = mbRelease ? mapMBResponseToTracks(mbRelease) : undefined;
 
   const listTracks: ListTracks[] = mbTracks
     ? mbTracks.map(mbTrack => ({
@@ -74,6 +75,7 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
         <div className="flex grow flex-col">
           <div className="ml-auto flex items-start gap-4 pb-4">
+            <ActionAddReleaseCover />
             <ActionDeleteRelease title={release.album} />
           </div>
           <div className="flex flex-col justify-end gap-10 capitalize">

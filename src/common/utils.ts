@@ -1,5 +1,6 @@
 import type { ReleaseResponse, ReleaseTrack } from 'common/types/requests/mbApi';
 import type { Track } from 'common/types/requests/releases';
+import type { LibraryReleaseData } from './types/requests/library';
 
 export const getArtistLabel = (
   artistCredits: ReleaseResponse['artist-credit'] | ReleaseTrack['artist-credit'] | undefined,
@@ -38,7 +39,7 @@ export const getTrackTitle = (track: ReleaseTrack) => track.title ?? track.recor
 const getTrackId = (track: ReleaseTrack) =>
   track.id ?? track.recording?.id ?? `${track.position ?? track.number ?? getTrackTitle(track)}`;
 
-export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Track[] => {
+export const mapMBResponseToTracks = (release: ReleaseResponse): Track[] => {
   const releaseArtistCredits = release['artist-credit'];
   const releaseGroup = release['release-group'];
   const firstLabel = release['label-info']?.[0]?.label?.name ?? '';
@@ -94,3 +95,33 @@ export const mapReleaseTracksToDownloadTracks = (release: ReleaseResponse): Trac
     }) ?? [];
   }) ?? [];
 };
+
+export const mapLibraryReleaseToTracks = (release: LibraryReleaseData) => release.tracks.map(track => ({
+  'album': release.album,
+  'album_artist': release.albumArtist,
+  'artist': release.artist ?? '',
+  'artist-sort': release.artistSort ?? '',
+  'coverPath': release.coverPath,
+  'date': release.releaseDate ?? '',
+  'disc': track.disc,
+  'Disctotal': release.discTotal,
+  'genre': track.genre.split('; '),
+  'MusicBrainz Album Artist Id': release.musicBrainzAlbumArtistId,
+  'MusicBrainz Album Id': release.musicBrainzAlbumId,
+  'MusicBrainz Album Release Country': release.musicBrainzAlbumReleaseCountry ?? '',
+  'MusicBrainz Album Status': release.musicBrainzAlbumStatus ?? '',
+  'MusicBrainz Album Type': release.releaseType,
+  'MusicBrainz Artist Id': release.musicBrainzArtistId,
+  'MusicBrainz Release Group Id': release.musicBrainzReleaseGroupId,
+  'MusicBrainz Release Track Id': track.musicBrainzReleaseTrackId,
+  'MusicBrainz Track Id': track.musicBrainzTrackId,
+  'originalyear': release.originalYear ?? 0,
+  'publisher': release.publisher ?? '',
+  'TDOR': release.releaseDate ?? '',
+  'title': track.title,
+  'TMED': release.tmed ?? '',
+  'track': track.trackNumber,
+  'trackPath': track.downloadPath,
+  'Tracktotal': release.trackCount,
+  'TSO2': release.ts02 ?? '',
+} satisfies Track));

@@ -16,6 +16,24 @@ export const useAddRelease = <Response = JobResponse, Error = unknown>({
   ...options,
 });
 
+export const useAddReleaseCover = <Response = JobResponse, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<string, Response, Error>;
+} = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Response, Error, string>({
+    mutationFn: (releaseId: string) => api.post<Response>(`library/releases/${releaseId}/cover`, {}, configs),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+    },
+    ...options,
+  });
+};
+
 export const useAddTrack = <Response = JobResponse, Error = unknown>({
   configs,
   options,
