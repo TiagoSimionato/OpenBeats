@@ -4,9 +4,10 @@ import { Header } from './Header/Header';
 import { QueuePadding } from './QueuePadding';
 
 export const Layout = ({ children }: PropsWithChildren) => (
-  <QueuePadding>
+  <>
     <Header />
     {children}
+    <QueuePadding />
     <QueuePopup />
-  </QueuePadding>
+  </>
 );
