@@ -3,7 +3,7 @@ import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { validateOrReject } from 'class-validator';
-import { Pagination } from './requestss/pagination.module';
+import { Pagination } from './requests/pagination.module';
 
 const AUDIO_FILE_EXTENSIONS = new Set([
   '.aac',

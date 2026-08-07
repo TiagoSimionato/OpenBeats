@@ -2,7 +2,7 @@ import type { JobResponse } from 'common/types/requests/releases';
 import type { NextRequest } from 'next/server';
 import { HttpStatusCode } from 'axios';
 import { withErrorHandler } from 'backend/exceptions/handler';
-import { CustomTrackRequest } from 'backend/requestss/track.module';
+import { CustomTrackRequest } from 'backend/requests/track.module';
 import { jobService } from 'backend/services/jobs.service';
 import { buildDTO } from 'backend/utils';
 import { NextResponse } from 'next/server';
