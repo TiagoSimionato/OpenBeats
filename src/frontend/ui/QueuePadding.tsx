@@ -20,11 +20,7 @@ export const QueuePadding = ({ children, className, ...props }: ComponentProps<'
   const { queue } = useQueueContext();
 
   return (
-    <div
-      aria-hidden
-      className={`flex grow flex-col ${getPaddingSize(queue.length)} ${className}`}
-      {...props}
-    >
+    <div aria-hidden className={`${getPaddingSize(queue.length)} ${className}`} {...props}>
       {children}
     </div>
   );
