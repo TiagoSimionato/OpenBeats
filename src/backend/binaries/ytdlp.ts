@@ -6,6 +6,18 @@ import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
 import YTMusic from 'ytmusic-api';
 
+const getPerfectMatch = (results: Awaited<ReturnType<YTMusic['searchSongs']>>, track: Track) =>
+  results.find(result => result.name?.toLowerCase() === track.title.toLowerCase()
+    && result.album?.name.toLowerCase() === track.album.toLowerCase()
+    && result.artist.name.toLowerCase() === track.artist.toLowerCase());
+
+const getArtistMatch = (results: Awaited<ReturnType<YTMusic['searchSongs']>>, track: Track) =>
+  results.find(result => result.name?.toLowerCase() === track.title.toLowerCase()
+    && result.artist.name.toLowerCase() === track.artist.toLowerCase());
+
+const getTrackMatch = (results: Awaited<ReturnType<YTMusic['searchSongs']>>, track: Track) =>
+  results.find(result => result.name?.toLowerCase() === track.title.toLowerCase());
+
 export const searchYTMusic = handlePromise(
   async (track: Track) => {
     const ytmusic = new YTMusic();
@@ -15,9 +27,12 @@ export const searchYTMusic = handlePromise(
 
     const results = await ytmusic.searchSongs(query);
 
-    const topMatch = results.find(result => result.name?.toLowerCase() === track.title.toLowerCase() && result.artist.name.toLowerCase() === track.artist.toLowerCase()) ?? results.find(result => result.name?.toLowerCase() === track.title.toLowerCase()) ?? results[0];
+    const topMatch = getPerfectMatch(results, track)
+      ?? getArtistMatch(results, track)
+      ?? getTrackMatch(results, track)
+      ?? results[0];
 
-    const videoId = topMatch?.type === 'SONG' ? topMatch?.videoId : undefined;
+    const videoId = topMatch.videoId;
 
     console.log(`ytmusic: query [${query}] returned ${results.length} result with main [${videoId}]`);
 
