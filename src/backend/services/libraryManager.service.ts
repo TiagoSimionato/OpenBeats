@@ -187,7 +187,7 @@ const addTrackToLibrary = async (
   { file, releaseId, trackId, url }: TrackRequestParams & { file?: File },
   onProgress?: OnProgress,
 ) => {
-  const metadata = await getReleaseMetadataStep(releaseId);
+  const metadata = await getReleaseMetadataStep(releaseId, onProgress);
   const releaseTracks = metadata?.tracks;
   if (releaseTracks) {
     const track = releaseTracks.find(it => it['MusicBrainz Track Id'] === trackId || it['MusicBrainz Release Track Id'] === trackId);
