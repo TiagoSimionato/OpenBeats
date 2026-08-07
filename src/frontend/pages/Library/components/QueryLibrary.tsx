@@ -7,7 +7,8 @@ export const QueryLibrary = () => {
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(params.get('query') ?? '');
+  const [isDirty, setIsDirty] = useState(false);
   const debouncedQuery = useDebounce(query);
 
   useEffect(() => {
@@ -18,12 +19,16 @@ export const QueryLibrary = () => {
     if (!debouncedQuery) {
       searchParams.delete('query');
     }
-    router.push(`${pathname}?${searchParams.toString()}`);
+    if (isDirty) {
+      router.push(`${pathname}?${searchParams.toString()}`);
+    }
     // eslint-disable-next-line react/exhaustive-deps
   }, [debouncedQuery]);
 
   const handleChange: React.ComponentProps<'input'>['onChange'] = (event) => {
     setQuery(event.target.value);
+    if (!isDirty)
+      setIsDirty(true);
   };
 
   return (
