@@ -31,9 +31,13 @@ const getArtistsLabel = (release: QueryRelease) => {
 const renderChip = (status: ReleaseStatus) => {
   switch (status) {
     case 'complete':
-      return <Chip>Downloaded</Chip>;
+      return <Chip size="sm">Complete</Chip>;
     case 'partial':
-      return <Chip variant="secondary">Partially downloaded</Chip>;
+      return (
+        <Chip size="sm" variant="secondary">
+          Partial
+        </Chip>
+      );
     default:
       return null;
   }

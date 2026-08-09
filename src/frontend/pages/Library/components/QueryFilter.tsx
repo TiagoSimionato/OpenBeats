@@ -32,11 +32,13 @@ export const QueryLibrary = () => {
   };
 
   return (
-    <Input
-      className="md:w-4/7 xl:w-2/5"
-      onChange={handleChange}
-      placeholder="Search for releases, tracks or artists"
-      value={query}
-    />
+    <div className="flex flex-col gap-2 md:w-4/7 xl:w-2/5">
+      <span className="font-bold">Release Search</span>
+      <Input
+        onChange={handleChange}
+        placeholder="Search for releases, tracks or artists"
+        value={query}
+      />
+    </div>
   );
 };
