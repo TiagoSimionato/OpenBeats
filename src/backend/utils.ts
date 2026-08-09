@@ -1,8 +1,10 @@
+import type { ClassConstructor } from 'class-transformer';
 import { execFile } from 'node:child_process';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
-import { validateOrReject } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+import { validate, validateOrReject } from 'class-validator';
 import { Pagination } from './requests/pagination.module';
 
 const AUDIO_FILE_EXTENSIONS = new Set([
@@ -46,17 +48,29 @@ export const sanitize = (s: string) =>
     .replace(/[<>:"/\\|?*-]/g, '')
     .replace(/\.+$/g, '');
 
-export const buildDTO = async <DTO extends object>(dto: DTO, obj: object) => {
-  const entries = Object.entries(obj);
-  entries.forEach(([key, value]) => {
-    (dto as any)[key] = value;
-  });
-  await validateOrReject(dto);
-  return dto;
+export const buildDTO = async <DTO extends ClassConstructor<any>>(ClassDTO: DTO, obj: object, throwError: boolean = true) => {
+  const dto = plainToInstance(ClassDTO, obj);
+
+  if (throwError) {
+    await validateOrReject(dto);
+  }
+  if (!throwError) {
+    await validate(dto).then((errors) => {
+      errors.forEach((error) => {
+        (dto as any)[error.property] = undefined;
+      });
+    });
+  }
+
+  return dto as InstanceType<DTO>;
 };
 
-export const buildPagination = async (obj: object) => {
-  const pagination = await buildDTO(new Pagination(), obj);
+export const buildPagination = async (params: object) => {
+  const pagination = await buildDTO(Pagination, params);
+  if (!pagination.page)
+    pagination.page = 1;
+  if (!pagination.perPage)
+    pagination.perPage = 18;
   if (pagination.perPage > 100)
     pagination.perPage = 100;
   return pagination;

@@ -17,6 +17,7 @@
     "axios": "^1.18.1",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.10.0",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "imagemin": "^9.0.1",
     "imagemin-webp": "^8.0.0",
@@ -25,6 +26,7 @@
     "next-auth": "^5.0.0-beta.32",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "reflect-metadata": "^0.2.2",
     "tsm-utils": "^0.6.2",
     "ytmusic-api": "^5.3.1"
   },

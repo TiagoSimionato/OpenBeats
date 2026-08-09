@@ -11,12 +11,9 @@ type RouteContext = {
 
 export const GET = withErrorHandler(
   async (request: NextRequest, _context: RouteContext): Promise<NextResponse<LibraryReleasesResponse>> => {
-    const paginationParams = {
-      page: Number(request.nextUrl.searchParams.get('page') ?? 1),
-      perPage: Number(request.nextUrl.searchParams.get('perPage') ?? 18),
-    };
+    const params = Object.fromEntries(request.nextUrl.searchParams);
+    const pagination = await buildPagination(params);
     const query = request.nextUrl.searchParams.get('query');
-    const pagination = await buildPagination(paginationParams);
 
     const pagedLibraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination, query);
 

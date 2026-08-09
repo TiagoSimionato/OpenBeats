@@ -17,7 +17,7 @@ export const POST = withErrorHandler(
   async (request: NextRequest, { params }: RouteContext): Promise<NextResponse<JobResponse>> => {
     const { releaseId } = await params;
 
-    const dto = await buildDTO(new CustomTrackRequest(), await request.json());
+    const dto = await buildDTO(CustomTrackRequest, await request.json());
 
     const jobId = jobService.startTrackJob({ releaseId, trackId: dto.trackId, url: dto.url });
 
