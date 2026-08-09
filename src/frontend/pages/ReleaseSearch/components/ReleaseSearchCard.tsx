@@ -1,6 +1,7 @@
 'use client';
 
 import type { QueryRelease } from 'common/types/requests/mbApi';
+import type { ReleaseStatus } from 'common/types/requests/releases';
 import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { useAddRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
@@ -10,10 +11,6 @@ import { Chip } from 'frontend/ui/Chip';
 import { Spinner } from 'frontend/ui/Spinner';
 import { useState } from 'react';
 import { CoverPreview } from './CoverPreview';
-
-type libraryStatus = 'added' | 'missing' | 'parcial';
-
-type releaseStatus = 'processing' | 'queued' | libraryStatus;
 
 type ReleaseCardProps = {
   release: QueryRelease;
@@ -31,24 +28,24 @@ const getArtistsLabel = (release: QueryRelease) => {
     .join('');
 };
 
-const renderChip = (status: releaseStatus) => {
+const renderChip = (status: ReleaseStatus) => {
   switch (status) {
-    case 'added':
+    case 'complete':
       return <Chip>Downloaded</Chip>;
-    case 'parcial':
+    case 'partial':
       return <Chip variant="secondary">Partially downloaded</Chip>;
     default:
       return null;
   }
 };
 
-const renderButtonLabel = (status: releaseStatus) => {
+const renderButtonLabel = (status: ReleaseStatus) => {
   switch (status) {
-    case 'added':
+    case 'complete':
       return 'Downloaded';
     case 'missing':
       return 'Add to Library';
-    case 'parcial':
+    case 'partial':
       return 'Try again';
     case 'processing':
       return '';
@@ -72,14 +69,14 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const isDownloading = queueItem?.status === 'running';
   const isQueued = queueItem?.stage === 'queued' && queueItem?.status === 'running';
 
-  const status: releaseStatus = isQueued
+  const status: ReleaseStatus = isQueued
     ? 'queued'
     : isDownloading
       ? 'processing'
       : isDownloaded
-        ? 'added'
+        ? 'complete'
         : isPartiallyAdded
-          ? 'parcial'
+          ? 'partial'
           : 'missing';
 
   const handleDownload = () => {

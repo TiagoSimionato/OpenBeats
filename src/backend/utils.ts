@@ -66,7 +66,7 @@ export const buildDTO = async <DTO extends ClassConstructor<any>>(ClassDTO: DTO,
 };
 
 export const buildPagination = async (params: object) => {
-  const pagination = await buildDTO(Pagination, params);
+  const pagination = await buildDTO(Pagination, params, false);
   if (!pagination.page)
     pagination.page = 1;
   if (!pagination.perPage)

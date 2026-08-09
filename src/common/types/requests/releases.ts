@@ -28,6 +28,9 @@ export type Track = {
   'TSO2': string;
 };
 
+export const releaseStatuses = ['complete', 'partial', 'missing', 'processing', 'queued'] as const;
+export type ReleaseStatus = (typeof releaseStatuses)[number];
+
 export type TrackSearchResult = {
   coverFilePath?: string;
   downloadedFilePath: string;

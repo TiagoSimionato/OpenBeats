@@ -1,4 +1,5 @@
 import type { Pagination } from 'backend/requests/pagination.module';
+import type { ReleasesFilters } from 'backend/requests/releases';
 import type { LibraryReleaseData, ReleaseRecord, TrackRecord } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
 import { dbService } from 'backend/services/db.service';
@@ -242,19 +243,20 @@ const listLibraryReleases = async () => {
   }));
 };
 
-const listLibraryReleasesPaged = async (pagination: Pagination, query?: null | string) => {
-  const formatQuery = `%${query ?? ''}%`;
-
+const listLibraryReleasesPaged = async (pagination: Pagination, filters: ReleasesFilters) => {
+  const formatQuery = `%${filters.query ?? ''}%`;
   const rows = await dbService.list<LibraryReleaseData>(`
     ${SELECT_LIBRARY_RELEASE}
     WHERE r.album LIKE ?
       OR r.album_artist LIKE ?
       OR t.title LIKE ?
     GROUP BY r.id
+    HAVING (? = 'complete' AND COUNT(t.id) = r.track_count)
+      OR (? = 'partial' AND COUNT(t.id) < r.track_count)
+      OR (? IS NULL)
     ORDER BY r.album ASC
     ${paginationFilters(pagination)};
-  `, formatQuery, formatQuery, formatQuery)
-    ;
+  `, formatQuery, formatQuery, formatQuery, filters.status, filters.status, filters.status);
   const count = (await dbService.get<{ count: number }>('SELECT COUNT(*) as count FROM tb_releases r'))?.count ?? 0;
 
   return {
