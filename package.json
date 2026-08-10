@@ -28,7 +28,8 @@
     "react-dom": "19.2.4",
     "reflect-metadata": "^0.2.2",
     "tsm-utils": "^0.6.2",
-    "ytmusic-api": "^5.3.1"
+    "ytmusic-api": "^5.3.1",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^5.9.4",
