@@ -71,20 +71,18 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
   const about = buildAbout(release);
 
   return (
-    <main className="flex flex-col gap-4">
+    <main className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-4 sm:flex-row">
+        <div className="ml-auto flex items-start gap-4 pb-4 sm:order-last sm:self-stretch">
+          <ActionImportReleaseCover />
+          <ActionAddReleaseCover />
+          <ActionDeleteRelease title={release.album} />
+        </div>
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
-        <div className="flex grow flex-col">
-          <div className="ml-auto flex items-start gap-4 pb-4">
-            <ActionImportReleaseCover />
-            <ActionAddReleaseCover />
-            <ActionDeleteRelease title={release.album} />
-          </div>
-          <div className="flex flex-col justify-end gap-10 capitalize">
-            <span className="hidden sm:block">{release.releaseType.split(';')[0]}</span>
-            <h1 className="text-center text-5xl font-bold sm:text-start">{release.album}</h1>
-            <span className="text-center sm:text-start">{items.join(' • ')}</span>
-          </div>
+        <div className="flex flex-col justify-end gap-4 capitalize sm:gap-10">
+          <span className="hidden sm:block">{release.releaseType.split(';')[0]}</span>
+          <h1 className="text-center text-5xl font-bold sm:text-start">{release.album}</h1>
+          <span className="text-center sm:text-start">{items.join(' • ')}</span>
         </div>
       </div>
       <div className="flex flex-col gap-2">
