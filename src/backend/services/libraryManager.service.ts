@@ -146,6 +146,8 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
     await metadataStep({ coverFilePath, filePath: trackPath, track }, onProgress);
 
     await releasesRepository.upsertLibraryTrack({
+      artist: track.artist,
+      artistSort: track['artist-sort'],
       disc: track.disc,
       downloadPath: trackPath,
       genre: track.genre.join('; '),
@@ -155,6 +157,7 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
       releaseId: track['MusicBrainz Album Id'],
       title: track.title,
       trackNumber: track.track,
+      ts02: track.TSO2,
     });
   };
 
@@ -309,8 +312,6 @@ const scanReleasesFromDisk = async () => {
         const currentRelease = {
           album: tags.album ?? tags.ALBUM ?? '',
           albumArtist: tags.album_artist ?? tags.artist ?? '',
-          artist: tags.artist ?? tags.ARTIST ?? tags.ARTISTS,
-          artistSort: tags['artist-sort'] ?? tags.ARTISTSORT,
           coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
           discTotal,
           id: releaseId,
@@ -326,13 +327,14 @@ const scanReleasesFromDisk = async () => {
           releaseType: (tags['MusicBrainz Album Type'] ?? tags.RELEASETYPE)?.split(';')[0] ?? '',
           tmed: tags.TMED ?? tags.MEDIA,
           trackCount: trackTotal,
-          ts02: tags.TSO2,
         };
         libraryReleases.set(releaseId, currentRelease);
         await releasesRepository.upsertLibraryRelease(currentRelease);
       }
 
       const currentTrack = {
+        artist: tags.artist ?? tags.ARTIST ?? tags.ARTISTS,
+        artistSort: tags['artist-sort'] ?? tags.ARTISTSORT,
         disc,
         downloadPath: filePath,
         genre: tags.genre ?? tags.GENRE ?? '',
@@ -342,6 +344,7 @@ const scanReleasesFromDisk = async () => {
         releaseId,
         title: tags.title ?? tags.TITLE ?? '',
         trackNumber: track,
+        ts02: tags.TSO2,
       };
       await releasesRepository.upsertLibraryTrack(currentTrack);
     }

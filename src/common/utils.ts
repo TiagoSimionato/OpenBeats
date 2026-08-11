@@ -99,8 +99,8 @@ export const mapMBResponseToTracks = (release: ReleaseResponse): Track[] => {
 export const mapLibraryReleaseToTracks = (release: LibraryReleaseData) => release.tracks.map(track => ({
   'album': release.album,
   'album_artist': release.albumArtist,
-  'artist': release.artist ?? '',
-  'artist-sort': release.artistSort ?? '',
+  'artist': track.artist ?? '',
+  'artist-sort': track.artistSort ?? '',
   'coverPath': release.coverPath,
   'date': release.releaseDate ?? '',
   'disc': track.disc,
@@ -123,5 +123,5 @@ export const mapLibraryReleaseToTracks = (release: LibraryReleaseData) => releas
   'track': track.trackNumber,
   'trackPath': track.downloadPath,
   'Tracktotal': release.trackCount,
-  'TSO2': release.ts02 ?? '',
+  'TSO2': track.ts02 ?? '',
 } satisfies Track));

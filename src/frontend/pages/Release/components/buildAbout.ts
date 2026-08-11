@@ -10,14 +10,6 @@ export const buildAbout = (release: LibraryReleaseData) => [
     value: release.albumArtist,
   },
   {
-    label: 'Artist',
-    value: release.artist,
-  },
-  {
-    label: 'Artist Sort',
-    value: release.artistSort,
-  },
-  {
     label: 'Cover Path',
     value: release.coverPath,
   },
@@ -76,9 +68,5 @@ export const buildAbout = (release: LibraryReleaseData) => [
   {
     label: 'Tracks',
     value: release.trackCount,
-  },
-  {
-    label: 'TSO2',
-    value: release.ts02,
   },
 ];

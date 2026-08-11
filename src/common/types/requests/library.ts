@@ -15,6 +15,8 @@ export type ImportTrackRequest = {
 export type ImportCoverRequest = { formData: FormData; releaseId: string };
 
 export type TrackRecord = {
+  artist?: string;
+  artistSort?: string;
   disc: number;
   downloadPath: string;
   genre: string;
@@ -24,13 +26,13 @@ export type TrackRecord = {
   releaseId: string;
   title: string;
   trackNumber: number;
+  ts02?: string;
+
 };
 
 export type ReleaseRecord = {
   album: string;
   albumArtist: string;
-  artist?: string;
-  artistSort?: string;
   coverPath?: string;
   discTotal: number;
   id: string;
@@ -46,7 +48,6 @@ export type ReleaseRecord = {
   releaseType: string;
   tmed?: string;
   trackCount: number;
-  ts02?: string;
 };
 
 export type LibraryReleaseData = ReleaseRecord & {
