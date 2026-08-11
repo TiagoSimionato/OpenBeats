@@ -65,29 +65,42 @@ export const runYtdlp = handlePromise(
 
     const outputTemplate = join(dir, `${trackNumber}. ${title}.%(ext)s`);
 
-    const { stderr, stdout } = await execFileAsync(CONFIGS.YT_DLP_BIN, [
-      '--ignore-errors',
-      '--format',
-      'bestaudio',
-      '--extract-audio',
-      '--audio-format',
-      'mp3',
-      '--audio-quality',
-      '160K',
-      '--output',
-      outputTemplate,
-      '--print',
-      'after_move:filepath',
-      ...(isCustomUrl ? ['--force-overwrite', videoId] : [`https://www.youtube.com/watch?v=${videoId}`]),
-    ], {
-      maxBuffer: 10 * 1024 * 1024,
-    });
+    let tries = 0;
+    let output = '';
+    let stderr = '';
+    do {
+      try {
+        const result = await execFileAsync(CONFIGS.YT_DLP_BIN, [
+          '--ignore-errors',
+          '--format',
+          'bestaudio',
+          '--extract-audio',
+          '--audio-format',
+          'mp3',
+          '--audio-quality',
+          '160K',
+          '--output',
+          outputTemplate,
+          '--print',
+          'after_move:filepath',
+          ...(isCustomUrl ? ['--force-overwrite', videoId] : [`https://www.youtube.com/watch?v=${videoId}`]),
+        ], {
+          maxBuffer: 10 * 1024 * 1024,
+        });
+        stderr = result.stderr;
+        output = result.stdout;
+      }
+      catch (error) {
+        console.log(`yt-dlp: ${error}`);
+      }
+      tries++;
+    } while (stderr.includes('403: Forbidden') && tries < 5);
 
     if (/WARNING: Your yt-dlp version .* is older than 90 days!/.test(stderr)) {
       execFileAsync(CONFIGS.YT_DLP_BIN, ['--update']).then(() => console.log('ytdlp: updated'));
     }
 
-    const output = stdout.trim();
+    output = output.trim();
     const filePath = output
       .split('\n')
       .map(line => line.trim())
