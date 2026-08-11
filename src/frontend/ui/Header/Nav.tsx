@@ -14,6 +14,10 @@ const menuItems = [
     href: ROUTES.SEARCH,
     label: 'Search',
   },
+  {
+    href: ROUTES.SETTINGS,
+    label: 'Settings',
+  },
 ];
 
 export const Nav = () => {
@@ -21,7 +25,7 @@ export const Nav = () => {
 
   return (
     <nav className="basis-full md:basis-auto">
-      <ul className="flex gap-5">
+      <ul className="flex justify-center gap-5">
         {menuItems.map(({ highlight, href, label }) => {
           const shouldHighlight
             = pathname === ROUTES.HOME

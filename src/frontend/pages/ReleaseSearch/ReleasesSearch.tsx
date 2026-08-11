@@ -27,7 +27,7 @@ export const ReleaseSearchPage = () => {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 py-6">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6">
       <form className="flex gap-2" onSubmit={onSubmit}>
         <Input
           className="w-full"
