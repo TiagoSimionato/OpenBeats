@@ -26,36 +26,41 @@ Below there is a list of planned upcoming changes as reference
 
 - Release page
   - Replace/Update Metadata from files (move file if changing artists or release name)
-  - Genre
+  - Genre, artist track, ts02
+  - Set release status "enough added'
 - Library page
-  - filter by partial releases
   - choose sorting
-- Missing favicon
-- Remove extra releases on library scan
-- Unkown date on release search card sometimes untrue (mb response)
-- Retry ytdlp 403
+  - multi selection
+- Build issues:
+  - Missing favicon
+  - Select style
+- Settings page
+  - Default cover size
+  - Change password
+  - Retag library button
+- RSgain
 - Improve genre matching logic
-- Sometimes queue stays on forever (mb query metadata fails)
+- Server side queue
+- Remove extra releases on library scan
+- Warning: Dynamic filesystem access causes tracing of the whole project
+- Unkown date on release search card sometimes untrue (mb response)
 - Pagination server redirect if page > pages
 - PaginationControl with page buttons
 - Generate auth secret during docker build
 - Queue popup Progress bug with multiple tracks
 - Query artist tracks
-- Handle pagination build error
-- RSgain
+- Query for single or few tracks
 - Settings default cover size
 - Error page
-- Query for single  or few tracks
 - Handle Sign in error
 - Connect with navidrome and perform a library scan after an update
 - Parallel downloads
 - Remove unused svg
+- Custom tracks not recognized (when missing mb info)
 - Find duplicate tracks
-- Server side queue
 - Cancel downloads
 - Save file path template
 - Clear cover cache
-- Custom tracks not recognized
 - Search keywords blacklist
 
 ## Development
