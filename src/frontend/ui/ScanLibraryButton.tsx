@@ -8,7 +8,7 @@ export const ScanLibraryButton = () => {
 
   return (
     <Button
-      className="min-w-32 transition-colors"
+      className="min-w-34 transition-colors"
       isLoading={isPending}
       onClick={() => scanLibrary()}
       variant="secondary"
