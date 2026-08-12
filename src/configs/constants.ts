@@ -14,7 +14,7 @@ export const CONFIGS = {
   FFMPEG_BIN: process.env.FFMPEG_BIN ?? 'ffmpeg',
   FFPROBE_BIN: process.env.FFPROBE_BIN ?? 'ffprobe',
   LOG_INCOMING_REQUESTS: Boolean(process.env.LOG_INCOMING_REQUESTS ?? false),
-  PYTHON_BIN: process.env.PYTHON_BIN ?? 'python3',
+  RSGAIN_BIN: process.env.RSGAIN_BIN ?? 'rsgain',
   THUMBNAILS_PATH: `${CACHE_PATH}/thumbnails`,
   YT_DLP_BIN: process.env.YT_DLP_BIN ?? 'yt-dlp',
 } as const;

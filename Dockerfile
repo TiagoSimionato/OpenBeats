@@ -16,7 +16,8 @@ RUN yarn build
 FROM node:22-alpine AS runner
 ENV NODE_ENV=production
 RUN apk add --no-cache yt-dlp \
-  ffmpeg
+  ffmpeg \
+  rsgain
 WORKDIR /app
 
 # cp node module: imagemin is missing

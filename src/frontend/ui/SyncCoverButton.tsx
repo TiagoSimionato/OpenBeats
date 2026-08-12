@@ -8,12 +8,12 @@ export const SyncCoversButton = () => {
 
   return (
     <Button
-      className="min-w-32 transition-colors"
+      className="min-w-34 transition-colors"
       isLoading={isPending}
       onClick={() => syncCovers()}
       variant="secondary"
     >
-      Sync Covers
+      Sync covers
     </Button>
   );
 };

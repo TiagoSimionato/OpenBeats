@@ -6,6 +6,7 @@ import { mkdir, rm, rmdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
+import { runRsgain } from 'backend/binaries/rsgain';
 import { runYtdlp, searchYTMusic } from 'backend/binaries/ytdlp';
 import { throwError } from 'backend/exceptions/handler';
 import { NotFoundError, UnprocessableEntityError } from 'backend/exceptions/http';
@@ -108,6 +109,21 @@ const metadataStep = async ({ coverFilePath, filePath, track }: {
   });
 };
 
+const gainStep = async ({ albumDirectoryPath, title }: {
+  albumDirectoryPath: string;
+  title: string;
+}, onProgress?: OnProgress) => {
+  onProgress?.({
+    currentTrackTitle: title,
+    message: `Adding gain tag to ${title}`,
+    stage: 'metadata',
+  });
+  await runRsgain({
+    directoryPath: albumDirectoryPath,
+    title,
+  });
+};
+
 const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?: string, file?: File) => {
   const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
 
@@ -161,13 +177,23 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
     });
   };
 
+  const title = tracks.length === 1 ? tracks[0].title : tracks[0].album;
+  const trackPath = tracks.find(it => !!it.trackPath)?.trackPath;
+
+  if (trackPath) {
+    await gainStep({
+      albumDirectoryPath: dirname(trackPath),
+      title,
+    });
+  }
+
   onProgress?.({
     currentTrack: tracks[0].Tracktotal,
     message: 'Download completed',
     stage: 'completed',
     status: 'completed',
   });
-  console.log(`finished adding ${tracks.length === 1 ? tracks[0].title : tracks[0].album} to the library`);
+  console.log(`finished adding ${title} to the library`);
 };
 
 const addReleaseToLibrary = async (

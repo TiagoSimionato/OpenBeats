@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
         return (
           isAxiosError(error)
           && !!error.response?.status
-          && ![401, 404].includes(error.response.status)
+          && ![401, 404, 500].includes(error.response.status)
         );
       },
       retryOnMount: false,
