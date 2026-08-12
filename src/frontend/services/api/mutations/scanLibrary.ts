@@ -23,3 +23,14 @@ export const useSyncCovers = <Resquest = void, Response = void, Error = unknown>
   mutationFn: () => api.post<Response>('covers/sync', {}, configs),
   ...options,
 });
+
+export const useAddGainTags = <Resquest = void, Response = void, Error = unknown>({
+  configs,
+  options,
+}: {
+  configs?: RequestConfig;
+  options?: HookMutationOptions<Resquest, Response, Error>;
+} = {}) => useMutation<Response, Error, Resquest>({
+  mutationFn: () => api.post<Response>('library/rsgain', {}, configs),
+  ...options,
+});
