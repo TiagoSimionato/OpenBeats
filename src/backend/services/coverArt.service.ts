@@ -86,7 +86,7 @@ const getReleaseCoverArt = handlePromise(
       console.log(`Unkown cover response error: ${error}`);
     });
     if (!coverResponse) {
-      console.log('cover art: no artwork found for this release');
+      console.log(`cover art: no artwork found for release [${title}]`);
       return;
     }
 
