@@ -13,7 +13,7 @@ export const SyncCoversButton = () => {
       onClick={() => syncCovers()}
       variant="secondary"
     >
-      Sync Covers
+      Sync covers
     </Button>
   );
 };
