@@ -69,7 +69,7 @@ There are a few requirements to run the project:
 
 - [yt-dlp binary](https://github.com/yt-dlp/yt-dlp)
 - [ffmpeg binary](https://ffmpeg.org/)
-- Python env with ytmusicapi installed
+- [rsgain](https://github.com/complexlogic/rsgain)
 - Node and the package manager of your choice (yarn in this example)
 
 Install dependencies by simply running:
