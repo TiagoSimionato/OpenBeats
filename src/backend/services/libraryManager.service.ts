@@ -4,7 +4,7 @@ import type { DownloadJobProgress, Track } from 'common/types/requests/releases'
 import { existsSync } from 'node:fs';
 import { mkdir, rm, rmdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
-import { writeTrackMetadata } from 'backend/binaries/ffmpeg';
+import { getCoverFromTrack, writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { runRsgain } from 'backend/binaries/rsgain';
 import { runYtdlp, searchYTMusic } from 'backend/binaries/ytdlp';
@@ -291,7 +291,17 @@ const syncReleasesCover = async () => {
   const releases = await releasesRepository.listLibraryReleases();
   for (const release of releases) {
     if (!release.coverPath) {
-      if (await coverArtService.getReleaseCoverArt({ releaseId: release.id, title: release.album })) {
+      const isCoverArtArchiveSuccess = !!(await coverArtService.getReleaseCoverArt({ releaseId: release.id, title: release.album }));
+      let isFFMPEGSuccess = false;
+
+      for (const track of release.tracks) {
+        if (isCoverArtArchiveSuccess || isFFMPEGSuccess)
+          continue;
+        isFFMPEGSuccess = !!(await getCoverFromTrack({ filePath: track.downloadPath, releaseId: release.id, title: release.album }));
+      }
+
+      const isSuccess = isCoverArtArchiveSuccess || isFFMPEGSuccess;
+      if (isSuccess) {
         releasesRepository.upsertLibraryRelease({
           ...release,
           coverPath: release.id,
