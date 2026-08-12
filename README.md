@@ -32,17 +32,17 @@ Below there is a list of planned upcoming changes as reference
   - choose sorting
   - multi selection
 - Build issues:
-  - Missing favicon
   - Select style
 - Settings page
   - Default cover size
   - Change password
   - Retag library button
-- RSgain
 - Improve genre matching logic
 - Server side queue
+- Get covers from audio files
 - Remove extra releases on library scan
 - Warning: Dynamic filesystem access causes tracing of the whole project
+- Update docker base image
 - Unkown date on release search card sometimes untrue (mb response)
 - Pagination server redirect if page > pages
 - PaginationControl with page buttons
