@@ -30,6 +30,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
       totalTracks: 1,
     });
     setOpen(false);
+    setInputValue('');
   };
 
   return (
