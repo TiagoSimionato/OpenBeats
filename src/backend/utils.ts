@@ -5,7 +5,7 @@ import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { plainToInstance } from 'class-transformer';
 import { validate, validateOrReject } from 'class-validator';
-import { Pagination } from './requests/pagination.module';
+import { Pagination } from './requests/pagination.dto';
 
 const AUDIO_FILE_EXTENSIONS = new Set([
   '.aac',

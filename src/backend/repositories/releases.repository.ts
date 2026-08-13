@@ -1,5 +1,5 @@
-import type { Pagination } from 'backend/requests/pagination.module';
-import type { ReleasesFilters } from 'backend/requests/releases';
+import type { Pagination } from 'backend/requests/pagination.dto';
+import type { ReleasesFilters } from 'backend/requests/releases.dto';
 import type { LibraryReleaseData, ReleaseRecord, TrackRecord } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
 import { dbService } from 'backend/services/db.service';

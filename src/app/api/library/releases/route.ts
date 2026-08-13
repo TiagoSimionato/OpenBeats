@@ -2,7 +2,7 @@ import type { LibraryReleasesResponse } from 'common/types/requests/library';
 import type { NextRequest } from 'next/server';
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { releasesRepository } from 'backend/repositories/releases.repository';
-import { ReleasesFilters } from 'backend/requests/releases';
+import { ReleasesFilters } from 'backend/requests/releases.dto';
 import { buildDTO, buildPagination } from 'backend/utils';
 import { NextResponse } from 'next/server';
 

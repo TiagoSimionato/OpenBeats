@@ -1,5 +1,5 @@
 import { releasesRepository } from 'backend/repositories/releases.repository';
-import { ReleasesFilters } from 'backend/requests/releases';
+import { ReleasesFilters } from 'backend/requests/releases.dto';
 import { buildDTO, buildPagination } from 'backend/utils';
 import { LibraryPage } from 'frontend/pages/Library/Library';
 
