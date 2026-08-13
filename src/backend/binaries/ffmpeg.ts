@@ -9,17 +9,20 @@ import { handlePromise } from 'tsm-utils';
 
 export const writeTrackMetadata = handlePromise(
   async ({
-    coverFilePath,
-    filePath,
     track,
   }: {
-    coverFilePath?: string;
-    filePath: string;
     track: Track;
   }) => {
+    if (!track.trackPath) {
+      console.log(`ffmpeg: [${track.title}] did not have a path`);
+      return;
+    }
+
+    const coverFilePath = await coverArtService.getCoverFilePath(track['MusicBrainz Album Id']);
+
     const tmpFilePath = join(
       resolve(CONFIGS.CACHE_PATH),
-      `${randomUUID()}.metadata${extname(filePath)}`,
+      `${randomUUID()}.metadata${extname(track.trackPath)}`,
     );
 
     const metadataArgs = Object.entries(track).flatMap(([key, value]) => {
@@ -39,7 +42,7 @@ export const writeTrackMetadata = handlePromise(
       ? [
           '-y',
           '-i',
-          filePath,
+          track.trackPath,
           '-i',
           coverFilePath,
           '-map',
@@ -58,7 +61,7 @@ export const writeTrackMetadata = handlePromise(
       : [
           '-y',
           '-i',
-          filePath,
+          track.trackPath,
           '-map',
           '0',
           '-c:a',
@@ -77,7 +80,7 @@ export const writeTrackMetadata = handlePromise(
 
     console.log(`ffmpeg: tagged track [${track.title}]`);
 
-    await copyFile(tmpFilePath, filePath);
+    await copyFile(tmpFilePath, track.trackPath);
     await rm(tmpFilePath);
 
     return stdout.trim();

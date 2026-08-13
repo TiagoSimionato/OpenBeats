@@ -148,8 +148,8 @@ const upsertLibraryTrack = async (record: TrackRecord) => {
   `, record);
 };
 
-const upsertRelease = (track: Track) => {
-  upsertLibraryRelease({
+const upsertRelease = async (track: Track) => {
+  await upsertLibraryRelease({
     album: track.album,
     albumArtist: track.artist,
     coverPath: track.coverPath ? track['MusicBrainz Album Id'] : undefined,
@@ -167,6 +167,23 @@ const upsertRelease = (track: Track) => {
     releaseType: track['MusicBrainz Album Type'],
     tmed: track.TMED,
     trackCount: track.Tracktotal,
+  });
+};
+
+const upsertTrack = (track: Track) => {
+  upsertLibraryTrack({
+    artist: track.artist,
+    artistSort: track['artist-sort'],
+    disc: track.disc,
+    downloadPath: track.trackPath ?? '',
+    genre: track.genre.join('; '),
+    id: track['MusicBrainz Track Id'],
+    musicBrainzReleaseTrackId: track['MusicBrainz Release Track Id'],
+    musicBrainzTrackId: track['MusicBrainz Track Id'],
+    releaseId: track['MusicBrainz Album Id'],
+    title: track.title,
+    trackNumber: track.track,
+    ts02: track.TSO2,
   });
 };
 
@@ -289,4 +306,5 @@ export const releasesRepository = {
   upsertLibraryRelease,
   upsertLibraryTrack,
   upsertRelease,
+  upsertTrack,
 };

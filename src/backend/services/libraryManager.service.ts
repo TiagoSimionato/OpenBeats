@@ -79,20 +79,39 @@ const ytdlpStep = async ({ isCustomUrl, track, videoId }: { isCustomUrl?: boolea
     message: `Downloading ${track.title}`,
     stage: 'download',
   });
-  const trackPath = await runYtdlp({ isCustomUrl, track, videoId });
-  if (!trackPath) {
+  await runYtdlp({ isCustomUrl, track, videoId });
+  if (!track.trackPath) {
     onProgress?.({
       currentTrack: track.track,
       currentTrackTitle: track.title,
       error: 'ytdlp error',
     });
   }
-  return trackPath;
 };
 
-const metadataStep = async ({ coverFilePath, filePath, track }: {
-  coverFilePath?: string;
-  filePath: string;
+const addTrackstep = async ({ customUrl, file, track }: { customUrl?: string; file?: File; track: Track }, onProgress?: OnProgress) => {
+  if (customUrl && !file) {
+    console.log(`using custom url: ${customUrl}`);
+    await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
+  }
+  if (!customUrl && !!file) {
+    track.trackPath = `${await makeTrackPath(track)}${extname(file.name)}`;
+
+    const bytes = await file.arrayBuffer();
+    await writeFile(track.trackPath, Buffer.from(bytes));
+  }
+  if (!customUrl && !file) {
+    const videoId = await searchYouTubeMusicStep(track, onProgress);
+    if (!videoId) {
+      return false;
+    }
+
+    await ytdlpStep({ track, videoId }, onProgress);
+  }
+  return true;
+};
+
+const metadataStep = async ({ track }: {
   track: Track;
 }, onProgress?: OnProgress) => {
   onProgress?.({
@@ -102,8 +121,6 @@ const metadataStep = async ({ coverFilePath, filePath, track }: {
     stage: 'metadata',
   });
   await writeTrackMetadata({
-    coverFilePath,
-    filePath,
     track,
   });
 };
@@ -127,50 +144,14 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
   const coverFilePath = await getCoverArtStep(tracks[0], onProgress);
 
   tracks[0].coverPath = coverFilePath;
-  releasesRepository.upsertRelease(tracks[0]);
+  await releasesRepository.upsertRelease(tracks[0]);
 
   for (const track of tracks.values()) {
-    track.coverPath = coverFilePath;
-
-    let trackPath;
-    if (customUrl && !file) {
-      console.log(`using custom url: ${customUrl}`);
-      trackPath = await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
+    const isSuccess = await addTrackstep({ customUrl, file, track }, onProgress);
+    if (isSuccess) {
+      await metadataStep({ track }, onProgress);
+      releasesRepository.upsertTrack(track);
     }
-    if (!customUrl && !!file) {
-      trackPath = `${await makeTrackPath(track)}${extname(file.name)}`;
-
-      const bytes = await file.arrayBuffer();
-      await writeFile(trackPath, Buffer.from(bytes));
-    }
-    if (!customUrl && !file) {
-      const videoId = await searchYouTubeMusicStep(track, onProgress);
-      if (!videoId) {
-        continue;
-      }
-
-      trackPath = await ytdlpStep({ track, videoId }, onProgress);
-    }
-    if (!trackPath) {
-      continue;
-    }
-
-    await metadataStep({ coverFilePath, filePath: trackPath, track }, onProgress);
-
-    await releasesRepository.upsertLibraryTrack({
-      artist: track.artist,
-      artistSort: track['artist-sort'],
-      disc: track.disc,
-      downloadPath: trackPath,
-      genre: track.genre.join('; '),
-      id: track['MusicBrainz Track Id'],
-      musicBrainzReleaseTrackId: track['MusicBrainz Release Track Id'],
-      musicBrainzTrackId: track['MusicBrainz Track Id'],
-      releaseId: track['MusicBrainz Album Id'],
-      title: track.title,
-      trackNumber: track.track,
-      ts02: track.TSO2,
-    });
   };
 
   const title = tracks.length === 1 ? tracks[0].title : tracks[0].album;
@@ -246,7 +227,7 @@ const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
 
     const tracks = mapLibraryReleaseToTracks(libraryRelease);
     for (const track of tracks) {
-      await metadataStep({ coverFilePath, filePath: track.trackPath, track });
+      await metadataStep({ track });
     }
 
     return;
@@ -279,7 +260,7 @@ const importReleaseCover = async ({ file, releaseId }: { file: File; releaseId: 
 
   const tracks = mapLibraryReleaseToTracks(libraryRelease);
   for (const track of tracks) {
-    await metadataStep({ coverFilePath, filePath: track.trackPath, track });
+    await metadataStep({ track });
   }
 };
 

@@ -10,7 +10,7 @@ export const runRsgain = handlePromise(async ({ args = ['easy', '--skip-existing
     execPath,
   ]);
 
-  console.log(`rsgain: tagged ${title}`);
+  console.log(`rsgain: tagged [${title}]`);
 }, (error) => {
   console.log(`rsgain: ${error}`);
 });

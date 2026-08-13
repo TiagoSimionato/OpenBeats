@@ -51,7 +51,7 @@ export const runYtdlp = handlePromise(
     track: Track;
     videoId: string;
   }) => {
-    const outputTemplate = `${await makeTrackPath(track)}%(ext)s`;
+    const outputTemplate = `${await makeTrackPath(track)}.%(ext)s`;
 
     let tries = 0;
     let output = '';
@@ -79,7 +79,10 @@ export const runYtdlp = handlePromise(
         output = result.stdout;
       }
       catch (error) {
-        console.log(`yt-dlp: ${error}`);
+        if (error instanceof Error) {
+          stderr = error.message;
+          console.log(`yt-dlp: ${error}`);
+        }
       }
       tries++;
     } while (stderr.includes('403: Forbidden') && tries < 5);
@@ -100,6 +103,7 @@ export const runYtdlp = handlePromise(
 
     console.log(`ytdlp: New file at: [${output}]`);
 
+    track.trackPath = filePath;
     return filePath;
   },
   (error) => {
