@@ -2,7 +2,7 @@ import type { ReleaseRecord, TrackRequestParams } from 'common/types/requests/li
 import type { ReleaseResponse } from 'common/types/requests/mbApi';
 import type { DownloadJobProgress, Track } from 'common/types/requests/releases';
 import { existsSync } from 'node:fs';
-import { mkdir, rm, rmdir, writeFile } from 'node:fs/promises';
+import { rm, rmdir, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { getCoverFromTrack, writeTrackMetadata } from 'backend/binaries/ffmpeg';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
@@ -12,7 +12,7 @@ import { throwError } from 'backend/exceptions/handler';
 import { NotFoundError, UnprocessableEntityError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
-import { isAudioFile, walkFiles } from 'backend/utils';
+import { isAudioFile, makeTrackPath, walkFiles } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 import { mapLibraryReleaseToTracks, mapMBResponseToTracks } from 'common/utils';
 import { CONFIGS } from 'configs/constants';
@@ -80,7 +80,6 @@ const ytdlpStep = async ({ isCustomUrl, track, videoId }: { isCustomUrl?: boolea
     stage: 'download',
   });
   const trackPath = await runYtdlp({ isCustomUrl, track, videoId });
-  track.trackPath = trackPath;
   if (!trackPath) {
     onProgress?.({
       currentTrack: track.track,
@@ -139,11 +138,8 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
       trackPath = await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
     }
     if (!customUrl && !!file) {
-      const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
-      const outputDir = join(absoluteLibraryPath, track.album_artist, track.album);
-      await mkdir(outputDir, { recursive: true });
+      trackPath = `${await makeTrackPath(track)}${extname(file.name)}`;
 
-      trackPath = join(outputDir, `${track.track}. ${track.title}${extname(file.name)}`);
       const bytes = await file.arrayBuffer();
       await writeFile(trackPath, Buffer.from(bytes));
     }

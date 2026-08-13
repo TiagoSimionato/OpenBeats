@@ -1,7 +1,5 @@
 import type { Track } from 'common/types/requests/releases';
-import { mkdir } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { execFileAsync, sanitize } from 'backend/utils';
+import { execFileAsync, makeTrackPath } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
 import YTMusic from 'ytmusic-api';
@@ -53,17 +51,7 @@ export const runYtdlp = handlePromise(
     track: Track;
     videoId: string;
   }) => {
-    const absoluteLibraryPath = resolve(CONFIGS.DOWNLOAD_PATH);
-
-    const albumArtist = sanitize(track.album_artist || 'Unknown Artist');
-    const album = sanitize(track.album || 'Unknown Album');
-    const title = sanitize(track.title || 'Untitled');
-    const trackNumber = track.track;
-
-    const dir = join(absoluteLibraryPath, albumArtist, album);
-    await mkdir(dir, { recursive: true });
-
-    const outputTemplate = join(dir, `${trackNumber}. ${title}.%(ext)s`);
+    const outputTemplate = `${await makeTrackPath(track)}%(ext)s`;
 
     let tries = 0;
     let output = '';
