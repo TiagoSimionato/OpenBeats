@@ -17,6 +17,7 @@ export const ActionAddReleaseCover = () => {
       variant="tertiary"
     >
       <ImageDownIcon />
+      Add Release Cover
     </Button>
   );
 };

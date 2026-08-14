@@ -12,8 +12,14 @@ export const ActionImportReleaseCover = () => {
   const { mutate: importReleaseCover } = useImportReleaseCover();
 
   return (
-    <Button size="xs" title="Import cover" variant="tertiary">
-      <ImageUpIcon onClick={() => inputRef.current?.click()} />
+    <Button
+      onClick={() => inputRef.current?.click()}
+      size="xs"
+      title="Import cover"
+      variant="tertiary"
+    >
+      <ImageUpIcon />
+      Import Release Cover
       <Input
         accept="image/*"
         className="hidden"

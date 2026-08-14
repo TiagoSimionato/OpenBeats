@@ -22,6 +22,7 @@ export const ActionDeleteTrack = ({ title, trackId }: TrackActions) => {
         variant="tertiary"
       >
         <TrashIcon />
+        Delete track
       </Button>
       <Dialog className="gap-8 md:max-w-200" open={open} setOpen={setOpen}>
         <p className="md:text-xl">

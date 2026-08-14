@@ -15,8 +15,14 @@ export const ActionImportTrack = ({ title, trackId }: TrackActions) => {
   const { mutateAsync: importTrack } = useImportTrack();
 
   return (
-    <Button size="xs" title="Import file" variant="tertiary">
-      <FileUpIcon onClick={() => inputRef.current?.click()} />
+    <Button
+      onClick={() => inputRef.current?.click()}
+      size="xs"
+      title="Import file"
+      variant="tertiary"
+    >
+      <FileUpIcon />
+      Import Track
       <Input
         accept="audio/*"
         className="hidden"

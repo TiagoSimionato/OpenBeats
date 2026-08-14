@@ -29,6 +29,7 @@ export const ActionAddTrack = ({ title, trackId }: TrackActions) => {
       variant="tertiary"
     >
       <DownloadIcon />
+      Add track
     </Button>
   );
 };

@@ -16,6 +16,7 @@ import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
 import { ActionImportReleaseCover } from './components/ActionImportReleaseCover';
 import { buildAbout } from './components/buildAbout';
+import { DropDownActions } from './components/DropDownActions';
 import { TrackList } from './components/TrackList';
 
 type ReleasePageProps = {
@@ -74,9 +75,11 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
     <main className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-4 sm:flex-row">
         <div className="ml-auto flex items-start gap-4 pb-4 sm:order-last sm:self-stretch">
-          <ActionImportReleaseCover />
-          <ActionAddReleaseCover />
-          <ActionDeleteRelease title={release.album} />
+          <DropDownActions>
+            <ActionImportReleaseCover />
+            <ActionAddReleaseCover />
+            <ActionDeleteRelease title={release.album} />
+          </DropDownActions>
         </div>
         <CoverImage coverId={release.coverPath} releaseName={release.album} size={250} />
         <div className="flex flex-col justify-end gap-4 capitalize sm:gap-10">
@@ -85,13 +88,13 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
           <span className="text-center sm:text-start">{items.join(' • ')}</span>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         {discs.map((tracks, index) => (
           <Fragment key={`disc-${tracks[0].libraryTrack?.disc ?? tracks[0].mbTrack?.disc}`}>
             {release.discTotal > 1 && index > 0 && <span className="border-primary border-t" />}
             {release.discTotal > 1 && (
-              <div className="flex gap-2 pl-4">
-                <Disc3Icon />
+              <div className="flex items-center gap-2 py-3 text-lg font-bold">
+                <Disc3Icon size={32} />
                 <span>
                   Disc
                   {` ${index + 1}`}

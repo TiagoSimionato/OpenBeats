@@ -17,8 +17,15 @@ export const ActionDeleteRelease = ({ title }: ActionDeleteReleaseProps) => {
 
   return (
     <>
-      <Button isLoading={isPending} size="xs" title="Delete Release" variant="tertiary">
-        <TrashIcon onClick={() => setOpen(true)} />
+      <Button
+        isLoading={isPending}
+        onClick={() => setOpen(true)}
+        size="xs"
+        title="Delete Release"
+        variant="tertiary"
+      >
+        <TrashIcon />
+        Delete Release
       </Button>
       <Dialog className="gap-8 md:max-w-200" open={open} setOpen={setOpen}>
         <p className="md:text-xl">

@@ -37,6 +37,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
     <>
       <Button onClick={() => setOpen(true)} size="xs" title="Replace track file" variant="tertiary">
         <FileMusicIcon />
+        Replace FIle
       </Button>
       <Dialog className="gap-4" open={open} setOpen={setOpen}>
         <p className="md:text-xl">
@@ -50,7 +51,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
             placeholder="Custom URL"
             value={inputValue}
           />
-          <Button className="self-center" disabled={!inputValue} type="submit">
+          <Button disabled={!inputValue} type="submit">
             Replace file
           </Button>
         </form>
