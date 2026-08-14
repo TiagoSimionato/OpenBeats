@@ -17,6 +17,6 @@ const sizeClasses: Record<Size, string> = {
 export const Spinner = ({ className = '', color = 'text-primary', size = 'md' }: SpinnerProps) => (
   <span
     aria-label="Loading"
-    className={`inline-block animate-spin rounded-full border-solid border-current border-t-transparent ${sizeClasses[size]} ${color} ${className}`.trim()}
+    className={`inline-block animate-spin rounded-full border-solid border-current border-t-transparent ${sizeClasses[size]} ${color} ${className}`}
   />
 );
