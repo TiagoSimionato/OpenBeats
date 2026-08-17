@@ -10,9 +10,9 @@ const getPaddingSize = (length: number) => {
     case 1:
       return 'pb-40';
     case 2:
-      return 'pb-80';
+      return 'pb-32 md:pb-80';
     default:
-      return 'pb-90';
+      return 'pb-42 md:pb-90';
   }
 };
 

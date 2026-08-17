@@ -39,7 +39,7 @@ export const QueuePopup = () => {
             {queue.length}
           </span>
         </div>
-        <ul className="max-h-72 space-y-2 overflow-y-auto">
+        <ul className="max-h-24 space-y-2 overflow-y-auto md:max-h-72">
           {queue.map((item) => {
             const isDone = item.status === 'completed';
             const isFailed = item.status === 'failed';
