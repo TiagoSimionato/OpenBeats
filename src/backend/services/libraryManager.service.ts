@@ -288,6 +288,17 @@ const syncReleasesCover = async () => {
   }
 };
 
+const addRSGainTags = async () => {
+  const releases = await releasesRepository.listLibraryReleases();
+
+  for (const release of releases) {
+    await runRsgain({
+      directoryPath: dirname(release.tracks[0].downloadPath),
+      title: release.album,
+    });
+  }
+};
+
 const scanReleasesFromDisk = async () => {
   const downloadPath = resolve(CONFIGS.DOWNLOAD_PATH);
 
@@ -424,6 +435,7 @@ const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
 export const libraryManagerService = {
   addReleaseCover,
   addReleaseToLibrary,
+  addRSGainTags,
   addTrackToLibrary,
   deleteRelease,
   deleteTrack,

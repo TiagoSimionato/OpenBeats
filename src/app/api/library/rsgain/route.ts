@@ -1,11 +1,11 @@
 import { HttpStatusCode } from 'axios';
-import { runRsgain } from 'backend/binaries/rsgain';
 import { withErrorHandler } from 'backend/exceptions/handler';
+import { libraryManagerService } from 'backend/services/libraryManager.service';
 import { NextResponse } from 'next/server';
 
 export const POST = withErrorHandler(
   async (_request: Request): Promise<NextResponse> => {
-    runRsgain({ title: 'Entire library' });
+    libraryManagerService.addRSGainTags();
 
     return NextResponse.json('', { status: HttpStatusCode.Accepted });
   },
