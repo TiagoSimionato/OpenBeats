@@ -13,7 +13,7 @@ export const ActionAddTrack = ({ title, trackId }: TrackActions) => {
 
   return (
     <Button
-      onClick={() =>
+      onClick={(event) => {
         enqueueJob({
           id: trackId,
           onStart: () =>
@@ -23,7 +23,9 @@ export const ActionAddTrack = ({ title, trackId }: TrackActions) => {
             }),
           title,
           totalTracks: 1,
-        })}
+        });
+        event.currentTarget.blur();
+      }}
       size="xs"
       title="Add Track to Library"
       variant="tertiary"
