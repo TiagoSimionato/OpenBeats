@@ -1,5 +1,6 @@
 import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
+import { Divider } from 'frontend/ui/Divider';
 import { Fragment } from 'react/jsx-runtime';
 import { LibraryTrack } from './LibraryTrack';
 import { MBTRack } from './MBTrack';
@@ -25,7 +26,7 @@ type ListTrackProps = {
 export const TrackList = ({ tracks }: ListTrackProps) =>
   tracks.map(({ libraryTrack, mbTrack }, index) => (
     <Fragment key={libraryTrack?.id ?? mbTrack?.['MusicBrainz Track Id']}>
-      {index > 0 && index < tracks.length && <span className="border-primary border-t" />}
+      {index > 0 && index < tracks.length && <Divider />}
       {libraryTrack && <LibraryTrack track={libraryTrack} />}
       {!libraryTrack && mbTrack && <MBTRack track={mbTrack} />}
     </Fragment>

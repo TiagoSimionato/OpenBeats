@@ -8,14 +8,15 @@ import { mapMBResponseToTracks } from 'common/utils';
 import { ROUTES } from 'configs/routes';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
+import { Divider } from 'frontend/ui/Divider';
 import { Disc3Icon } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
+import { About } from './components/About/About';
 import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
 import { ActionImportReleaseCover } from './components/ActionImportReleaseCover';
-import { buildAbout } from './components/buildAbout';
 import { DropDownActions } from './components/DropDownActions';
 import { TrackList } from './components/TrackList';
 
@@ -69,8 +70,6 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
 
   const items = [release.albumArtist, `${release.trackCount} tracks`, release.originalYear];
 
-  const about = buildAbout(release);
-
   return (
     <main className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-4 sm:flex-row">
@@ -91,7 +90,7 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
       <div className="flex flex-col">
         {discs.map((tracks, index) => (
           <Fragment key={`disc-${tracks[0].libraryTrack?.disc ?? tracks[0].mbTrack?.disc}`}>
-            {release.discTotal > 1 && index > 0 && <span className="border-primary border-t" />}
+            {release.discTotal > 1 && index > 0 && <Divider />}
             {release.discTotal > 1 && (
               <div className="flex items-center gap-2 py-3 text-lg font-bold">
                 <Disc3Icon size={32} />
@@ -101,23 +100,12 @@ export const ReleasePage = ({ defaultRelease }: ReleasePageProps) => {
                 </span>
               </div>
             )}
-            {release.discTotal > 1 && <span className="border-primary border-t" />}
+            {release.discTotal > 1 && <Divider />}
             <TrackList tracks={tracks} />
           </Fragment>
         ))}
       </div>
-      <h2 className="text-2xl font-bold">About release</h2>
-      <div className="flex flex-col">
-        {about.map(({ label, value }) => (
-          <span key={label}>
-            <span className="text-light font-bold">
-              {label}
-              {': '}
-            </span>
-            {value}
-          </span>
-        ))}
-      </div>
+      <About />
     </main>
   );
 };

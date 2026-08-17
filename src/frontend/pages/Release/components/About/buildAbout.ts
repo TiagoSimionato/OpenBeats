@@ -62,6 +62,10 @@ export const buildAbout = (release: LibraryReleaseData) => [
     value: release.releaseType,
   },
   {
+    label: 'Genres',
+    value: [...(new Set(release.tracks.flatMap(it => it.genre.split('; '))))].slice(0, -1).join('; '),
+  },
+  {
     label: 'TMED',
     value: release.tmed,
   },
