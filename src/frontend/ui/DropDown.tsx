@@ -6,7 +6,7 @@ type DropDownProps = Omit<ComponentProps<'div'>, 'children'> & {
   dropDownContent: ReactNode;
 };
 
-export const DropDown = ({ className, display, dropDownContent, ...rest }: DropDownProps) => {
+export const DropDown = ({ className = '', display, dropDownContent, ...rest }: DropDownProps) => {
   const id = useId();
 
   return (
