@@ -27,7 +27,7 @@ export const ReleaseCard = ({ release }: ReleaseCardProps) => {
           iconFallback="disc-album"
           releaseName={release.album}
         />
-        <div className="flex flex-col gap-0.5 p-2 capitalize">
+        <div className="flex flex-col gap-0.5 py-2 capitalize">
           <p className="line-clamp-2">{release.album}</p>
           <p className="line-clamp-2">{release.albumArtist}</p>
           <p>
