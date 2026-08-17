@@ -14,7 +14,9 @@ export const DropDownActions = ({ children, ellipsisOnHover }: DropDownActionsPr
         <RoundUnderlay />
         <EllipsisVerticalIcon
           className={
-            ellipsisOnHover ? 'invisible group-focus-within:visible group-hover/track:visible' : ''
+            ellipsisOnHover
+              ? 'group-focus-within:visible group-hover/track:visible pointer-fine:invisible'
+              : ''
           }
         />
       </div>
