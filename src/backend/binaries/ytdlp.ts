@@ -98,6 +98,7 @@ export const runYtdlp = handlePromise(
       .findLast(line => line.length > 0);
 
     if (!filePath) {
+      track.trackPath = undefined;
       throw new Error('yt-dlp did not return a downloaded file path');
     }
 

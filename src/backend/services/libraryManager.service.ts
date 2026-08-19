@@ -108,7 +108,9 @@ const addTrackstep = async ({ customUrl, file, track }: { customUrl?: string; fi
 
     await ytdlpStep({ track, videoId }, onProgress);
   }
-  return true;
+  if (track.trackPath)
+    return true;
+  return false;
 };
 
 const metadataStep = async ({ track }: {
@@ -155,21 +157,28 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
   };
 
   const title = tracks.length === 1 ? tracks[0].title : tracks[0].album;
-  const trackPath = tracks.find(it => !!it.trackPath)?.trackPath;
+  const firstTrackPath = tracks.find(it => !!it.trackPath)?.trackPath;
 
-  if (trackPath) {
+  if (firstTrackPath) {
     await gainStep({
-      albumDirectoryPath: dirname(trackPath),
+      albumDirectoryPath: dirname(firstTrackPath),
       title,
+    });
+    onProgress?.({
+      currentTrack: tracks[0].Tracktotal,
+      message: 'Download completed',
+      stage: 'completed',
+      status: 'completed',
+    });
+  }
+  if (!firstTrackPath) {
+    onProgress?.({
+      message: 'Failed',
+      stage: 'failed',
+      status: 'failed',
     });
   }
 
-  onProgress?.({
-    currentTrack: tracks[0].Tracktotal,
-    message: 'Download completed',
-    stage: 'completed',
-    status: 'completed',
-  });
   console.log(`finished adding ${title} to the library`);
 };
 
