@@ -26,11 +26,11 @@ Below there is a list of planned upcoming changes as reference
 
 - Release page
   - Replace/Update Metadata from files (move file if changing artists or release name)
-  - Genre, artist track, ts02
+  - ts02
+  - per track genre on small viewsports
   - Set release status "enough added'
 - Library page
   - choose sorting
-  - multi selection
 - Build issues:
   - Select style
 - Settings page
@@ -39,7 +39,6 @@ Below there is a list of planned upcoming changes as reference
   - Retag library button
 - Improve genre matching logic
 - Server side queue
-- Get covers from audio files
 - Remove extra releases on library scan
 - Warning: Dynamic filesystem access causes tracing of the whole project
 - Update docker base image
@@ -50,7 +49,6 @@ Below there is a list of planned upcoming changes as reference
 - Queue popup Progress bug with multiple tracks
 - Query artist tracks
 - Query for single or few tracks
-- Settings default cover size
 - Error page
 - Handle Sign in error
 - Connect with navidrome and perform a library scan after an update
