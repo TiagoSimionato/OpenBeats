@@ -7,7 +7,7 @@ import { Dialog } from 'frontend/ui/Dialog';
 import { Input } from 'frontend/ui/Input';
 import { FileMusicIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
   const { releaseId } = useParams<ReleasePageParams>();
@@ -15,6 +15,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
   const { enqueueJob } = useQueueContext();
   const [inputValue, setInputValue] = useState('');
   const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
@@ -33,6 +34,16 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
     setInputValue('');
   };
 
+  useEffect(() => {
+    if (open) {
+      const frame = requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
+
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [open]);
+
   return (
     <>
       <Button onClick={() => setOpen(true)} size="xs" title="Replace track file" variant="tertiary">
@@ -49,6 +60,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
           <Input
             onChange={event => setInputValue(event.target.value)}
             placeholder="Custom URL"
+            ref={inputRef}
             value={inputValue}
           />
           <Button disabled={!inputValue} type="submit">
