@@ -90,27 +90,40 @@ const ytdlpStep = async ({ isCustomUrl, track, videoId }: { isCustomUrl?: boolea
 };
 
 const addTrackstep = async ({ customUrl, file, track }: { customUrl?: string; file?: File; track: Track }, onProgress?: OnProgress) => {
-  if (customUrl && !file) {
-    console.log(`using custom url: ${customUrl}`);
-    await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
-  }
-  if (!customUrl && !!file) {
-    track.trackPath = `${await makeTrackPath(track)}${extname(file.name)}`;
+  const libraryRelease = await releasesRepository.getLibraryRelease(track['MusicBrainz Album Id']);
+  const libraryTrack = libraryRelease?.tracks.find(it => it.musicBrainzTrackId === track['MusicBrainz Track Id']);
+  if (libraryTrack)
+    track.trackPath = libraryTrack.downloadPath;
+
+  if (file) {
+    if (track.trackPath) {
+      const fileExtension = extname(track.trackPath);
+      const trackPathExtensionless = track.trackPath.slice(0, -fileExtension.length || undefined);
+      track.trackPath = `${trackPathExtensionless}${extname(file.name)}`;
+    }
+    else {
+      track.trackPath = `${await makeTrackPath(track)}${extname(file.name)}`;
+    }
 
     const bytes = await file.arrayBuffer();
     await writeFile(track.trackPath, Buffer.from(bytes));
-  }
-  if (!customUrl && !file) {
-    const videoId = await searchYouTubeMusicStep(track, onProgress);
-    if (!videoId) {
-      return false;
-    }
 
-    await ytdlpStep({ track, videoId }, onProgress);
-  }
-  if (track.trackPath)
     return true;
-  return false;
+  }
+
+  if (customUrl) {
+    console.log(`using custom url: ${customUrl}`);
+    await ytdlpStep({ isCustomUrl: true, track, videoId: customUrl }, onProgress);
+    return !!track.trackPath;
+  }
+
+  const videoId = await searchYouTubeMusicStep(track, onProgress);
+  if (!videoId) {
+    return false;
+  }
+  await ytdlpStep({ track, videoId }, onProgress);
+
+  return !!track.trackPath;
 };
 
 const metadataStep = async ({ track }: {

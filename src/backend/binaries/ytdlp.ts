@@ -1,4 +1,5 @@
 import type { Track } from 'common/types/requests/releases';
+import { extname } from 'node:path';
 import { execFileAsync, makeTrackPath } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
@@ -51,7 +52,9 @@ export const runYtdlp = handlePromise(
     track: Track;
     videoId: string;
   }) => {
-    const outputTemplate = `${await makeTrackPath(track)}.%(ext)s`;
+    const fileExtension = extname(track.trackPath ?? '');
+    const trackPathExtensionless = track.trackPath?.slice(0, -fileExtension.length || undefined);
+    const outputTemplate = `${trackPathExtensionless ?? await makeTrackPath(track)}.%(ext)s`;
 
     let tries = 0;
     let output = '';
