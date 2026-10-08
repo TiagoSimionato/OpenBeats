@@ -50,7 +50,7 @@ export const ActionReplaceFile = ({ title, trackId }: TrackActions) => {
         <FileMusicIcon />
         Replace FIle
       </Button>
-      <Dialog className="gap-4" open={open} setOpen={setOpen}>
+      <Dialog className="gap-4" onClose={() => setInputValue('')} open={open} setOpen={setOpen}>
         <p className="md:text-xl">
           Enter a custom url to replace the file for track
           {' '}
