@@ -39,6 +39,8 @@ Below there is a list of planned upcoming changes as reference
   - Retag library button
 - Improve genre matching logic
 - Server side queue
+- MB metadata retry
+- Multi add getting metadata only once and creating only one job
 - Remove extra releases on library scan
 - Warning: Dynamic filesystem access causes tracing of the whole project
 - Update docker base image

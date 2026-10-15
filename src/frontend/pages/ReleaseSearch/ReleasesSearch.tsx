@@ -12,7 +12,7 @@ import { ReleaseSearchCard } from './components/ReleaseSearchCard';
 
 export const ReleaseSearchPage = () => {
   const params = useSearchParams();
-  const queryKey = 'search';
+  const queryKey = 'query';
   const query = params.get(queryKey) ?? '';
   const { updateSearchParams } = useUpdateSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);

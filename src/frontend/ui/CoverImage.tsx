@@ -45,7 +45,7 @@ const Cover = ({
   );
 };
 
-const ModelCover = (props: CoverProps) => {
+const ModalCover = (props: CoverProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -66,7 +66,7 @@ const ModelCover = (props: CoverProps) => {
 
 export const CoverImage = (props: CoverProps) => {
   if (props.withModal) {
-    return <ModelCover {...props} />;
+    return <ModalCover {...props} />;
   }
   return <Cover {...props} />;
 };

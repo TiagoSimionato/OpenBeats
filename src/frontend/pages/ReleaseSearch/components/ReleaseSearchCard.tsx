@@ -2,6 +2,7 @@
 
 import type { QueryRelease } from 'common/types/requests/mbApi';
 import type { ReleaseStatus } from 'common/types/requests/releases';
+import { ROUTES } from 'configs/routes';
 import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { useAddRelease } from 'frontend/services/api/mutations/library';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
@@ -9,6 +10,7 @@ import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
 import { Chip } from 'frontend/ui/Chip';
 import { Spinner } from 'frontend/ui/Spinner';
+import Link from 'next/link';
 import { useState } from 'react';
 import { CoverPreview } from './CoverPreview';
 
@@ -145,6 +147,9 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
           >
             {isOpen ? 'Hide tracks' : 'Show tracks'}
           </Button>
+          <Link className="text-center" href={ROUTES.SEARCH_DETAILS(release.id)}>
+            See page
+          </Link>
         </div>
       </div>
 

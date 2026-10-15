@@ -4,7 +4,15 @@ import { useCover } from 'frontend/services/caaApi/queries/covers';
 import { CoverImage } from 'frontend/ui/CoverImage';
 import { Spinner } from 'frontend/ui/Spinner';
 
-export const CoverPreview = ({ releaseId, title }: { releaseId: string; title?: string }) => {
+export const CoverPreview = ({
+  releaseId,
+  size = 96,
+  title,
+}: {
+  releaseId: string;
+  size?: number;
+  title?: string;
+}) => {
   const { data, isPending } = useCover({
     releaseId,
   });
@@ -15,7 +23,7 @@ export const CoverPreview = ({ releaseId, title }: { releaseId: string; title?: 
 
   if (isPending) {
     return (
-      <div className="flex aspect-square w-24 items-center justify-center">
+      <div className="flex aspect-square items-center justify-center" style={{ width: size }}>
         <Spinner size="xl" />
       </div>
     );
@@ -27,7 +35,7 @@ export const CoverPreview = ({ releaseId, title }: { releaseId: string; title?: 
       coverURL={coverUrl}
       fullSizeSrc={firstImage?.image}
       releaseName={title ?? ''}
-      size={96}
+      size={size}
       withModal={!!coverUrl}
     />
   );
