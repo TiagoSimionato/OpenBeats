@@ -1,16 +1,21 @@
 'use client';
 
+import { useUpdateSearchParams } from 'frontend/hooks/useUpdateSearchParams';
 import { useMBQueryRelease } from 'frontend/services/mbApi/queries/recordings';
 import { Button } from 'frontend/ui/Button';
-import { Input } from 'frontend/ui/Input';
+import { SearchParamsInput } from 'frontend/ui/SearchParamsInput';
 import { Spinner } from 'frontend/ui/Spinner';
 import { SearchIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRef } from 'react';
 import { ReleaseSearchCard } from './components/ReleaseSearchCard';
 
 export const ReleaseSearchPage = () => {
-  const [inputValue, setInputValue] = useState('');
-  const [query, setQuery] = useState('');
+  const params = useSearchParams();
+  const queryKey = 'search';
+  const query = params.get(queryKey) ?? '';
+  const { updateSearchParams } = useUpdateSearchParams();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isFetched, isFetching, isLoading } = useMBQueryRelease({
     options: {
@@ -23,17 +28,18 @@ export const ReleaseSearchPage = () => {
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
-    setQuery(inputValue.trim());
+    updateSearchParams(queryKey, inputRef.current?.value ?? '');
   };
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6">
       <form className="flex gap-2" onSubmit={onSubmit}>
-        <Input
+        <SearchParamsInput
           className="w-full"
-          onChange={event => setInputValue(event.target.value)}
+          isAutomatic={false}
           placeholder="Search for album, EP or singles"
-          value={inputValue}
+          queryKey={queryKey}
+          ref={inputRef}
         />
         <Button size="sm" type="submit">
           <SearchIcon />
