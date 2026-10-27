@@ -20,49 +20,6 @@ docker compose up -d
 
 Should build the app image from local `Dockerfile` and start the app at port 5334
 
-## Roadmap
-
-Below there is a list of planned upcoming changes as reference
-
-- Release page
-  - Replace/Update Metadata from files (move file if changing artists or release name)
-  - ts02
-  - per track genre on small viewsports
-  - Set release status "enough added'
-- Library page
-  - choose sorting
-- Build issues:
-  - Select style
-- Settings page
-  - Default cover size
-  - Change password
-  - Retag library button
-- Improve genre matching logic
-- Server side queue
-- MB metadata retry
-- Multi add getting metadata only once and creating only one job
-- Remove extra releases on library scan
-- Warning: Dynamic filesystem access causes tracing of the whole project
-- Update docker base image
-- Unkown date on release search card sometimes untrue (mb response)
-- Pagination server redirect if page > pages
-- PaginationControl with page buttons
-- Generate auth secret during docker build
-- Queue popup Progress bug with multiple tracks
-- Query artist tracks
-- Query for single or few tracks
-- Error page
-- Handle Sign in error
-- Connect with navidrome and perform a library scan after an update
-- Parallel downloads
-- Remove unused svg
-- Custom tracks not recognized (when missing mb info)
-- Find duplicate tracks
-- Cancel downloads
-- Save file path template
-- Clear cover cache
-- Search keywords blacklist
-
 ## Development
 
 There are a few requirements to run the project:
