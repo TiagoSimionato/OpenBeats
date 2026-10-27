@@ -59,11 +59,11 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
 
   const info = {
     album: release?.album ?? mbTracks?.[0].album ?? '',
-    albumArtist: release?.albumArtist ?? mbTracks?.[0].album_artist ?? '',
+    albumArtist: release?.albumArtist ?? mbTracks?.[0].album_artist,
     discTotal: release?.discTotal ?? mbTracks?.[0].Disctotal ?? 0,
-    originalYear: release?.originalYear ?? '',
+    originalYear: release?.originalYear ?? mbTracks?.[0].originalyear,
     releaseType: release?.releaseType ?? mbTracks?.[0]['MusicBrainz Album Type'] ?? '',
-    trackCount: release?.trackCount ?? '',
+    trackCount: release?.trackCount ?? mbTracks?.[0].Tracktotal,
   } as const;
 
   const listTracks: ListTracks[] = mbTracks
