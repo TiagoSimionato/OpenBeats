@@ -6,7 +6,7 @@ const Page = async ({ params }: { params: Promise<{ releaseId: string }> }) => {
 
   const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
 
-  return <ReleasePage defaultRelease={libraryRelease} />;
+  return <ReleasePage defaultRelease={libraryRelease} isLibraryView />;
 };
 
 export default Page;
