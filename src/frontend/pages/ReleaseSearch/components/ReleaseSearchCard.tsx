@@ -30,6 +30,28 @@ const getArtistsLabel = (release: QueryRelease) => {
     .join('');
 };
 
+const getStatus = ({
+  isDownloaded,
+  isDownloading,
+  isPartiallyAdded,
+  isQueued,
+}: {
+  isDownloaded: boolean;
+  isDownloading: boolean;
+  isPartiallyAdded: boolean;
+  isQueued: boolean;
+}): ReleaseStatus => {
+  if (isQueued)
+    return 'queued';
+  if (isDownloading)
+    return 'processing';
+  if (isDownloaded)
+    return 'complete';
+  if (isPartiallyAdded)
+    return 'partial';
+  return 'missing';
+};
+
 const renderChip = (status: ReleaseStatus) => {
   switch (status) {
     case 'complete':
@@ -66,7 +88,8 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const { data: libraryData } = useGetLibraryRelease({ releaseId: release.id });
   const { mutateAsync: addRelease } = useAddRelease();
   const libraryRelease = libraryData?.libraryRelease;
-  const isDownloaded = libraryRelease && libraryRelease.tracks.length === libraryRelease.trackCount;
+  const isDownloaded
+    = (libraryRelease && libraryRelease.tracks.length === libraryRelease.trackCount) ?? false;
   const isPartiallyAdded = !isDownloaded && !!libraryRelease;
 
   const { enqueueJob, queue } = useQueueContext();
@@ -75,15 +98,12 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   const isDownloading = queueItem?.status === 'running';
   const isQueued = queueItem?.stage === 'queued' && queueItem?.status === 'running';
 
-  const status: ReleaseStatus = isQueued
-    ? 'queued'
-    : isDownloading
-      ? 'processing'
-      : isDownloaded
-        ? 'complete'
-        : isPartiallyAdded
-          ? 'partial'
-          : 'missing';
+  const status: ReleaseStatus = getStatus({
+    isDownloaded,
+    isDownloading,
+    isPartiallyAdded,
+    isQueued,
+  });
 
   const handleDownload = () => {
     enqueueJob({
@@ -148,7 +168,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
             {isOpen ? 'Hide tracks' : 'Show tracks'}
           </Button>
           <Link className="text-center" href={ROUTES.SEARCH_DETAILS(release.id)}>
-            See page
+            Release Page
           </Link>
         </div>
       </div>
