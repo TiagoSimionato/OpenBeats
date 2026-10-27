@@ -12,6 +12,7 @@ import { Divider } from 'frontend/ui/Divider';
 import { Spinner } from 'frontend/ui/Spinner';
 import { Disc3Icon } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
 import { CoverPreview } from '../ReleaseSearch/components/CoverPreview';
@@ -41,11 +42,13 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
 
   const release = libraryRelease?.libraryRelease;
 
+  useEffect(() => {
+    if (isAxiosError(error) && error.status === HttpStatusCode.NotFound && isLibraryView)
+      router.replace(ROUTES.HOME);
+  }, [error, isLibraryView, router]);
+
   if (!release && isLibraryView)
     return notFound();
-
-  if (isAxiosError(error) && error.status === HttpStatusCode.NotFound && isLibraryView)
-    router.replace(ROUTES.HOME);
 
   const mbTracks = mbRelease ? mapMBResponseToTracks(mbRelease) : undefined;
 
