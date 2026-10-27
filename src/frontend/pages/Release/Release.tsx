@@ -116,7 +116,9 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
       <div className="flex flex-col">
         <MultiActions />
         {discs.map((tracks, index) => (
-          <Fragment key={`disc-${tracks[0].libraryTrack?.disc ?? tracks[0].mbTrack?.disc}`}>
+          <Fragment
+            key={`disc-${tracks.reduce((acc, track) => acc.concat(track.libraryTrack?.title ?? track.mbTrack?.title ?? ''), index.toString())}`}
+          >
             {info.discTotal > 1 && index > 0 && <Divider />}
             {info.discTotal > 1 && (
               <div className="flex items-center gap-2 py-3 text-lg font-bold">
