@@ -1,6 +1,6 @@
 import type { Track } from 'common/types/requests/releases';
 import { extname } from 'node:path';
-import { execFileAsync, makeTrackPath } from 'backend/utils';
+import { execFileAsync, makeTrackPath, retryPromise } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
 import YTMusic from 'ytmusic-api';
@@ -56,45 +56,38 @@ export const runYtdlp = handlePromise(
     const trackPathExtensionless = track.trackPath?.slice(0, -fileExtension.length || undefined);
     const outputTemplate = `${trackPathExtensionless ?? await makeTrackPath(track)}.%(ext)s`;
 
-    let tries = 0;
     let output = '';
     let stderr = '';
-    do {
-      try {
-        const result = await execFileAsync(CONFIGS.YT_DLP_BIN, [
-          '--ignore-errors',
-          '--format',
-          'bestaudio',
-          '--extract-audio',
-          '--audio-format',
-          'mp3',
-          '--audio-quality',
-          '160K',
-          '--output',
-          outputTemplate,
-          '--print',
-          'after_move:filepath',
-          ...(isCustomUrl ? ['--force-overwrite', videoId] : [`https://www.youtube.com/watch?v=${videoId}`]),
-        ], {
-          maxBuffer: 10 * 1024 * 1024,
-        });
-        stderr = result.stderr;
-        output = result.stdout;
-      }
-      catch (error) {
-        if (error instanceof Error) {
-          stderr = error.message;
-          console.log(`yt-dlp: ${error}`);
-        }
-      }
-      tries++;
-    } while (stderr.includes('403: Forbidden') && tries < 5);
+
+    const execYTDLP = retryPromise(async () => {
+      const result = await execFileAsync(CONFIGS.YT_DLP_BIN, [
+        '--ignore-errors',
+        '--format',
+        'bestaudio',
+        '--extract-audio',
+        '--audio-format',
+        'mp3',
+        '--audio-quality',
+        '160K',
+        '--output',
+        outputTemplate,
+        '--print',
+        'after_move:filepath',
+        ...(isCustomUrl ? ['--force-overwrite', videoId] : [`https://www.youtube.com/watch?v=${videoId}`]),
+      ], {
+        maxBuffer: 10 * 1024 * 1024,
+      });
+      stderr = result.stderr;
+      output = result.stdout.trim();
+    }, (error) => {
+      console.error(`yt-dlp: ${error}`);
+    });
+    await execYTDLP(null);
 
     if (/WARNING: Your yt-dlp version .* is older than 90 days!/.test(stderr)) {
       execFileAsync(CONFIGS.YT_DLP_BIN, ['--update']).then(() => console.log('ytdlp: updated'));
     }
 
-    output = output.trim();
     const filePath = output
       .split('\n')
       .map(line => line.trim())

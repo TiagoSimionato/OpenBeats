@@ -12,7 +12,7 @@ import { throwError } from 'backend/exceptions/handler';
 import { NotFoundError, UnprocessableEntityError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { coverArtService } from 'backend/services/coverArt.service';
-import { isAudioFile, makeTrackPath, walkFiles } from 'backend/utils';
+import { isAudioFile, makeTrackPath, retryPromise, walkFiles } from 'backend/utils';
 import { mbApi, MUSICBRAINZ_RELEASE_PARAMS } from 'common/api/mbApi';
 import { mapLibraryReleaseToTracks, mapMBResponseToTracks } from 'common/utils';
 import { CONFIGS } from 'configs/constants';
@@ -20,18 +20,18 @@ import { CONFIGS } from 'configs/constants';
 type OnProgress = ((progress: Omit<Partial<DownloadJobProgress>, 'jobId'>) => void) | undefined;
 
 const getReleaseMetadataStep = async (releaseId: string, onProgress?: OnProgress) => {
-  const release = await mbApi.get<ReleaseResponse>(`release/${releaseId}`, {
-    params: MUSICBRAINZ_RELEASE_PARAMS,
-  }).catch(() => {
-    onProgress?.({
+  const getReleaseMetadata = retryPromise(
+    () => mbApi.get<ReleaseResponse>(`release/${releaseId}`, { params: MUSICBRAINZ_RELEASE_PARAMS }),
+  );
+  const release = await getReleaseMetadata(null);
+
+  if (!release) {
+    return onProgress?.({
       error: 'Error fetching metadata',
       stage: 'failed',
       status: 'failed',
     });
-  });
-
-  if (!release)
-    return;
+  }
 
   return {
     release,
@@ -207,7 +207,7 @@ const addReleaseToLibrary = async (
       !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
     );
 
-    addToLibrary(missingTracks, onProgress);
+    await addToLibrary(missingTracks, onProgress);
   }
 };
 
@@ -229,7 +229,7 @@ const addTrackToLibrary = async (
       return;
     }
 
-    addToLibrary([track], onProgress, url, file);
+    await addToLibrary([track], onProgress, url, file);
   }
 };
 
@@ -245,7 +245,7 @@ const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
   const coverFilePath = await coverArtService.getReleaseCoverArt({ releaseId, title: libraryRelease.album });
   if (coverFilePath) {
     libraryRelease.coverPath = libraryRelease.id;
-    releasesRepository.upsertLibraryRelease(libraryRelease);
+    await releasesRepository.upsertLibraryRelease(libraryRelease);
 
     const tracks = mapLibraryReleaseToTracks(libraryRelease);
     for (const track of tracks) {
@@ -277,7 +277,7 @@ const importReleaseCover = async ({ file, releaseId }: { file: File; releaseId: 
 
   if (!libraryRelease.coverPath) {
     libraryRelease.coverPath = libraryRelease.id;
-    releasesRepository.upsertLibraryRelease(libraryRelease);
+    await releasesRepository.upsertLibraryRelease(libraryRelease);
   }
 
   const tracks = mapLibraryReleaseToTracks(libraryRelease);
@@ -301,7 +301,7 @@ const syncReleasesCover = async () => {
 
       const isSuccess = isCoverArtArchiveSuccess || isFFMPEGSuccess;
       if (isSuccess) {
-        releasesRepository.upsertLibraryRelease({
+        await releasesRepository.upsertLibraryRelease({
           ...release,
           coverPath: release.id,
         });
@@ -431,7 +431,7 @@ const deleteRelease = async (releaseId: string) => {
   }
   await rm(`${CONFIGS.THUMBNAILS_PATH}/${release.id}.webp`).catch(() => {});
 
-  releasesRepository.deleteRelease(releaseId);
+  await releasesRepository.deleteRelease(releaseId);
 };
 
 const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
