@@ -46,7 +46,12 @@ const deleteFailedTrack = async (trackId: string) => {
 
 const listFailedTracks = async () => {
   const rows = await dbService.list<FailedTrack>(`
-    SELECT *
+    SELECT
+      track_id as trackId,
+      release_id as releaseId,
+      title,
+      artist,
+      reason
     FROM tb_failed_tracks
   `);
 
