@@ -37,9 +37,9 @@ export const MBTRack = ({ track }: MBTrackProps) => {
       <p className="hidden items-center sm:flex">{track.genre.join('; ')}</p>
       <div className="flex items-center justify-center text-white">
         <DropDownActions ellipsisOnHover>
-          <ActionImportTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
-          <ActionReplaceFile title={track.title} trackId={track['MusicBrainz Track Id']} />
           <ActionAddTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
+          <ActionReplaceFile title={track.title} trackId={track['MusicBrainz Track Id']} />
+          <ActionImportTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
         </DropDownActions>
       </div>
     </div>
