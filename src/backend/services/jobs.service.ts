@@ -1,7 +1,7 @@
 import type { TrackRequestParams } from 'common/types/requests/library';
 import type { DownloadJobProgress, DownloadJobStatus } from 'common/types/requests/releases';
 import { randomUUID } from 'node:crypto';
-import { libraryManagerService } from './libraryManager.service';
+import { libraryManagerService } from './library';
 
 type DownloadJobSubscriber = (progress: DownloadJobProgress) => void;
 
@@ -143,7 +143,7 @@ const stream = (jobId: string) => {
 const startReleaseJob = (releaseId: string): string => {
   const jobId = createDownloadJob();
 
-  libraryManagerService.addReleaseToLibrary(releaseId, partial => updateDownloadJob(jobId, {
+  libraryManagerService.add.addReleaseToLibrary(releaseId, partial => updateDownloadJob(jobId, {
     status: 'running',
     ...partial,
   }));
@@ -154,7 +154,7 @@ const startReleaseJob = (releaseId: string): string => {
 const startTrackJob = ({ releaseId, trackId, url }: TrackRequestParams): string => {
   const jobId = createDownloadJob();
 
-  libraryManagerService.addTrackToLibrary({ releaseId, trackId, url }, partial => updateDownloadJob(jobId, {
+  libraryManagerService.add.addTrackToLibrary({ releaseId, trackId, url }, partial => updateDownloadJob(jobId, {
     status: 'running',
     ...partial,
   }));
@@ -165,7 +165,7 @@ const startTrackJob = ({ releaseId, trackId, url }: TrackRequestParams): string 
 const startImportJob = ({ file, releaseId, trackId }: Omit<TrackRequestParams, 'url'> & { file: File }): string => {
   const jobId = createDownloadJob();
 
-  libraryManagerService.addTrackToLibrary({ file, releaseId, trackId }, partial => updateDownloadJob(jobId, {
+  libraryManagerService.add.addTrackToLibrary({ file, releaseId, trackId }, partial => updateDownloadJob(jobId, {
     status: 'running',
     ...partial,
   }));

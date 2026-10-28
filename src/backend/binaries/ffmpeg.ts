@@ -7,7 +7,7 @@ import { execFileAsync } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { handlePromise } from 'tsm-utils';
 
-export const writeTrackMetadata = handlePromise(
+export const runFfmpeg = handlePromise(
   async ({
     track,
   }: {

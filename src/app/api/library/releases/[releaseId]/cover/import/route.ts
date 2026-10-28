@@ -1,6 +1,6 @@
 import { withErrorHandler } from 'backend/exceptions/handler';
 import { BadRequestError } from 'backend/exceptions/http';
-import { libraryManagerService } from 'backend/services/libraryManager.service';
+import { libraryManagerService } from 'backend/services/library';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {
@@ -20,7 +20,7 @@ export const POST = withErrorHandler(
     if (!file.type.includes('image'))
       throw new BadRequestError('Received file is not an image');
 
-    await libraryManagerService.importReleaseCover({ file, releaseId });
+    await libraryManagerService.covers.importReleaseCover({ file, releaseId });
 
     return NextResponse.json('');
   },

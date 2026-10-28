@@ -9,8 +9,8 @@ export const register = async () => {
 
     if (!existsSync(CONFIGS.DB_PATH)) {
       await dbService.initDatabase();
-      const { libraryManagerService } = await import('backend/services/libraryManager.service');
-      libraryManagerService.scanReleasesFromDisk();
+      const { libraryManagerService } = await import('backend/services//library');
+      await libraryManagerService.scanner.scanLibrary();
     }
     else {
       await dbService.initDatabase();

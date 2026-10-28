@@ -3,7 +3,7 @@ import { HttpStatusCode } from 'axios';
 import { throwError, withErrorHandler } from 'backend/exceptions/handler';
 import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
-import { libraryManagerService } from 'backend/services/libraryManager.service';
+import { libraryManagerService } from 'backend/services/library';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {
@@ -28,7 +28,7 @@ export const DELETE = withErrorHandler(
   async (_request: Request, { params }: RouteContext): Promise<NextResponse> => {
     const { releaseId } = await params;
 
-    await libraryManagerService.deleteRelease(releaseId);
+    await libraryManagerService.delete.release(releaseId);
 
     return NextResponse.json('', {
       status: HttpStatusCode.Ok,
