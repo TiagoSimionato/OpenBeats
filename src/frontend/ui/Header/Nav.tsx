@@ -15,8 +15,8 @@ const menuItems = [
     label: 'Search',
   },
   {
-    href: ROUTES.SETTINGS,
-    label: 'Settings',
+    href: ROUTES.MANAGEMENT,
+    label: 'Management',
   },
 ];
 
