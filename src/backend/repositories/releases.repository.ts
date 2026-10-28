@@ -170,8 +170,8 @@ const upsertRelease = async (track: Track) => {
   });
 };
 
-const upsertTrack = (track: Track) => {
-  upsertLibraryTrack({
+const upsertTrack = async (track: Track) => {
+  await upsertLibraryTrack({
     artist: track.artist,
     artistSort: track['artist-sort'],
     disc: track.disc,
@@ -207,23 +207,23 @@ const deleteTrack = async (trackId: string) => {
 
 const SELECT_LIBRARY_RELEASE = `
   SELECT
-    r.id                                 AS id,
+    r.id                                     AS id,
     r.album,
-    r.album_artist                       AS albumArtist,
-    r.release_type                       AS releaseType,
-    r.release_date                       AS releaseDate,
-    r.original_year                      AS originalYear,
+    r.album_artist                           AS albumArtist,
+    r.release_type                           AS releaseType,
+    r.release_date                           AS releaseDate,
+    r.original_year                          AS originalYear,
     r.publisher,
-    r.track_count                        AS trackCount,
-    r.disc_total                         AS discTotal,
+    r.track_count                            AS trackCount,
+    r.disc_total                             AS discTotal,
     r.tmed,
-    r.music_brainz_album_release_country AS musicBrainzAlbumReleaseCountry,
-    r.music_brainz_album_status          AS musicBrainzAlbumStatus,
-    r.music_brainz_album_artist_id       AS musicBrainzAlbumArtistId,
-    r.music_brainz_album_id              AS musicBrainzAlbumId,
-    r.music_brainz_artist_id             AS musicBrainzArtistId,
-    r.music_brainz_release_group_id      AS musicBrainzReleaseGroupId,
-    r.cover_path                         AS coverPath,
+    r.music_brainz_album_release_country     AS musicBrainzAlbumReleaseCountry,
+    r.music_brainz_album_status              AS musicBrainzAlbumStatus,
+    r.music_brainz_album_artist_id           AS musicBrainzAlbumArtistId,
+    r.music_brainz_album_id                  AS musicBrainzAlbumId,
+    r.music_brainz_artist_id                 AS musicBrainzArtistId,
+    r.music_brainz_release_group_id          AS musicBrainzReleaseGroupId,
+    r.cover_path                             AS coverPath,
     json_group_array(
       json_object(
         'id',                        t.id,
@@ -239,7 +239,7 @@ const SELECT_LIBRARY_RELEASE = `
         'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
         'musicBrainzTrackId',        t.music_brainz_track_id
       )
-    ORDER BY t.disc ASC, t.track_number ASC)         AS tracks
+    ORDER BY t.disc ASC, t.track_number ASC) AS tracks
   FROM tb_releases r
   JOIN tb_tracks t on t.release_id = r.id
 `;

@@ -57,7 +57,7 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
     const isSuccess = await addTrackstep({ customUrl, file, track }, onProgress);
     if (isSuccess) {
       await metadataService.writeTrackMetadata({ track }, onProgress);
-      releasesRepository.upsertTrack(track);
+      await releasesRepository.upsertTrack(track);
     }
   };
 
