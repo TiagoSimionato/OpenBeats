@@ -1,5 +1,7 @@
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
+import { configsRepository } from 'backend/repositories/configs.repository';
+import { failedTracksRepository } from 'backend/repositories/failedTracks.repository';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { userRepository } from 'backend/repositories/user.repository';
 import Database from 'better-sqlite3';
@@ -19,6 +21,8 @@ const initDatabase = async () => {
     await userRepository.createDDL();
     await userRepository.createDefaultUser();
     await releasesRepository.createDDL();
+    await failedTracksRepository.createDDL();
+    await configsRepository.createDDL();
 
     return database;
   }
