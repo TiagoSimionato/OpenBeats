@@ -3,6 +3,7 @@ import type { Track } from 'common/types/requests/releases';
 import type { OnProgress } from '.';
 import { writeFile } from 'node:fs/promises';
 import { dirname, extname } from 'node:path';
+import { failedTracksRepository } from 'backend/repositories/failedTracks.repository';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 import { makeTrackPath } from 'backend/utils';
 import { coversManagerService } from './cover.service';
@@ -58,6 +59,7 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
     if (isSuccess) {
       await metadataService.writeTrackMetadata({ track }, onProgress);
       await releasesRepository.upsertTrack(track);
+      await failedTracksRepository.deleteFailedTrack(track['MusicBrainz Track Id']);
     }
   };
 
