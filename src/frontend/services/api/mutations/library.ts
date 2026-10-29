@@ -27,8 +27,8 @@ export const useAddReleaseCover = <Response = null, Error = unknown>({
 
   return useMutation<Response, Error, string>({
     mutationFn: (releaseId: string) => api.post<Response>(`library/releases/${releaseId}/cover`, {}, configs),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
     ...options,
   });
@@ -45,8 +45,8 @@ export const useImportReleaseCover = <Response = null, Error = unknown>({
 
   return useMutation<Response, Error, ImportCoverRequest>({
     mutationFn: ({ formData, releaseId }) => api.post<Response>(`library/releases/${releaseId}/cover/import`, formData, configs),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
     ...options,
   });
@@ -96,8 +96,8 @@ export const useDeleteLibraryTrack = <Response = null, Error = unknown>({
 
   return useMutation<Response, Error, TrackRequestParams>({
     mutationFn: ({ releaseId, trackId }) => api.delete<Response>(`library/releases/${releaseId}/tracks/${trackId}`, {}, configs),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
     ...options,
   });
@@ -114,8 +114,8 @@ export const useDeleteLibraryRelease = <Response = null, Error = unknown>({
 
   return useMutation<Response, Error, string>({
     mutationFn: (releaseId: string) => api.delete<Response>(`library/releases/${releaseId}`, {}, configs),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
     },
     ...options,
   });
