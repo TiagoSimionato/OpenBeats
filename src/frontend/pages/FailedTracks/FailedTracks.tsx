@@ -2,12 +2,12 @@
 
 import { ROUTES } from 'configs/routes';
 import { useGetFailedTracks } from 'frontend/services/api/queries/failedTracks';
-import { Button } from 'frontend/ui/Button';
 import { Checkbox } from 'frontend/ui/Checkbox';
 import { GoBack } from 'frontend/ui/GoBack';
 import Link from 'next/link';
 import { CoverPreview } from '../ReleaseSearch/components/CoverPreview';
 import { ActionDeleteFailedTrack } from './components/ActionDeleteFailedTrack';
+import { ActionRetry } from './components/ActionRetry';
 
 export const FailedTracksPage = () => {
   const { data: failedTracks } = useGetFailedTracks();
@@ -35,9 +35,7 @@ export const FailedTracksPage = () => {
                 </p>
               ))}
             </Link>
-            <Button size="lg" variant="secondary">
-              Retry
-            </Button>
+            <ActionRetry {...track} />
             <ActionDeleteFailedTrack {...track} />
           </div>
         ))}
