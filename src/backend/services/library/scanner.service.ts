@@ -9,6 +9,7 @@ import { libraryManagerService } from '.';
 import { coverArtService } from '../coverArt.service';
 
 const scanLibrary = async () => {
+  console.log('Started Library Scan');
   const downloadPath = resolve(CONFIGS.DOWNLOAD_PATH);
 
   if (!existsSync(downloadPath)) {
@@ -18,7 +19,12 @@ const scanLibrary = async () => {
   const files = await walkFiles(downloadPath);
   const libraryReleases = new Map<string, ReleaseRecord>();
 
+  let progress = 0;
+
   for (const filePath of files) {
+    if (progress % 100 === 0) {
+      console.log(`Scan progress ${progress}/${files.length}`);
+    }
     if (!isAudioFile(filePath)) {
       continue;
     }
@@ -84,9 +90,11 @@ const scanLibrary = async () => {
     catch (error) {
       console.warn(`walk files error: ${error}`);
     }
+    progress++;
   }
 
   await libraryManagerService.covers.syncReleasesCover();
+  console.log('Finished Library Scan');
 };
 
 export const scannerService = {
