@@ -5,7 +5,7 @@ import Link from 'next/link';
 export const NoReleasesFound = () => (
   <div className="flex grow flex-col items-center justify-center gap-4 text-lg">
     <Icon className="w-16" name="search-off" />
-    <p>No release was found on your library.</p>
+    <p>No release was found on your library</p>
     <p>
       Try going to the
       {' '}
