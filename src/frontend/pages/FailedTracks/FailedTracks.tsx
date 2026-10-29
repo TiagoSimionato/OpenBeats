@@ -8,15 +8,18 @@ import Link from 'next/link';
 import { CoverPreview } from '../ReleaseSearch/components/CoverPreview';
 import { ActionDeleteFailedTrack } from './components/ActionDeleteFailedTrack';
 import { ActionRetry } from './components/ActionRetry';
+import { NoFailedTracksFound } from './components/NoFailedTracksFound';
 
 export const FailedTracksPage = () => {
   const { data: failedTracks } = useGetFailedTracks();
 
   return (
     <>
-      <div className="pb-8">
+      <div className="flex items-center gap-4 pb-8">
         <GoBack href={ROUTES.MANAGEMENT} />
+        <h2 className="text-3xl font-semibold">Failed Tracks</h2>
       </div>
+      {failedTracks?.length === 0 && <NoFailedTracksFound />}
       <div className="flex flex-col">
         {failedTracks?.map(track => (
           <div
