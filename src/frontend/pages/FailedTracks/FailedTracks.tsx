@@ -5,8 +5,8 @@ import { useGetFailedTracks } from 'frontend/services/api/queries/failedTracks';
 import { Button } from 'frontend/ui/Button';
 import { Checkbox } from 'frontend/ui/Checkbox';
 import { GoBack } from 'frontend/ui/GoBack';
-import { XIcon } from 'lucide-react';
 import { CoverPreview } from '../ReleaseSearch/components/CoverPreview';
+import { ActionDeleteFailedTrack } from './components/ActionDeleteFailedTrack';
 
 export const FailedTracksPage = () => {
   const { data: failedTracks } = useGetFailedTracks();
@@ -31,9 +31,7 @@ export const FailedTracksPage = () => {
             <Button size="lg" variant="secondary">
               Retry
             </Button>
-            <Button size="xs" variant="tertiary">
-              <XIcon />
-            </Button>
+            <ActionDeleteFailedTrack {...track} />
           </div>
         ))}
       </div>
