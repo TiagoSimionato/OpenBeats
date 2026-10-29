@@ -20,9 +20,12 @@ const fetchReleaseMetadata = async (releaseId: string, onProgress?: OnProgress) 
     });
   }
 
+  const tracks = mapMBResponseToTracks(release);
+  onProgress?.({ artist: tracks[0].album_artist });
+
   return {
     release,
-    tracks: mapMBResponseToTracks(release),
+    tracks,
   };
 };
 

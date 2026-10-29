@@ -3,7 +3,7 @@ import { useDeleteFailedTrack } from 'frontend/services/api/mutations/failedTrac
 import { Button } from 'frontend/ui/Button';
 import { XIcon } from 'lucide-react';
 
-export const ActionDeleteFailedTrack = ({ trackId }: TrackActions) => {
+export const ActionDeleteFailedTrack = ({ trackId }: Omit<TrackActions, 'title'>) => {
   const { isPending, mutate: deleteFailedTrack } = useDeleteFailedTrack();
 
   return (

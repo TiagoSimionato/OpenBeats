@@ -12,7 +12,7 @@ export const GET = withErrorHandler(
   async (_request: Request, { params }: RouteContext) => {
     const { jobId } = await params;
 
-    const isJobFound = jobService.getDownloadJobProgress(jobId);
+    const isJobFound = jobService.getJobProgress(jobId);
     if (!isJobFound)
       throw new NotFoundError('Job not found');
 

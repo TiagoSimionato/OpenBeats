@@ -1,6 +1,6 @@
 'use client';
 
-import type { DownloadJobStage, DownloadJobStatus } from 'common/types/requests/releases';
+import type { JobStage, JobStatus } from 'common/types/requests/releases';
 import { useQueueContext } from 'frontend/contexts/QueueContext';
 import { Spinner } from 'frontend/ui/Spinner';
 
@@ -8,13 +8,13 @@ export type DownloadQueueItem = {
   message?: string;
   processedTracks: number;
   releaseId: string;
-  stage: DownloadJobStage;
-  status: DownloadJobStatus;
+  stage: JobStage;
+  status: JobStatus;
   title: string;
   totalTracks: number;
 };
 
-const stageLabel: Partial<Record<DownloadJobStage, string>> = {
+const stageLabel: Partial<Record<JobStage, string>> = {
   completed: 'Completed',
   cover: 'Cover',
   download: 'Downloading',
@@ -43,8 +43,8 @@ export const QueuePopup = () => {
           {queue.map((item) => {
             const isDone = item.status === 'completed';
             const isFailed = item.status === 'failed';
-            const progressRatio
-              = item.totalTracks > 0 ? item.processedTracks / item.totalTracks : 0;
+            const progressRatio =
+              item.totalTracks > 0 ? item.processedTracks / item.totalTracks : 0;
             const progressPercent = Math.max(0, Math.min(100, Math.round(progressRatio * 100)));
             return (
               <li className="border-border bg-background/40 rounded-lg border p-2" key={item.id}>

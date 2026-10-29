@@ -1,11 +1,7 @@
-import type {
-  DownloadJobProgress,
-  DownloadJobStage,
-  DownloadJobStatus,
-  JobResponse,
-} from 'common/types/requests/releases';
+import type { JobProgress, JobResponse, JobStage, JobStatus } from 'common/types/requests/releases';
 import type { PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { FAILED_TRACKS_QUERY_KEY } from 'frontend/services/api/queries/failedTracks';
 import { LIBRARY_QUERY_KEY } from 'frontend/services/api/queries/library';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -19,8 +15,8 @@ type EnqueueArgs = {
 export type QueueItem = EnqueueArgs & {
   message?: string;
   processedTracks: number;
-  stage: DownloadJobStage;
-  status: DownloadJobStatus;
+  stage: JobStage;
+  status: JobStatus;
 };
 
 type QueueContextProps = {
@@ -32,8 +28,7 @@ const QueueContext = createContext<null | QueueContextProps>(null);
 
 type QueueProviderProps = PropsWithChildren;
 
-const isTerminalStatus = (status: DownloadJobStatus) =>
-  status === 'completed' || status === 'failed';
+const isTerminalStatus = (status: JobStatus) => status === 'completed' || status === 'failed';
 
 export const QueueContextProvider = ({ children }: QueueProviderProps) => {
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -95,11 +90,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
   );
 
   const finalizeJob = useCallback(
-    (
-      queueId: string,
-      status: DownloadJobStatus,
-      fallbackProgress?: Pick<DownloadJobProgress, 'currentTrack'>,
-    ) => {
+    (queueId: string, status: JobStatus, fallbackProgress?: Pick<JobProgress, 'currentTrack'>) => {
       if (activeQueueIdRef.current !== queueId) {
         return;
       }
@@ -117,6 +108,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
       eventSourceRef.current = null;
       activeQueueIdRef.current = null;
       queryClient.invalidateQueries({ queryKey: LIBRARY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAILED_TRACKS_QUERY_KEY });
       scheduleRemoval(queueId);
     },
     [queryClient, scheduleRemoval, updateQueueItem],
@@ -159,7 +151,7 @@ export const QueueContextProvider = ({ children }: QueueProviderProps) => {
         eventSourceRef.current = eventSource;
 
         eventSource.onmessage = (event) => {
-          const nextProgress = JSON.parse(event.data) as DownloadJobProgress;
+          const nextProgress = JSON.parse(event.data) as JobProgress;
 
           updateQueueItem(nextQueuedItem.id, current => ({
             ...current,

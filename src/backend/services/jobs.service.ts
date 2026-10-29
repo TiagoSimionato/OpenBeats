@@ -1,21 +1,22 @@
 import type { TrackRequestParams } from 'common/types/requests/library';
-import type { DownloadJobProgress, DownloadJobStatus } from 'common/types/requests/releases';
+import type { JobProgress, JobStatus } from 'common/types/requests/releases';
 import { randomUUID } from 'node:crypto';
+import { failedTracksRepository } from 'backend/repositories/failedTracks.repository';
 import { libraryManagerService } from './library';
 
-type DownloadJobSubscriber = (progress: DownloadJobProgress) => void;
+type JobSubscriber = (progress: JobProgress) => void;
 
-type DownloadJobState = {
-  listeners: Set<DownloadJobSubscriber>;
-  progress: DownloadJobProgress;
+type JobState = {
+  listeners: Set<JobSubscriber>;
+  progress: JobProgress;
 };
 
-const TERMINAL_STATUSES: Set<DownloadJobStatus> = new Set([
+const TERMINAL_STATUSES: Set<JobStatus> = new Set([
   'completed',
   'failed',
 ]);
 
-const jobs = new Map<string, DownloadJobState>();
+const jobs = new Map<string, JobState>();
 
 const emit = (jobId: string) => {
   const job = jobs.get(jobId);
@@ -29,7 +30,7 @@ const emit = (jobId: string) => {
   }
 };
 
-const createDownloadJob = () => {
+const createJob = () => {
   const jobId = randomUUID();
 
   jobs.set(jobId, {
@@ -45,11 +46,11 @@ const createDownloadJob = () => {
   return jobId;
 };
 
-const getDownloadJobProgress = (jobId: string) => jobs.get(jobId)?.progress;
+const getJobProgress = (jobId: string) => jobs.get(jobId)?.progress;
 
-const updateDownloadJob = (
+const updateJob = (
   jobId: string,
-  progressUpdates: Omit<Partial<DownloadJobProgress>, 'jobId'>,
+  progressUpdates: Omit<Partial<JobProgress>, 'jobId'>,
 ) => {
   const job = jobs.get(jobId);
 
@@ -72,9 +73,9 @@ const updateDownloadJob = (
   }
 };
 
-const subscribeDownloadJob = (
+const subscribeJob = (
   jobId: string,
-  listener: DownloadJobSubscriber,
+  listener: JobSubscriber,
 ) => {
   const job = jobs.get(jobId);
 
@@ -120,7 +121,7 @@ const stream = (jobId: string) => {
         unsubscribe();
       };
 
-      unsubscribe = subscribeDownloadJob(jobId, (progress) => {
+      unsubscribe = subscribeJob(jobId, (progress) => {
         send(progress);
 
         if (progress.status === 'completed' || progress.status === 'failed') {
@@ -141,44 +142,78 @@ const stream = (jobId: string) => {
 };
 
 const startReleaseJob = (releaseId: string): string => {
-  const jobId = createDownloadJob();
+  const jobId = createJob();
 
-  libraryManagerService.add.addReleaseToLibrary(releaseId, partial => updateDownloadJob(jobId, {
-    status: 'running',
-    ...partial,
-  }));
+  libraryManagerService.add.addReleaseToLibrary(releaseId, (progressReport) => {
+    updateJob(jobId, {
+      status: 'running',
+      ...progressReport,
+    });
+    if (progressReport.error) {
+      const job = getJobProgress(jobId);
+      failedTracksRepository.upsertFailedTrack({
+        artist: job?.artist ?? releaseId,
+        reason: progressReport.error,
+        releaseId,
+        title: job?.currentTrackTitle,
+        trackId: releaseId,
+      });
+    }
+  });
 
   return jobId;
 };
 
 const startTrackJob = ({ releaseId, trackId, url }: TrackRequestParams): string => {
-  const jobId = createDownloadJob();
+  const jobId = createJob();
 
-  libraryManagerService.add.addTrackToLibrary({ releaseId, trackId, url }, partial => updateDownloadJob(jobId, {
-    status: 'running',
-    ...partial,
-  }));
+  libraryManagerService.add.addTrackToLibrary({ releaseId, trackId, url }, (progressReport) => {
+    updateJob(jobId, {
+      status: 'running',
+      ...progressReport,
+    });
+    if (progressReport.error) {
+      const job = getJobProgress(jobId);
+      failedTracksRepository.upsertFailedTrack({
+        artist: job?.artist ?? releaseId,
+        reason: progressReport.error,
+        releaseId,
+        title: job?.currentTrackTitle ?? trackId,
+        trackId,
+      });
+    }
+  });
 
   return jobId;
 };
 
 const startImportJob = ({ file, releaseId, trackId }: Omit<TrackRequestParams, 'url'> & { file: File }): string => {
-  const jobId = createDownloadJob();
+  const jobId = createJob();
 
-  libraryManagerService.add.addTrackToLibrary({ file, releaseId, trackId }, partial => updateDownloadJob(jobId, {
-    status: 'running',
-    ...partial,
-  }));
+  libraryManagerService.add.addTrackToLibrary({ file, releaseId, trackId }, (progressReport) => {
+    updateJob(jobId, {
+      status: 'running',
+      ...progressReport,
+    });
+    if (progressReport.error) {
+      const job = getJobProgress(jobId);
+      failedTracksRepository.upsertFailedTrack({
+        artist: job?.artist,
+        reason: progressReport.error,
+        releaseId,
+        title: job?.currentTrackTitle,
+        trackId,
+      });
+    }
+  });
 
   return jobId;
 };
 
 export const jobService = {
-  createDownloadJob,
-  getDownloadJobProgress,
+  getJobProgress,
   startImportJob,
   startReleaseJob,
   startTrackJob,
   stream,
-  updateDownloadJob,
 };

@@ -36,7 +36,7 @@ export type TrackSearchResult = {
   downloadedFilePath: string;
 };
 
-export type DownloadJobStage
+export type JobStage
   = | 'completed'
     | 'cover'
     | 'download'
@@ -45,16 +45,17 @@ export type DownloadJobStage
     | 'queued'
     | 'search';
 
-export type DownloadJobStatus = 'completed' | 'failed' | 'running';
+export type JobStatus = 'completed' | 'failed' | 'running';
 
-export type DownloadJobProgress = {
+export type JobProgress = {
+  artist?: string;
   currentTrack: number;
   currentTrackTitle?: string;
   error?: string;
   jobId: string;
   message?: string;
-  stage: DownloadJobStage;
-  status: DownloadJobStatus;
+  stage: JobStage;
+  status: JobStatus;
 };
 
 export type JobResponse = {

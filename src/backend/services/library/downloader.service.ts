@@ -36,7 +36,7 @@ const ytdlpStep = async ({ isCustomUrl, track, videoId }: { isCustomUrl?: boolea
     onProgress?.({
       currentTrack: track.track,
       currentTrackTitle: track.title,
-      error: 'ytdlp error',
+      error: 'YTDLP Error',
     });
   }
 };

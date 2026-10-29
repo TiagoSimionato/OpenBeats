@@ -1,8 +1,8 @@
 export type FailedTrack = {
-  artist: string;
+  artist?: string;
   reason: string;
   releaseId: string;
-  title: string;
+  title?: string;
   trackId: string;
 };
 

@@ -6,31 +6,31 @@ const createDDL = async () => {
 
   database.exec(`
     CREATE TABLE IF NOT EXISTS tb_failed_tracks (
-      track_id UUID PRIMARY KEY,
       release_id UUID NOT NULL,
-      title TEXT NOT NULL,
+      track_id UUID NOT NULL,
+      title TEXT,
       artist TEXT,
-      reason TEXT NOT NULL
+      reason TEXT NOT NULL,
+      PRIMARY KEY (track_id, release_id)
     );`);
 };
 
 const upsertFailedTrack = async (record: FailedTrack) => {
   await dbService.dbExec(`
     INSERT INTO tb_failed_tracks (
-      track_id,
       release_id,
+      track_id,
       title,
       artist,
       reason
     ) VALUES (
-      @trackId,
       @releaseId,
+      @trackId,
       @title,
       @artist,
       @reason
     )
-    ON CONFLICT(track_id) DO UPDATE SET
-      release_id = excluded.release_id,
+    ON CONFLICT(release_id,track_id) DO UPDATE SET
       title = excluded.title,
       artist = excluded.artist,
       reason = excluded.reason
@@ -47,8 +47,8 @@ const deleteFailedTrack = async (trackId: string) => {
 const listFailedTracks = async () => {
   const rows = await dbService.list<FailedTrack>(`
     SELECT
+    release_id as releaseId,
       track_id as trackId,
-      release_id as releaseId,
       title,
       artist,
       reason
