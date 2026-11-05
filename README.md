@@ -2,7 +2,12 @@
 
 <img width="1896" height="915" alt="image" src="https://github.com/user-attachments/assets/9d2b4dc4-c84d-465f-984f-1e1424390382" />
 
-The project goal is to provide a simple and pratical way to manage music libraries for self hosted systems by providing a modern and friendly web user interface.
+The project is focused on self hosting and aims to provide a web UI to make the management of a musical library easy and seamless across devices
+
+It features:
+- Add, delete, replace files in your collection
+- Metadata tagging using [musicbrainz](https://musicbrainz.org) database
+- Automatic [rsgain](https://github.com/complexlogic/rsgain) so supported players play songs with adjust volume during playback
 
 ## Installing
 
