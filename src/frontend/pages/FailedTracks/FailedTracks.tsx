@@ -23,23 +23,33 @@ export const FailedTracksPage = () => {
       <div className="flex flex-col">
         {failedTracks?.map(track => (
           <div
-            className="flex items-center justify-between gap-4 rounded-md p-4 hover:bg-white/20"
+            className="-mx-4 flex flex-wrap items-center justify-between gap-4 rounded-md p-4 hover:bg-white/20 sm:flex-nowrap"
             key={track.trackId}
           >
             <Checkbox />
-            <CoverPreview releaseId={track.releaseId} size={100} title={track.title} />
+            <CoverPreview
+              className="min-w-25"
+              releaseId={track.releaseId}
+              size={100}
+              title={track.title}
+            />
             <Link
-              className="flex grow flex-col items-center justify-around gap-4 self-stretch md:flex-row"
+              className="order-last flex grow items-center justify-around gap-4 self-stretch sm:order-0 sm:flex-row"
               href={ROUTES.SEARCH_DETAILS(track.releaseId)}
             >
               {[track.title, track.artist, track.reason].map(it => (
-                <p className="md:w-1/3 md:text-center" key={`${it}-${Math.random().toString()}`}>
+                <p
+                  className="line-clamp-2 w-1/3 text-center"
+                  key={`${it}-${Math.random().toString()}`}
+                >
                   {it}
                 </p>
               ))}
             </Link>
-            <ActionRetry {...track} />
-            <ActionDeleteFailedTrack {...track} />
+            <div className="flex grow items-center justify-around gap-4 self-stretch sm:grow-0 sm:flex-row">
+              <ActionRetry {...track} />
+              <ActionDeleteFailedTrack {...track} />
+            </div>
           </div>
         ))}
       </div>

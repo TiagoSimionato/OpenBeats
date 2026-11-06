@@ -8,6 +8,7 @@ export const ActionDeleteFailedTrack = ({ trackId }: Omit<TrackActions, 'title'>
 
   return (
     <Button
+      className="rounded-full p-1 hover:bg-red-500"
       isLoading={isPending}
       onClick={() => deleteFailedTrack(trackId)}
       size="xs"

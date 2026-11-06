@@ -5,10 +5,12 @@ import { CoverImage } from 'frontend/ui/CoverImage';
 import { Spinner } from 'frontend/ui/Spinner';
 
 export const CoverPreview = ({
+  className,
   releaseId,
   size = 96,
   title,
 }: {
+  className?: string;
   releaseId: string;
   size?: number;
   title?: string;
@@ -31,7 +33,7 @@ export const CoverPreview = ({
 
   return (
     <CoverImage
-      className="rounded"
+      className={`rounded ${className}`}
       coverURL={coverUrl}
       fullSizeSrc={firstImage?.image}
       releaseName={title ?? ''}
