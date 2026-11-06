@@ -3,6 +3,7 @@ import { Checkbox } from 'frontend/ui/Checkbox';
 import { ActionAddTrack } from './ActionAddTrack';
 import { ActionImportTrack } from './ActionImportTrack';
 import { ActionReplaceFile } from './ActionReplaceFIle';
+import { DragoDropImportTrack } from './DragDropImportTrack';
 import { DropDownActions } from './DropDownActions';
 import { useSelectedTracksStore } from './MultiActions/useSelectedTracksStore';
 
@@ -14,7 +15,10 @@ export const MBTRack = ({ track }: MBTrackProps) => {
   const { addTrack, removeTrack, tracks } = useSelectedTracksStore();
 
   return (
-    <div className="group/track text-light grid grid-cols-[repeat(3,1fr)_32px] gap-4 p-2 hover:bg-white/20 sm:grid-cols-[repeat(4,1fr)_32px]">
+    <DragoDropImportTrack
+      className="group/track text-light grid grid-cols-[repeat(3,1fr)_32px] gap-4 p-2 hover:bg-white/20 sm:grid-cols-[repeat(4,1fr)_32px]"
+      track={track}
+    >
       <p className="col-span-2 flex items-center gap-3">
         <Checkbox
           checked={tracks.some(
@@ -42,6 +46,6 @@ export const MBTRack = ({ track }: MBTrackProps) => {
           <ActionImportTrack title={track.title} trackId={track['MusicBrainz Track Id']} />
         </DropDownActions>
       </div>
-    </div>
+    </DragoDropImportTrack>
   );
 };
