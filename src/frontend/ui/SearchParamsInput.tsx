@@ -23,7 +23,13 @@ export const SearchParamsInput = ({
 
   useEffect(() => {
     if (isAutomatic) {
-      updateSearchParams(queryKey, debouncedQuery, isDirty);
+      updateSearchParams(
+        [
+          { queryKey, value: debouncedQuery },
+          { queryKey: 'page', value: '' },
+        ],
+        isDirty,
+      );
     }
     // eslint-disable-next-line react/exhaustive-deps
   }, [debouncedQuery]);
