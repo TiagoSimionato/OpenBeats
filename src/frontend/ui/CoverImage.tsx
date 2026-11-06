@@ -1,45 +1,80 @@
+import { useGetLibraryCover } from 'frontend/services/api/queries/library';
+import { useCover } from 'frontend/services/caaApi/queries/covers';
 import { Icon } from 'frontend/ui/Icon';
 import { Disc3Icon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from './Button';
 import { Dialog } from './Dialog';
+import { Spinner } from './Spinner';
 
 type CoverProps = {
   className?: string;
-  coverId?: string;
-  coverURL?: string;
-  fullSizeSrc?: string;
   iconFallback?: 'disc-album' | 'disc';
-  releaseName: string;
+  releaseId: string;
+  releaseName?: string;
   size?: number;
-  withModal?: boolean;
+  withoutCaaFallback?: boolean;
+  withoutModal?: boolean;
 };
 
-const Cover = ({
-  className,
-  coverId,
-  coverURL,
-  iconFallback = 'disc',
-  releaseName,
-  size = 200,
-}: CoverProps) => {
-  if (!coverId && !coverURL) {
-    if (iconFallback === 'disc')
+export const CAAImage = ({ className, ...props }: CoverProps) => {
+  const { data, isPending } = useCover({
+    releaseId: props.releaseId,
+  });
+
+  const frontImage = data?.images?.find(image => image.front) ?? data?.images?.[0];
+  const coverSrc
+    = frontImage?.thumbnails?.small ?? frontImage?.thumbnails?.[250] ?? frontImage?.image;
+
+  if (isPending) {
+    return (
+      <div className="flex aspect-square items-center justify-center" style={{ width: props.size }}>
+        <Spinner size="xl" />
+      </div>
+    );
+  }
+
+  if (!coverSrc) {
+    if (props.iconFallback === 'disc')
+      return <Disc3Icon className="scale-70 rounded" size={props.size} strokeWidth={1.25} />;
+    return <Icon className="aspect-square" name="disc-album" size={props.size} />;
+  }
+
+  return (
+    <Image
+      alt={props.releaseName ? `${props.releaseName} cover art` : 'release cover art'}
+      className={`rounded ${className}`}
+      height={props.size}
+      loading={props.releaseId ? 'eager' : 'lazy'}
+      src={coverSrc}
+      unoptimized={!!props.releaseId}
+      width={props.size}
+    />
+  );
+};
+
+const Cover = ({ size = 200, withoutCaaFallback, ...props }: CoverProps) => {
+  const { isError } = useGetLibraryCover({ releaseId: props.releaseId });
+
+  if (isError && !withoutCaaFallback) {
+    return <CAAImage size={size} {...props} />;
+  }
+
+  if (isError) {
+    if (props.iconFallback === 'disc')
       return <Disc3Icon className="scale-70 rounded" size={size} strokeWidth={1.25} />;
     return <Icon className="aspect-square" name="disc-album" size={size} />;
   }
 
-  const coverSrc = coverURL ?? `/api/covers/${coverId}`;
-
   return (
     <Image
-      alt={releaseName ? `${releaseName} cover art` : 'release cover art'}
-      className={`object-contain ${className}`}
+      alt={props.releaseName ? `${props.releaseName} cover art` : 'release cover art'}
+      className={`object-contain ${props.className}`}
       height={size}
-      loading={coverId ? 'eager' : 'lazy'}
-      src={coverSrc}
-      unoptimized={!!coverId}
+      loading={props.releaseId ? 'eager' : 'lazy'}
+      src={`/api/covers/${props.releaseId}`}
+      unoptimized={!!props.releaseId}
       width={size}
     />
   );
@@ -47,6 +82,10 @@ const Cover = ({
 
 const ModalCover = (props: CoverProps) => {
   const [open, setOpen] = useState(false);
+  const { data, isPending } = useCover({
+    releaseId: props.releaseId,
+  });
+  const frontImage = data?.images?.find(image => image.front) ?? data?.images?.[0];
 
   return (
     <>
@@ -54,19 +93,21 @@ const ModalCover = (props: CoverProps) => {
         <Cover {...props} />
       </Button>
       <Dialog open={open} setOpen={setOpen}>
-        <img
-          alt={`${props.releaseName} cover art`}
-          className="h-auto w-auto"
-          src={props.fullSizeSrc}
-        />
+        {!isPending && (
+          <img
+            alt={props.releaseName ? `${props.releaseName} cover art` : 'release cover art'}
+            className="h-auto w-auto"
+            src={frontImage?.image}
+          />
+        )}
       </Dialog>
     </>
   );
 };
 
 export const CoverImage = (props: CoverProps) => {
-  if (props.withModal) {
-    return <ModalCover {...props} />;
+  if (props.withoutModal) {
+    return <Cover {...props} />;
   }
-  return <Cover {...props} />;
+  return <ModalCover {...props} />;
 };

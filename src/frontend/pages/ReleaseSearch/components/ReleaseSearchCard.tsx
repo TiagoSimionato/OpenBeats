@@ -9,10 +9,10 @@ import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
 import { Button } from 'frontend/ui/Button';
 import { Chip } from 'frontend/ui/Chip';
+import { CoverImage } from 'frontend/ui/CoverImage';
 import { Spinner } from 'frontend/ui/Spinner';
 import Link from 'next/link';
 import { useState } from 'react';
-import { CoverPreview } from './CoverPreview';
 
 type ReleaseCardProps = {
   release: QueryRelease;
@@ -125,7 +125,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
   return (
     <li className="rounded border border-zinc-200 p-3" key={release.id}>
       <div className="flex flex-wrap items-center gap-3">
-        <CoverPreview releaseId={release.id} title={release.title} />
+        <CoverImage releaseId={release.id} releaseName={release.title} size={96} />
         <div className="flex-1">
           <p className="flex items-center gap-2 font-medium">
             {release.title ?? 'Untitled release'}

@@ -3,9 +3,9 @@
 import { ROUTES } from 'configs/routes';
 import { useGetFailedTracks } from 'frontend/services/api/queries/failedTracks';
 import { Checkbox } from 'frontend/ui/Checkbox';
+import { CoverImage } from 'frontend/ui/CoverImage';
 import { GoBack } from 'frontend/ui/GoBack';
 import Link from 'next/link';
-import { CoverPreview } from '../ReleaseSearch/components/CoverPreview';
 import { ActionDeleteFailedTrack } from './components/ActionDeleteFailedTrack';
 import { ActionRetry } from './components/ActionRetry';
 import { NoFailedTracksFound } from './components/NoFailedTracksFound';
@@ -27,11 +27,11 @@ export const FailedTracksPage = () => {
             key={track.trackId}
           >
             <Checkbox />
-            <CoverPreview
+            <CoverImage
               className="min-w-25"
               releaseId={track.releaseId}
+              releaseName={track.title}
               size={100}
-              title={track.title}
             />
             <Link
               className="order-last flex grow items-center justify-around gap-4 self-stretch sm:order-0 sm:flex-row"

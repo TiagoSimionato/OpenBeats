@@ -31,3 +31,15 @@ export const useGetLibraryRelease = <Response = LibraryReleaseResponse, TError =
   queryKey: [...LIBRARY_QUERY_KEY, releaseId],
   ...options,
 });
+
+export const useGetLibraryCover = <Response = null, TError = Error>({
+  options,
+  releaseId,
+}: {
+  options?: HookQueryOptions<Response, TError>;
+  releaseId: string;
+}) => useQuery<Response, TError>({
+  queryFn: () => api.get<Response>(`covers/${releaseId}`),
+  queryKey: ['api', 'covers', releaseId],
+  ...options,
+});

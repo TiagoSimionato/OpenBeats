@@ -15,7 +15,6 @@ import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
-import { CoverPreview } from '../ReleaseSearch/components/CoverPreview';
 import { About } from './components/About/About';
 import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
@@ -103,13 +102,12 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
             <ActionDeleteRelease title={info.album} />
           </DropDownActions>
         </div>
-        {release
-          ? (
-              <CoverImage coverId={release?.coverPath} releaseName={info.album} size={250} />
-            )
-          : (
-              <CoverPreview releaseId={mbRelease?.id ?? ''} size={250} title={mbRelease?.title} />
-            )}
+        <CoverImage
+          releaseId={releaseId}
+          releaseName={info.album}
+          size={250}
+          withoutCaaFallback={!!release}
+        />
         <div className="flex flex-col justify-end gap-4 capitalize sm:gap-10">
           <span className="hidden sm:block">{info.releaseType.split(';')[0]}</span>
           <h1 className="text-center text-5xl font-bold sm:text-start">{info.album}</h1>
