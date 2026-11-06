@@ -14,7 +14,7 @@ export const LibraryTrack = ({ track }: LibraryTrackProps) => {
   const { addTrack, removeTrack, tracks } = useSelectedTracksStore();
 
   return (
-    <div className="group/track grid grid-cols-[repeat(3,1fr)_32px] gap-4 p-2 sm:grid-cols-[repeat(4,1fr)_32px]">
+    <div className="group/track grid grid-cols-[repeat(3,1fr)_32px] gap-4 p-2 hover:bg-white/20 sm:grid-cols-[repeat(4,1fr)_32px]">
       <p className="col-span-2 flex items-center gap-3">
         <Checkbox
           checked={tracks.some(it => 'id' in it && it.id === track.id)}
