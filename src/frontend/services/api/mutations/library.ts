@@ -52,24 +52,24 @@ export const useImportReleaseCover = <Response = null, Error = unknown>({
   });
 };
 
-export const useAddTrack = <Response = JobResponse, Error = unknown>({
+export const useAddTrack = <Request extends TrackRequestParams, Response = JobResponse, Error = unknown>({
   configs,
   options,
 }: {
   configs?: RequestConfig;
-  options?: HookMutationOptions<TrackRequestParams, Response, Error>;
-} = {}) => useMutation<Response, Error, TrackRequestParams>({
+  options?: HookMutationOptions<Request, Response, Error>;
+} = {}) => useMutation<Response, Error, Request>({
   mutationFn: ({ releaseId, trackId }) => api.post<Response>(`releases/${releaseId}/tracks/${trackId}`, {}, configs),
   ...options,
 });
 
-export const useAddCustomTrack = <Response = JobResponse, Error = unknown>({
+export const useAddCustomTrack = <Resquest extends TrackRequestParams, Response = JobResponse, Error = unknown>({
   configs,
   options,
 }: {
   configs?: RequestConfig;
-  options?: HookMutationOptions<TrackRequestParams, Response, Error>;
-} = {}) => useMutation<Response, Error, TrackRequestParams>({
+  options?: HookMutationOptions<Resquest, Response, Error>;
+} = {}) => useMutation<Response, Error, Resquest>({
   mutationFn: ({ releaseId, trackId, url }) => api.post<Response>(`releases/${releaseId}/tracks`, { trackId, url }, configs),
   ...options,
 });
