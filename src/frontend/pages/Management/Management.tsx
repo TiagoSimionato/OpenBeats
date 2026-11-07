@@ -4,6 +4,7 @@ import { ScanLibraryButton } from 'frontend/ui/ScanLibraryButton';
 import { SyncCoversButton } from 'frontend/ui/SyncCoverButton';
 import { ChevronRightIcon } from 'lucide-react';
 import Link from 'next/link';
+import { ChangePassword } from './ChangePassword';
 
 export const ManagementPage = () => (
   <main className="flex flex-col gap-4">
@@ -19,5 +20,6 @@ export const ManagementPage = () => (
       Failed Tracks
       <ChevronRightIcon />
     </Link>
+    <ChangePassword />
   </main>
 );

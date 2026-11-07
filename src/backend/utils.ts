@@ -6,8 +6,19 @@ import { extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { plainToInstance } from 'class-transformer';
 import { validate, validateOrReject } from 'class-validator';
+import { auth } from 'configs/auth';
 import { CONFIGS } from 'configs/constants';
+import { UnauthorizedError } from './exceptions/http';
 import { Pagination } from './requests/pagination.dto';
+
+export const getSession = async () => {
+  const session = await auth();
+
+  if (!session)
+    throw new UnauthorizedError();
+
+  return session;
+};
 
 const AUDIO_FILE_EXTENSIONS = new Set([
   '.aac',

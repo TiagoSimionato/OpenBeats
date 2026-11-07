@@ -28,7 +28,7 @@ export const ReleaseSearchPage = () => {
 
   const onSubmit: React.ComponentProps<'form'>['onSubmit'] = (event) => {
     event.preventDefault();
-    updateSearchParams(queryKey, inputRef.current?.value ?? '');
+    updateSearchParams([{ queryKey, value: inputRef.current?.value ?? '' }]);
   };
 
   return (

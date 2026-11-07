@@ -1,3 +1,4 @@
+import type { User } from 'common/types/requests/user';
 import { randomUUID } from 'node:crypto';
 import { dbService } from 'backend/services/db.service';
 import * as bcrypt from 'bcrypt';
@@ -12,12 +13,6 @@ const createDDL = async () => {
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL
     );`);
-};
-
-type User = {
-  id: string;
-  password: string;
-  username: string;
 };
 
 const createUser = async (user: User) => {
