@@ -39,15 +39,24 @@ export const getTrackTitle = (track: ReleaseTrack) => track.title ?? track.recor
 const getTrackId = (track: ReleaseTrack) =>
   track.id ?? track.recording?.id ?? `${track.position ?? track.number ?? getTrackTitle(track)}`;
 
+export const getMBRelease = {
+  album: (release?: ReleaseResponse) => release?.title ?? '',
+  albumArtist: (release?: ReleaseResponse) => getArtistLabel(release?.['artist-credit']),
+  distTotal: (release?: ReleaseResponse) => release?.media?.length ?? 0,
+  originalYear: (release?: ReleaseResponse) => Number.parseInt((release?.date ?? '').slice(0, 4), 10) || 0,
+  releaseType: (release?: ReleaseResponse) => release?.['release-group']?.['primary-type'] ?? '',
+  trackTotal: (release?: ReleaseResponse) => release?.media?.reduce((acc, media) => acc + (media['track-count'] ?? 0), 0) ?? 0,
+};
+
 export const mapMBResponseToTracks = (release: ReleaseResponse): Track[] => {
   const releaseArtistCredits = release['artist-credit'];
   const releaseGroup = release['release-group'];
   const firstLabel = release['label-info']?.[0]?.label?.name ?? '';
-  const trackTotal = release.media?.reduce((acc, media) => acc + (media['track-count'] ?? 0), 0) ?? 0;
+  const trackTotal = getMBRelease.trackTotal(release);
 
   return release.media?.flatMap((media, mediaIndex) => {
     const disc = media.position ?? mediaIndex + 1;
-    const discTotal = release.media?.length ?? 0;
+    const discTotal = getMBRelease.distTotal(release);
 
     return media.tracks?.map((track) => {
       const trackArtistCredits = track['artist-credit'] ?? track.recording?.['artist-credit'] ?? releaseArtistCredits;
@@ -66,8 +75,8 @@ export const mapMBResponseToTracks = (release: ReleaseResponse): Track[] => {
         .filter(Boolean);
 
       return {
-        'album': release.title ?? '',
-        'album_artist': getArtistLabel(releaseArtistCredits),
+        'album': getMBRelease.album(release),
+        'album_artist': getMBRelease.albumArtist(release),
         'artist': artistLabel,
         'artist-sort': artistSortLabel,
         'date': release.date ?? '',
@@ -78,12 +87,12 @@ export const mapMBResponseToTracks = (release: ReleaseResponse): Track[] => {
         'MusicBrainz Album Id': release.id,
         'MusicBrainz Album Release Country': release.country ?? '',
         'MusicBrainz Album Status': release.status ?? '',
-        'MusicBrainz Album Type': releaseGroup?.['primary-type'] ?? '',
+        'MusicBrainz Album Type': getMBRelease.releaseType(release),
         'MusicBrainz Artist Id': musicBrainzArtistId,
         'MusicBrainz Release Group Id': releaseGroup?.id ?? '',
         'MusicBrainz Release Track Id': trackId,
         'MusicBrainz Track Id': track.recording?.id ?? '',
-        'originalyear': Number.parseInt((release.date ?? '').slice(0, 4), 10) || 0,
+        'originalyear': getMBRelease.originalYear(release),
         'publisher': firstLabel,
         'TDOR': release.date ?? '',
         'title': title,

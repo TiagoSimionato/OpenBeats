@@ -4,7 +4,7 @@ import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { ListTracks } from './components/TrackList';
 import type { ReleasePageParams } from './type';
 import { HttpStatusCode, isAxiosError } from 'axios';
-import { mapMBResponseToTracks } from 'common/utils';
+import { getMBRelease, mapMBResponseToTracks } from 'common/utils';
 import { ROUTES } from 'configs/routes';
 import { useGetLibraryRelease } from 'frontend/services/api/queries/library';
 import { useMBGetRelease } from 'frontend/services/mbApi/queries/releases';
@@ -59,13 +59,13 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
     );
   }
 
-  const info = {
-    album: release?.album ?? mbTracks?.[0].album ?? '',
-    albumArtist: release?.albumArtist ?? mbTracks?.[0].album_artist,
-    discTotal: release?.discTotal ?? mbTracks?.[0].Disctotal ?? 0,
-    originalYear: release?.originalYear ?? mbTracks?.[0].originalyear,
-    releaseType: release?.releaseType ?? mbTracks?.[0]['MusicBrainz Album Type'] ?? '',
-    trackCount: release?.trackCount ?? mbTracks?.[0].Tracktotal,
+  const releaseInfo = {
+    album: release?.album ?? getMBRelease.album(mbRelease),
+    albumArtist: release?.albumArtist ?? getMBRelease.albumArtist(mbRelease),
+    discTotal: release?.discTotal ?? getMBRelease.distTotal(mbRelease),
+    originalYear: release?.originalYear ?? getMBRelease.originalYear(mbRelease),
+    releaseType: release?.releaseType ?? getMBRelease.releaseType(mbRelease),
+    trackCount: release?.trackCount ?? getMBRelease.trackTotal(mbRelease),
   } as const;
 
   const listTracks: ListTracks[] = mbTracks
@@ -82,7 +82,7 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
         mbTrack: undefined,
       })) ?? []);
 
-  const discs = Array.from({ length: info.discTotal })
+  const discs = Array.from({ length: releaseInfo.discTotal })
     .fill(0)
     .map((_, index) =>
       listTracks.filter(
@@ -90,7 +90,11 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
       ),
     );
 
-  const items = [info.albumArtist, `${info.trackCount} tracks`, info.originalYear];
+  const items = [
+    releaseInfo.albumArtist,
+    `${releaseInfo.trackCount} tracks`,
+    releaseInfo.originalYear,
+  ];
 
   return (
     <main className="flex flex-col gap-8">
@@ -99,18 +103,18 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
           <DropDownActions>
             <ActionImportReleaseCover />
             <ActionAddReleaseCover />
-            <ActionDeleteRelease title={info.album} />
+            <ActionDeleteRelease title={releaseInfo.album} />
           </DropDownActions>
         </div>
         <CoverImage
           releaseId={releaseId}
-          releaseName={info.album}
+          releaseName={releaseInfo.album}
           size={250}
           withoutCaaFallback={!!release}
         />
         <div className="flex flex-col justify-end gap-4 capitalize sm:gap-10">
-          <span className="hidden sm:block">{info.releaseType.split(';')[0]}</span>
-          <h1 className="text-center text-5xl font-bold sm:text-start">{info.album}</h1>
+          <span className="hidden sm:block">{releaseInfo.releaseType.split(';')[0]}</span>
+          <h1 className="text-center text-5xl font-bold sm:text-start">{releaseInfo.album}</h1>
           <span className="text-center sm:text-start">{items.join(' • ')}</span>
         </div>
       </div>
@@ -120,8 +124,8 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
           <Fragment
             key={`disc-${tracks.reduce((acc, track) => acc.concat(track.libraryTrack?.title ?? track.mbTrack?.title ?? ''), index.toString())}`}
           >
-            {info.discTotal > 1 && index > 0 && <Divider />}
-            {info.discTotal > 1 && (
+            {releaseInfo.discTotal > 1 && index > 0 && <Divider />}
+            {releaseInfo.discTotal > 1 && (
               <div className="flex items-center gap-2 py-3 text-lg font-bold">
                 <Disc3Icon size={32} />
                 <span>
@@ -130,7 +134,7 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
                 </span>
               </div>
             )}
-            {info.discTotal > 1 && <Divider />}
+            {releaseInfo.discTotal > 1 && <Divider />}
             <TrackList tracks={tracks} />
           </Fragment>
         ))}
