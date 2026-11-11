@@ -9,10 +9,17 @@ import Link from 'next/link';
 import { ActionDeleteFailedTrack } from './components/ActionDeleteFailedTrack';
 import { ActionRetry } from './components/ActionRetry';
 import { ActionRetryAll } from './components/ActionRetryAll';
+import { FailedTracksSelection } from './components/FailedTracksSelection';
 import { NoFailedTracksFound } from './components/NoFailedTracksFound';
+import { useFailedTracksStore } from './components/useFailedTracksStore';
 
 export const FailedTracksPage = () => {
   const { data: failedTracks } = useGetFailedTracks();
+  const {
+    addFailedTrack,
+    failedTracks: failedTracksStore,
+    removeFailedTrack,
+  } = useFailedTracksStore();
 
   return (
     <>
@@ -21,25 +28,38 @@ export const FailedTracksPage = () => {
         <h2 className="text-3xl font-semibold">Failed Tracks</h2>
         <ActionRetryAll className="ml-auto" />
       </div>
+      <FailedTracksSelection />
       {failedTracks?.length === 0 && <NoFailedTracksFound />}
       <div className="flex flex-col">
-        {failedTracks?.map(track => (
+        {failedTracks?.map(failedTrack => (
           <div
-            className="-mx-4 flex flex-wrap items-center justify-between gap-4 rounded-md p-4 hover:bg-white/20 sm:flex-nowrap"
-            key={track.trackId}
+            className="-mx-4 flex flex-wrap items-center justify-between gap-4 rounded-md p-4 hover:bg-white/20 sm:mx-0 sm:flex-nowrap"
+            key={failedTrack.trackId}
           >
-            <Checkbox />
+            <Checkbox
+              checked={failedTracksStore.some(
+                it =>
+                  it.trackId === failedTrack.trackId && it.releaseId === failedTrack.releaseId,
+              )}
+              className="text-white"
+              onChange={(event) => {
+                if (event.target.checked)
+                  addFailedTrack(failedTrack);
+                if (!event.target.checked)
+                  removeFailedTrack(failedTrack);
+              }}
+            />
             <CoverImage
               className="min-w-25"
-              releaseId={track.releaseId}
-              releaseName={track.title}
+              releaseId={failedTrack.releaseId}
+              releaseName={failedTrack.title}
               size={100}
             />
             <Link
               className="order-last flex grow items-center justify-around gap-4 self-stretch sm:order-0 sm:flex-row"
-              href={ROUTES.SEARCH_DETAILS(track.releaseId)}
+              href={ROUTES.SEARCH_DETAILS(failedTrack.releaseId)}
             >
-              {[track.title, track.artist, track.reason].map(it => (
+              {[failedTrack.title, failedTrack.artist, failedTrack.reason].map(it => (
                 <p
                   className="line-clamp-2 w-1/3 text-center"
                   key={`${it}-${Math.random().toString()}`}
@@ -49,8 +69,8 @@ export const FailedTracksPage = () => {
               ))}
             </Link>
             <div className="flex grow items-center justify-around gap-4 self-stretch sm:grow-0 sm:flex-row">
-              <ActionRetry {...track} />
-              <ActionDeleteFailedTrack {...track} />
+              <ActionRetry {...failedTrack} />
+              <ActionDeleteFailedTrack {...failedTrack} />
             </div>
           </div>
         ))}
