@@ -1,7 +1,5 @@
 # OpenBeats
 
-<img width="1896" height="915" alt="image" src="https://github.com/user-attachments/assets/9d2b4dc4-c84d-465f-984f-1e1424390382" />
-
 The project is focused on self hosting and aims to provide a web UI to make the management of a musical library easy and seamless across devices
 
 ## Features
@@ -10,6 +8,13 @@ The project is focused on self hosting and aims to provide a web UI to make the 
 - [x] Easily add, delete or replace files in your collection
 - [x] Automatic Metadata tagging using [musicbrainz](https://musicbrainz.org) database
 - [x] Automatic [rsgain](https://github.com/complexlogic/rsgain) so supported players play songs with adjust volume during playback
+
+## Screenshots
+
+<img width="49.5%" height="1069" alt="image" src="https://github.com/user-attachments/assets/1386b593-0968-4c86-ac43-ba6192d69195" />
+<img width="49.5%" height="1069" alt="image" src="https://github.com/user-attachments/assets/9137a043-8173-4491-850f-82b1a71105e9" />
+<img width="49.5%" height="1069" alt="image" src="https://github.com/user-attachments/assets/40818910-50c7-407b-ae84-cff53a352f43" />
+
 
 ## Installing
 
