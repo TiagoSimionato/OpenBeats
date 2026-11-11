@@ -44,9 +44,9 @@ export const CAAImage = ({ className, ...props }: CoverProps) => {
   return (
     <Image
       alt={props.releaseName ? `${props.releaseName} cover art` : 'release cover art'}
-      className={`rounded ${className}`}
+      className={className}
       height={props.size}
-      loading={props.releaseId ? 'eager' : 'lazy'}
+      loading="lazy"
       src={coverSrc}
       unoptimized={!!props.releaseId}
       width={props.size}
@@ -70,9 +70,9 @@ const Cover = ({ size = 200, withoutCaaFallback, ...props }: CoverProps) => {
   return (
     <Image
       alt={props.releaseName ? `${props.releaseName} cover art` : 'release cover art'}
-      className={`object-contain ${props.className}`}
+      className={props.className}
       height={size}
-      loading={props.releaseId ? 'eager' : 'lazy'}
+      loading="eager"
       src={`/api/covers/${props.releaseId}`}
       unoptimized={!!props.releaseId}
       width={size}
@@ -94,10 +94,14 @@ const ModalCover = (props: CoverProps) => {
       </Button>
       <Dialog open={open} setOpen={setOpen}>
         {!isPending && (
-          <img
+          <Image
             alt={props.releaseName ? `${props.releaseName} cover art` : 'release cover art'}
-            className="h-auto w-auto"
-            src={frontImage?.image}
+            className="h-auto max-h-[calc(100dvh-186px)] w-auto"
+            height={1080}
+            loading="lazy"
+            src={`${frontImage?.image}`}
+            unoptimized
+            width={1080}
           />
         )}
       </Dialog>
