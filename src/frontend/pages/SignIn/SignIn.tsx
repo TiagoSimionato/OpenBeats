@@ -10,8 +10,10 @@ export const SignInPage = async ({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
-  const callbackUrlParam = (await searchParams).callbackUrl ?? ROUTES.HOME;
+  const params = await searchParams;
+  const callbackUrlParam = params.callbackUrl ?? ROUTES.HOME;
   const callbackUrl = [...callbackUrlParam].join('');
+  const error = typeof params.error === 'string' ? params.error : null;
   const session = await auth();
 
   if (session)
@@ -20,6 +22,13 @@ export const SignInPage = async ({
   return (
     <main className="flex grow flex-col items-center justify-center gap-8 p-10">
       <h1 className="text-start text-3xl font-semibold">OpenBeats</h1>
+
+      {error === 'invalid_credentials' && (
+        <p className="text-red-400" role="alert">
+          Invalid username or password.
+        </p>
+      )}
+
       <form
         action={async (formData) => {
           'use server';
@@ -33,8 +42,9 @@ export const SignInPage = async ({
           }
           catch (error) {
             if (error instanceof CredentialsSignin) {
-              console.log('Invalid Credentials');
-              return;
+              redirect(
+                `${ROUTES.SIGN_IN}?error=invalid_credentials&callbackUrl=${encodeURIComponent(callbackUrl)}`,
+              );
             }
             throw error;
           }
