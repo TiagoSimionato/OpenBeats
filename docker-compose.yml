@@ -1,10 +1,8 @@
-name: openbeats
-
 services:
-  app:
+  openbeats:
     build:
       context: .
-    container_name: openbeats_server
+    container_name: openbeats
     image: openbeats
     restart: unless-stopped
     volumes:
