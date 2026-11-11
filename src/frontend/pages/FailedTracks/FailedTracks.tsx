@@ -8,6 +8,7 @@ import { GoBack } from 'frontend/ui/GoBack';
 import Link from 'next/link';
 import { ActionDeleteFailedTrack } from './components/ActionDeleteFailedTrack';
 import { ActionRetry } from './components/ActionRetry';
+import { ActionRetryAll } from './components/ActionRetryAll';
 import { NoFailedTracksFound } from './components/NoFailedTracksFound';
 
 export const FailedTracksPage = () => {
@@ -18,6 +19,7 @@ export const FailedTracksPage = () => {
       <div className="flex items-center gap-4 pb-8">
         <GoBack href={ROUTES.MANAGEMENT} />
         <h2 className="text-3xl font-semibold">Failed Tracks</h2>
+        <ActionRetryAll className="ml-auto" />
       </div>
       {failedTracks?.length === 0 && <NoFailedTracksFound />}
       <div className="flex flex-col">

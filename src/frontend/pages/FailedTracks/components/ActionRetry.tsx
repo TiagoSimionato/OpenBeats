@@ -1,37 +1,21 @@
 import type { FailedTrack } from 'common/types/requests/failedTracks';
 import { useQueueContext } from 'frontend/contexts/QueueContext';
-import { useAddRelease, useAddTrack } from 'frontend/services/api/mutations/library';
 import { Button } from 'frontend/ui/Button';
+import { useRetryFailedTrack } from './useRetryFailedTrack';
 
 type ActionRetryProps = FailedTrack;
 
-export const ActionRetry = ({ releaseId, title, trackId }: ActionRetryProps) => {
-  const { enqueueJob, queue } = useQueueContext();
-  const { mutateAsync: addTrack } = useAddTrack();
-  const { mutateAsync: addRelease } = useAddRelease();
+export const ActionRetry = (failedTrack: ActionRetryProps) => {
+  const { queue } = useQueueContext();
+  const { retryFailedTrack } = useRetryFailedTrack();
 
   return (
     <Button
-      disabled={queue.some(item => item.id === releaseId || item.id === trackId)}
+      disabled={queue.some(
+        item => item.id === failedTrack.releaseId || item.id === failedTrack.trackId,
+      )}
       onClick={() => {
-        if (releaseId === trackId) {
-          enqueueJob({
-            id: releaseId,
-            onStart: () => addRelease(releaseId),
-            title: title ?? '',
-            totalTracks: 0,
-          });
-        }
-        return enqueueJob({
-          id: trackId,
-          onStart: () =>
-            addTrack({
-              releaseId,
-              trackId,
-            }),
-          title: title ?? '',
-          totalTracks: 1,
-        });
+        retryFailedTrack(failedTrack);
       }}
       size="lg"
       variant="secondary"
