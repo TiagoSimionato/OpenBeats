@@ -20,8 +20,8 @@ import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
 import { ActionImportReleaseCover } from './components/ActionImportReleaseCover';
 import { DropDownActions } from './components/DropDownActions';
-import { MultiActions } from './components/MultiActions/MultiActions';
 import { TrackList } from './components/TrackList';
+import { TrackSelection } from './components/TrackSelection/TrackSelection';
 
 type ReleasePageProps = {
   defaultRelease?: LibraryReleaseData;
@@ -119,7 +119,7 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
         </div>
       </div>
       <div className="flex flex-col">
-        <MultiActions />
+        <TrackSelection />
         {discs.map((tracks, index) => (
           <Fragment
             key={`disc-${tracks.reduce((acc, track) => acc.concat(track.libraryTrack?.title ?? track.mbTrack?.title ?? ''), index.toString())}`}

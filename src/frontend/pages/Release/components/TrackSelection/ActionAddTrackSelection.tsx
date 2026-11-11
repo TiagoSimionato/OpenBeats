@@ -4,7 +4,7 @@ import { Button } from 'frontend/ui/Button';
 import { DownloadIcon } from 'lucide-react';
 import { useSelectedTracksStore } from './useSelectedTracksStore';
 
-export const MultiAddAction = () => {
+export const ActionAddTrackSelection = () => {
   const { resetSelection, tracks } = useSelectedTracksStore();
   const { enqueueJob } = useQueueContext();
   const { mutateAsync: addTrack } = useAddTrack();

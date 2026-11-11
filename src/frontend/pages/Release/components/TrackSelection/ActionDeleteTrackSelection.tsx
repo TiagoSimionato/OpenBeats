@@ -5,7 +5,7 @@ import { TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useSelectedTracksStore } from './useSelectedTracksStore';
 
-export const MultiDeleteAction = () => {
+export const ActionDeleteTrackSelection = () => {
   const { resetSelection, tracks } = useSelectedTracksStore();
   const { isPending, mutateAsync: deleteTrack } = useDeleteLibraryTrack();
   const [open, setOpen] = useState(false);

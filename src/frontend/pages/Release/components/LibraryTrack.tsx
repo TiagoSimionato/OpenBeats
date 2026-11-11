@@ -5,7 +5,7 @@ import { ActionImportTrack } from './ActionImportTrack';
 import { ActionReplaceFile } from './ActionReplaceFIle';
 import { DragoDropImportTrack } from './DragDropImportTrack';
 import { DropDownActions } from './DropDownActions';
-import { useSelectedTracksStore } from './MultiActions/useSelectedTracksStore';
+import { useSelectedTracksStore } from './TrackSelection/useSelectedTracksStore';
 
 type LibraryTrackProps = {
   track: TrackRecord;
