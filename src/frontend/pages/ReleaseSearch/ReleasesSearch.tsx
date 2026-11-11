@@ -8,6 +8,7 @@ import { Spinner } from 'frontend/ui/Spinner';
 import { SearchIcon } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useRef } from 'react';
+import { HelpDialog } from './components/HelpDialog';
 import { ReleaseSearchCard } from './components/ReleaseSearchCard';
 
 export const ReleaseSearchPage = () => {
@@ -32,50 +33,53 @@ export const ReleaseSearchPage = () => {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6">
-      <form className="flex gap-2" onSubmit={onSubmit}>
-        <SearchParamsInput
-          className="w-full"
-          isAutomatic={false}
-          placeholder="Search for album, EP or singles"
-          queryKey={queryKey}
-          ref={inputRef}
-        />
-        <Button size="sm" type="submit">
-          <SearchIcon />
-        </Button>
-      </form>
+    <main>
+      <HelpDialog />
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6">
+        <form className="flex gap-2" onSubmit={onSubmit}>
+          <SearchParamsInput
+            className="w-full"
+            isAutomatic={false}
+            placeholder="Search for album, EP or singles"
+            queryKey={queryKey}
+            ref={inputRef}
+          />
+          <Button size="sm" type="submit">
+            <SearchIcon />
+          </Button>
+        </form>
 
-      {isLoading || isFetching
-        ? (
-            <div className="flex items-center justify-center gap-3">
-              <Spinner color="text-primary" size="lg" />
-            </div>
-          )
-        : null}
+        {isLoading || isFetching
+          ? (
+              <div className="flex items-center justify-center gap-3">
+                <Spinner color="text-primary" size="lg" />
+              </div>
+            )
+          : null}
 
-      {error ? <p className="text-red-600">Failed to load releases.</p> : null}
+        {error ? <p className="text-red-600">Failed to load releases.</p> : null}
 
-      {!isLoading && !error && isFetched
-        ? (
-            <div className="space-y-3">
-              <p className="text-lighter text-sm">
-                Found
-                {' '}
-                {data?.count ?? releases.length}
-                {' '}
-                results for "
-                {query}
-                ".
-              </p>
-              <ul className="space-y-2">
-                {releases.map(release => (
-                  <ReleaseSearchCard key={release.id} release={release} />
-                ))}
-              </ul>
-            </div>
-          )
-        : null}
+        {!isLoading && !error && isFetched
+          ? (
+              <div className="space-y-3">
+                <p className="text-lighter text-sm">
+                  Found
+                  {' '}
+                  {data?.count ?? releases.length}
+                  {' '}
+                  results for "
+                  {query}
+                  ".
+                </p>
+                <ul className="space-y-2">
+                  {releases.map(release => (
+                    <ReleaseSearchCard key={release.id} release={release} />
+                  ))}
+                </ul>
+              </div>
+            )
+          : null}
+      </div>
     </main>
   );
 };
