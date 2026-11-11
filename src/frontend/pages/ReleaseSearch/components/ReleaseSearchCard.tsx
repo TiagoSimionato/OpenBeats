@@ -159,12 +159,7 @@ export const ReleaseSearchCard = ({ release }: ReleaseCardProps) => {
               </span>
             )}
           </Button>
-          <Button
-            className="text-sm transition-colors hover:bg-zinc-50 hover:text-zinc-900"
-            onClick={toggleOpen}
-            size="sm"
-            variant="secondary"
-          >
+          <Button className="text-sm" onClick={toggleOpen} size="sm" variant="secondary">
             {isOpen ? 'Hide tracks' : 'Show tracks'}
           </Button>
           <Link className="text-center" href={ROUTES.SEARCH_DETAILS(release.id)}>

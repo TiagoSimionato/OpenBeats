@@ -22,7 +22,7 @@ export const DropDownActions = ({ children, ellipsisOnHover }: DropDownActionsPr
       </div>
     )}
     dropDownContent={(
-      <div className="flex flex-col [&>button]:justify-start [&>button]:p-4 [&>button]:text-nowrap [&>button]:hover:bg-gray-400/40">
+      <div className="[&>button]:hover:bg-neutral-darker/40 flex flex-col [&>button]:justify-start [&>button]:p-4 [&>button]:text-nowrap">
         {children}
       </div>
     )}

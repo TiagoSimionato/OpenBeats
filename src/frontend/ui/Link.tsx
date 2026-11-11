@@ -5,7 +5,7 @@ import NextLink from 'next/link';
 type LinkVariants = 'button' | 'text';
 
 const variantClasses: Record<LinkVariants, string> = {
-  button: 'bg-primary font-bold rounded items-center justify-center',
+  button: 'bg-primary font-bold rounded hover:bg-primary-dark items-center justify-center',
   text: 'text-primary font-semibold',
 };
 
