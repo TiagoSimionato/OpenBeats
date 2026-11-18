@@ -51,7 +51,7 @@ const scanLibrary = async () => {
         const currentRelease = {
           album: tags.album ?? tags.ALBUM ?? '',
           albumArtist: tags.album_artist ?? tags.artist ?? '',
-          coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
+          coverPath: existsSync(/* turbopackIgnore: true */await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
           discTotal,
           id: releaseId,
           musicBrainzAlbumArtistId: tags['MusicBrainz Album Artist Id'] ?? tags.MUSICBRAINZ_ALBUMARTISTID ?? '',
