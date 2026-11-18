@@ -10,6 +10,7 @@ WORKDIR /app
 # build-base for better-sqlite3
 RUN apk add --no-cache build-base
 COPY . .
+RUN yarn prisma generate
 RUN yarn next telemetry disable
 RUN yarn build
 
@@ -24,10 +25,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma7.config.ts ./
+COPY --from=builder /app/src/backend/prisma ./src/backend/prisma
 
 EXPOSE 5334
 ENV PORT=5334
 ENV HOSTNAME=0.0.0.0
 ENV NODE_OPTIONS="--network-family-autoselection-attempt-timeout=750"
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
