@@ -1,4 +1,8 @@
 import { join } from 'node:path';
+import { config } from 'dotenv';
+
+config({ quiet: true });
+config({ path: '.env.local', quiet: true });
 
 const CACHE_PATH = process.env.CACHE_PATH ?? `/opt/openbeats`;
 

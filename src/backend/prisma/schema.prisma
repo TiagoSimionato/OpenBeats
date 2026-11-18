@@ -1,0 +1,65 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  @@map("tb_users")
+  id String @id @default(uuid())
+  username String @unique
+  password String
+}
+
+model Release {
+  @@map("tb_releases")
+  id String @id
+  album String
+  album_artist String
+  release_type String
+  release_date String?
+  original_year Int?
+  publisher String?
+  track_count Int
+  disc_total Int
+  tmed String?
+  music_brainz_album_release_country String?
+  music_brainz_album_status String?
+  music_brainz_album_artist_id String
+  music_brainz_album_id String
+  music_brainz_artist_id String
+  music_brainz_release_group_id String
+  cover_path String?
+  track Track[]
+}
+
+model Track {
+  @@map("tb_tracks")
+  id String @id
+  release_id String
+  release Release @relation(fields: [release_id], references: [id])
+  title String
+  artist String?
+  artist_sort String?
+  genre String?
+  download_path String
+  disc Int
+  track_number Int
+  ts02 String?
+  music_brainz_release_track_id String
+  music_brainz_track_id String
+}
+
+model FailedTrack {
+  @@map("tb_failed_tracks")
+  release_id String
+  track_id String
+  title String?
+  artist String?
+  reason String
+  @@id([track_id, release_id])
+}
