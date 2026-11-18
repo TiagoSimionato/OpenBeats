@@ -151,13 +151,14 @@ const startReleaseJob = (releaseId: string): string => {
     });
     if (progressReport.error) {
       const job = getJobProgress(jobId);
-      failedTracksRepository.upsertFailedTrack({
+      const failedTrack = {
         artist: job?.artist ?? releaseId,
         reason: progressReport.error,
         releaseId,
         title: job?.currentTrackTitle,
         trackId: releaseId,
-      });
+      };
+      failedTracksRepository.upsert({ create: failedTrack, update: failedTrack, where: { trackId_releaseId: { releaseId, trackId: releaseId } } });
     }
   });
 
@@ -174,13 +175,14 @@ const startTrackJob = ({ releaseId, trackId, url }: TrackRequestParams): string 
     });
     if (progressReport.error) {
       const job = getJobProgress(jobId);
-      failedTracksRepository.upsertFailedTrack({
+      const failedTrack = {
         artist: job?.artist ?? releaseId,
         reason: progressReport.error,
         releaseId,
         title: job?.currentTrackTitle ?? trackId,
         trackId,
-      });
+      };
+      failedTracksRepository.upsert({ create: failedTrack, update: failedTrack, where: { trackId_releaseId: { releaseId, trackId } } });
     }
   });
 
@@ -197,13 +199,14 @@ const startImportJob = ({ file, releaseId, trackId }: Omit<TrackRequestParams, '
     });
     if (progressReport.error) {
       const job = getJobProgress(jobId);
-      failedTracksRepository.upsertFailedTrack({
-        artist: job?.artist,
+      const failedTrack = {
+        artist: job?.artist ?? releaseId,
         reason: progressReport.error,
         releaseId,
         title: job?.currentTrackTitle,
         trackId,
-      });
+      };
+      failedTracksRepository.upsert({ create: failedTrack, update: failedTrack, where: { trackId_releaseId: { releaseId, trackId } } });
     }
   });
 

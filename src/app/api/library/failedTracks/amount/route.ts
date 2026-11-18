@@ -10,7 +10,7 @@ type RouteContext = {
 
 export const GET = withErrorHandler(
   async (_request: NextRequest, _context: RouteContext): Promise<NextResponse<FailedTracksAmountResponse>> => {
-    const failedTracks = await failedTracksRepository.listFailedTracks();
+    const failedTracks = await failedTracksRepository.findMany();
 
     return NextResponse.json({ amount: failedTracks.length });
   },
