@@ -1,74 +1,9 @@
 import type { Pagination } from 'backend/requests/pagination.dto';
 import type { ReleasesFilters } from 'backend/requests/releases.dto';
-import type { LibraryReleaseData, TrackRecord } from 'common/types/requests/library';
+import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
+import { Prisma } from 'backend/prisma/generated/client';
 import { prisma } from 'backend/prisma/prisma';
-import { dbService } from 'backend/services/db.service';
-import { paginationFilters } from 'backend/utils';
-
-const SELECT_LIBRARY_RELEASE = `
-  SELECT
-    r.id                                     AS id,
-    r.album,
-    r.album_artist                           AS albumArtist,
-    r.release_type                           AS releaseType,
-    r.release_date                           AS releaseDate,
-    r.original_year                          AS originalYear,
-    r.publisher,
-    r.track_count                            AS trackCount,
-    r.disc_total                             AS discTotal,
-    r.tmed,
-    r.music_brainz_album_release_country     AS musicBrainzAlbumReleaseCountry,
-    r.music_brainz_album_status              AS musicBrainzAlbumStatus,
-    r.music_brainz_album_artist_id           AS musicBrainzAlbumArtistId,
-    r.music_brainz_album_id                  AS musicBrainzAlbumId,
-    r.music_brainz_artist_id                 AS musicBrainzArtistId,
-    r.music_brainz_release_group_id          AS musicBrainzReleaseGroupId,
-    r.cover_path                             AS coverPath,
-    json_group_array(
-      json_object(
-        'id',                        t.id,
-        'releaseId',                 t.release_id,
-        'title',                     t.title,
-        'artist',                    t.artist,
-        'artistSort',                t.artist_sort,
-        'genre',                     t.genre,
-        'downloadPath',              t.download_path,
-        'disc',                      t.disc,
-        'trackNumber',               t.track_number,
-        'ts02',                      t.ts02,
-        'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
-        'musicBrainzTrackId',        t.music_brainz_track_id
-      )
-    ORDER BY t.disc ASC, t.track_number ASC) AS tracks
-  FROM tb_releases r
-  JOIN tb_tracks t on t.release_id = r.id
-`;
-
-export const listLibraryReleasesPaged = async (pagination: Pagination, filters: ReleasesFilters) => {
-  const formatQuery = `%${filters.query ?? ''}%`;
-  const rows = await dbService.list<LibraryReleaseData>(`
-    ${SELECT_LIBRARY_RELEASE}
-    WHERE r.album LIKE ?
-      OR r.album_artist LIKE ?
-      OR t.title LIKE ?
-    GROUP BY r.id
-    HAVING (? = 'complete' AND COUNT(t.id) = r.track_count)
-      OR (? = 'partial' AND COUNT(t.id) < r.track_count)
-      OR (? IS NULL)
-    ORDER BY r.album ASC
-    ${paginationFilters(pagination)};
-  `, formatQuery, formatQuery, formatQuery, filters.status, filters.status, filters.status);
-  const count = (await dbService.get<{ count: number }>('SELECT COUNT(*) as count FROM tb_releases r'))?.count ?? 0;
-
-  return {
-    data: rows.map(row => ({
-      ...row,
-      tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
-    })),
-    pages: Math.ceil(count / pagination.perPage),
-  };
-};
 
 export const releasesRepository = prisma.release;
 
@@ -97,4 +32,70 @@ export const upsertRelease = async (track: Track) => {
     update: release,
     where: { id: release.id },
   });
+};
+
+export const listLibraryReleasesPaged = async (
+  pagination: Pagination,
+  filters: ReleasesFilters,
+) => {
+  const query = filters.query ?? '';
+
+  const whereClause = query
+    ? Prisma.sql`WHERE r.album LIKE ${`%${query}%`}
+       OR r.album_artist LIKE ${`%${query}%`}
+       OR t.title LIKE ${`%${query}%`}`
+    : Prisma.empty;
+
+  const havingSql = filters.status
+    ? Prisma.raw(
+        `(COUNT(t.id) = r.track_count AND '${filters.status}' = 'complete')
+         OR (COUNT(t.id) < r.track_count AND '${filters.status}' = 'partial')
+         OR ('${filters.status}' IS NULL)`,
+      )
+    : Prisma.empty;
+
+  const rows = await prisma.$queryRaw<LibraryReleaseData[]>`
+    SELECT
+      r.id, r.album, r.album_artist AS albumArtist,
+      r.release_type AS releaseType, r.release_date AS releaseDate,
+      r.original_year AS originalYear, r.publisher,
+      r.track_count AS trackCount, r.disc_total AS discTotal,
+      r.tmed, r.cover_path AS coverPath,
+      json_group_array(
+        json_object(
+          'id', t.id, 'releaseId', t.release_id, 'title', t.title,
+          'artist', t.artist, 'artistSort', t.artist_sort,
+          'genre', t.genre, 'downloadPath', t.download_path,
+          'disc', t.disc, 'trackNumber', t.track_number,
+          'ts02', t.ts02,
+          'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
+          'musicBrainzTrackId', t.music_brainz_track_id
+        )
+      ORDER BY t.disc ASC, t.track_number ASC
+      ) AS tracks
+    FROM tb_releases r
+    JOIN tb_tracks t ON t.release_id = r.id
+    ${whereClause}
+    GROUP BY r.id
+    ${havingSql}
+    ORDER BY r.album ASC
+    LIMIT ${pagination.perPage}
+    OFFSET ${(pagination.page - 1) * pagination.perPage}
+  `;
+
+  const count = await prisma.$queryRaw<{ count: number }[]>`
+    SELECT COUNT(*) as count FROM (
+      SELECT r.id
+      FROM tb_releases r
+      JOIN tb_tracks t ON t.release_id = r.id
+      ${whereClause}
+      GROUP BY r.id
+      ${havingSql}
+    ) sub
+  `;
+
+  return {
+    data: rows,
+    pages: Math.ceil(Number(count[0]?.count ?? 0n) / pagination.perPage),
+  };
 };

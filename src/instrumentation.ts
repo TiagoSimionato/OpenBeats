@@ -4,9 +4,6 @@ export const register = async () => {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('configs/loggger');
 
-    const { dbService } = await import('backend/services/db.service');
-    await dbService.initDatabase();
-
     const { prisma } = await import('backend/prisma/prisma');
 
     const users = await prisma.user.findMany();
