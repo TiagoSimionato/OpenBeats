@@ -4,7 +4,7 @@ import { runRsgain } from 'backend/binaries/rsgain';
 import { releasesRepository } from 'backend/repositories/releases.repository';
 
 const tagLibrary = async () => {
-  const releases = await releasesRepository.listLibraryReleases();
+  const releases = await releasesRepository.findMany({ include: { tracks: true } });
 
   for (const release of releases) {
     await runRsgain({

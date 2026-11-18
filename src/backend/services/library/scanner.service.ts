@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { releasesRepository } from 'backend/repositories/releases.repository';
+import { trackRepository } from 'backend/repositories/track.repository';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { libraryManagerService } from '.';
@@ -17,16 +18,14 @@ const scanLibrary = async () => {
   }
 
   const files = await walkFiles(downloadPath);
+  const audioFiles = files.filter(file => isAudioFile(file));
   const libraryReleases = new Map<string, ReleaseRecord>();
 
   let progress = 0;
 
-  for (const filePath of files) {
+  for (const filePath of audioFiles) {
     if (progress % 100 === 0) {
-      console.log(`Scan progress ${progress}/${files.length}`);
-    }
-    if (!isAudioFile(filePath)) {
-      continue;
+      console.log(`Scan progress ${progress}/${audioFiles.length}`);
     }
 
     try {
@@ -51,7 +50,7 @@ const scanLibrary = async () => {
         const currentRelease = {
           album: tags.album ?? tags.ALBUM ?? '',
           albumArtist: tags.album_artist ?? tags.artist ?? '',
-          coverPath: existsSync(await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
+          coverPath: existsSync(/* turbopackIgnore: true */await coverArtService.getCoverFilePath(releaseId) ?? '') ? releaseId : undefined,
           discTotal,
           id: releaseId,
           musicBrainzAlbumArtistId: tags['MusicBrainz Album Artist Id'] ?? tags.MUSICBRAINZ_ALBUMARTISTID ?? '',
@@ -68,7 +67,11 @@ const scanLibrary = async () => {
           trackCount: trackTotal,
         };
         libraryReleases.set(releaseId, currentRelease);
-        await releasesRepository.upsertLibraryRelease(currentRelease);
+        await releasesRepository.upsert({
+          create: currentRelease,
+          update: currentRelease,
+          where: { id: currentRelease.id },
+        });
       }
 
       const currentTrack = {
@@ -85,7 +88,11 @@ const scanLibrary = async () => {
         trackNumber: track,
         ts02: tags.TSO2,
       };
-      await releasesRepository.upsertLibraryTrack(currentTrack);
+      await trackRepository.upsert({
+        create: currentTrack,
+        update: currentTrack,
+        where: { id: currentTrack.id },
+      });
     }
     catch (error) {
       console.warn(`walk files error: ${error}`);

@@ -21,5 +21,8 @@ jobs:
       - name: Install dependenies
         run: yarn install --frozen-lockfile
 
+      - name: Generate prisma dependenies
+        run: yarn prisma generate
+
       - name: Run Checks
         run: yarn ${{ matrix.command }}

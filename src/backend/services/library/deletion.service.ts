@@ -3,11 +3,12 @@ import { rm, rmdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { NotFoundError } from 'backend/exceptions/http';
 import { releasesRepository } from 'backend/repositories/releases.repository';
+import { trackRepository } from 'backend/repositories/track.repository';
 import { CONFIGS } from 'configs/constants';
 import { coverArtService } from '../coverArt.service';
 
 const deleteRelease = async (releaseId: string) => {
-  const release = await releasesRepository.getLibraryRelease(releaseId);
+  const release = await releasesRepository.findFirst({ include: { tracks: true }, where: { id: releaseId } });
 
   if (!release)
     throw new NotFoundError('Release not found');
@@ -30,11 +31,11 @@ const deleteRelease = async (releaseId: string) => {
   }
   await rm(`${CONFIGS.THUMBNAILS_PATH}/${release.id}.webp`).catch(() => {});
 
-  await releasesRepository.deleteRelease(releaseId);
+  await releasesRepository.delete({ where: { id: releaseId } });
 };
 
 const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
-  const release = await releasesRepository.getLibraryRelease(releaseId);
+  const release = await releasesRepository.findFirst({ include: { tracks: true }, where: { id: releaseId } });
 
   if (!release)
     throw new NotFoundError('Release not found');
@@ -50,7 +51,7 @@ const deleteTrack = async ({ releaseId, trackId }: TrackRequestParams) => {
     await rm(track.downloadPath).catch(() => {});
   }
 
-  releasesRepository.deleteTrack(trackId);
+  trackRepository.delete({ where: { id: trackId } });
 };
 
 export const libraryDeletionService = {

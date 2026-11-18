@@ -15,7 +15,7 @@ type RouteContext = {
 export const GET = withErrorHandler(
   async (_request: Request, { params }: RouteContext): Promise<NextResponse<LibraryReleaseResponse>> => {
     const { releaseId } = await params;
-    const libraryRelease = await releasesRepository.getLibraryRelease(releaseId)
+    const libraryRelease = await releasesRepository.findFirst({ include: { tracks: { orderBy: { trackNumber: 'asc' } } }, where: { id: releaseId } })
       ?? throwError(new NotFoundError('Release not found'));
 
     return NextResponse.json({

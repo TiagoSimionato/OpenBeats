@@ -12,7 +12,7 @@ type CoverProps = {
   className?: string;
   iconFallback?: 'disc-album' | 'disc';
   releaseId: string;
-  releaseName?: string;
+  releaseName?: null | string;
   size?: number;
   withoutCaaFallback?: boolean;
   withoutModal?: boolean;

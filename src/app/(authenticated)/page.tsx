@@ -1,4 +1,4 @@
-import { releasesRepository } from 'backend/repositories/releases.repository';
+import { listLibraryReleasesPaged } from 'backend/repositories/releases.repository';
 import { ReleasesFilters } from 'backend/requests/releases.dto';
 import { buildDTO, buildPagination } from 'backend/utils';
 import { LibraryPage } from 'frontend/pages/Library/Library';
@@ -11,7 +11,7 @@ export const Page = async ({ searchParams }: { searchParams: SearchParams }) => 
   const pagination = await buildPagination(params);
   const filters = await buildDTO(ReleasesFilters, params, false);
 
-  const libraryReleases = await releasesRepository.listLibraryReleasesPaged(pagination, filters);
+  const libraryReleases = await listLibraryReleasesPaged(pagination, filters);
 
   return (
     <LibraryPage defaultPages={libraryReleases.pages} defaultReleases={libraryReleases.data} />

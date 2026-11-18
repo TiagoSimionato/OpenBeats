@@ -13,7 +13,7 @@ export const DELETE = withErrorHandler(
   async (_request: Request, { params }: RouteContext): Promise<NextResponse> => {
     const { trackId } = await params;
 
-    await failedTracksRepository.deleteFailedTrack(trackId);
+    await failedTracksRepository.deleteMany({ where: { trackId } });
 
     return NextResponse.json('', {
       status: HttpStatusCode.Ok,

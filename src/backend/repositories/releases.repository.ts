@@ -1,155 +1,14 @@
 import type { Pagination } from 'backend/requests/pagination.dto';
 import type { ReleasesFilters } from 'backend/requests/releases.dto';
-import type { LibraryReleaseData, ReleaseRecord, TrackRecord } from 'common/types/requests/library';
+import type { LibraryReleaseData } from 'common/types/requests/library';
 import type { Track } from 'common/types/requests/releases';
-import { dbService } from 'backend/services/db.service';
-import { paginationFilters } from 'backend/utils';
+import { Prisma } from 'backend/prisma/generated/client';
+import { prisma } from 'backend/prisma/prisma';
 
-const createDDL = async () => {
-  const database = await dbService.getDatabase();
+export const releasesRepository = prisma.release;
 
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS tb_releases (
-      id UUID PRIMARY KEY,
-      album TEXT NOT NULL,
-      album_artist TEXT NOT NULL,
-      release_type TEXT NOT NULL,
-      release_date TEXT,
-      original_year INTEGER,
-      publisher TEXT,
-      track_count INTEGER NOT NULL,
-      disc_total INTEGER NOT NULL,
-      tmed TEXT,
-      music_brainz_album_release_country TEXT,
-      music_brainz_album_status TEXT,
-      music_brainz_album_artist_id UUID NOT NULL,
-      music_brainz_album_id UUID NOT NULL,
-      music_brainz_artist_id UUID NOT NULL,
-      music_brainz_release_group_id UUID NOT NULL,
-      cover_path TEXT
-    );`);
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS tb_tracks (
-      id UUID PRIMARY KEY,
-      release_id UUID NOT NULL REFERENCES tb_releases(id),
-      title TEXT NOT NULL,
-      artist TEXT,
-      artist_sort TEXT,
-      genre TEXT,
-      download_path TEXT NOT NULL,
-      disc INTEGER NOT NULL,
-      track_number INTEGER NOT NULL,
-      ts02 TEXT,
-      music_brainz_release_track_id UUID NOT NULL,
-      music_brainz_track_id UUID NOT NULL
-    );`);
-};
-
-const upsertLibraryRelease = async (record: ReleaseRecord) => {
-  await dbService.dbExec(`
-    INSERT INTO tb_releases (
-      id,
-      album,
-      album_artist,
-      release_type,
-      release_date,
-      original_year,
-      publisher,
-      track_count,
-      disc_total,
-      tmed,
-      music_brainz_album_release_country,
-      music_brainz_album_status,
-      music_brainz_album_artist_id,
-      music_brainz_album_id,
-      music_brainz_artist_id,
-      music_brainz_release_group_id,
-      cover_path
-    ) VALUES (
-      @id,
-      @album,
-      @albumArtist,
-      @releaseType,
-      @releaseDate,
-      @originalYear,
-      @publisher,
-      @trackCount,
-      @discTotal,
-      @tmed,
-      @musicBrainzAlbumReleaseCountry,
-      @musicBrainzAlbumStatus,
-      @musicBrainzAlbumArtistId,
-      @musicBrainzAlbumId,
-      @musicBrainzArtistId,
-      @musicBrainzReleaseGroupId,
-      @coverPath
-    )
-    ON CONFLICT(id) DO UPDATE SET
-      album = excluded.album,
-      album_artist = excluded.album_artist,
-      release_type = excluded.release_type,
-      release_date = excluded.release_date,
-      original_year = excluded.original_year,
-      publisher = excluded.publisher,
-      track_count = excluded.track_count,
-      disc_total = excluded.disc_total,
-      tmed = excluded.tmed,
-      music_brainz_album_release_country = excluded.music_brainz_album_release_country,
-      music_brainz_album_status = excluded.music_brainz_album_status,
-      music_brainz_album_artist_id = excluded.music_brainz_album_artist_id,
-      music_brainz_album_id = excluded.music_brainz_album_id,
-      music_brainz_artist_id = excluded.music_brainz_artist_id,
-      music_brainz_release_group_id = excluded.music_brainz_release_group_id,
-      cover_path = excluded.cover_path;
-  `, record);
-};
-
-const upsertLibraryTrack = async (record: TrackRecord) => {
-  await dbService.dbExec(`
-    INSERT INTO tb_tracks (
-      id,
-      release_id,
-      title,
-      artist,
-      artist_sort,
-      genre,
-      download_path,
-      disc,
-      track_number,
-      ts02,
-      music_brainz_release_track_id,
-      music_brainz_track_id
-    ) VALUES (
-      @id,
-      @releaseId,
-      @title,
-      @artist,
-      @artistSort,
-      @genre,
-      @downloadPath,
-      @disc,
-      @trackNumber,
-      @ts02,
-      @musicBrainzReleaseTrackId,
-      @musicBrainzTrackId
-    )
-    ON CONFLICT(id) DO UPDATE SET
-      release_id = excluded.release_id,
-      title = excluded.title,
-      artist = excluded.artist,
-      artist_sort = excluded.artist_sort,
-      genre = excluded.genre,
-      download_path = excluded.download_path,
-      disc = excluded.disc,
-      track_number = excluded.track_number,
-      ts02 = excluded.ts02,
-      music_brainz_release_track_id = excluded.music_brainz_release_track_id,
-      music_brainz_track_id = excluded.music_brainz_track_id;
-  `, record);
-};
-
-const upsertRelease = async (track: Track) => {
-  await upsertLibraryRelease({
+export const upsertRelease = async (track: Track) => {
+  const release = {
     album: track.album,
     albumArtist: track.artist,
     coverPath: track.coverPath ? track['MusicBrainz Album Id'] : undefined,
@@ -167,144 +26,76 @@ const upsertRelease = async (track: Track) => {
     releaseType: track['MusicBrainz Album Type'],
     tmed: track.TMED,
     trackCount: track.Tracktotal,
+  };
+  await releasesRepository.upsert({
+    create: release,
+    update: release,
+    where: { id: release.id },
   });
 };
 
-const upsertTrack = async (track: Track) => {
-  await upsertLibraryTrack({
-    artist: track.artist,
-    artistSort: track['artist-sort'],
-    disc: track.disc,
-    downloadPath: track.trackPath ?? '',
-    genre: track.genre.join('; '),
-    id: track['MusicBrainz Track Id'],
-    musicBrainzReleaseTrackId: track['MusicBrainz Release Track Id'],
-    musicBrainzTrackId: track['MusicBrainz Track Id'],
-    releaseId: track['MusicBrainz Album Id'],
-    title: track.title,
-    trackNumber: track.track,
-    ts02: track.TSO2,
-  });
-};
+export const listLibraryReleasesPaged = async (
+  pagination: Pagination,
+  filters: ReleasesFilters,
+) => {
+  const query = filters.query ?? '';
 
-const deleteRelease = async (releaseId: string) => {
-  await dbService.dbExec(`
-    DELETE FROM tb_tracks
-    WHERE release_id = ?;
-  `, releaseId);
-  await dbService.dbExec(`
-    DELETE FROM tb_releases
-    WHERE id = ?;
-  `, releaseId);
-};
+  const whereClause = query
+    ? Prisma.sql`WHERE r.album LIKE ${`%${query}%`}
+       OR r.album_artist LIKE ${`%${query}%`}
+       OR t.title LIKE ${`%${query}%`}`
+    : Prisma.empty;
 
-const deleteTrack = async (trackId: string) => {
-  await dbService.dbExec(`
-    DELETE FROM tb_tracks
-    WHERE id = ?
-  `, trackId);
-};
-
-const SELECT_LIBRARY_RELEASE = `
-  SELECT
-    r.id                                     AS id,
-    r.album,
-    r.album_artist                           AS albumArtist,
-    r.release_type                           AS releaseType,
-    r.release_date                           AS releaseDate,
-    r.original_year                          AS originalYear,
-    r.publisher,
-    r.track_count                            AS trackCount,
-    r.disc_total                             AS discTotal,
-    r.tmed,
-    r.music_brainz_album_release_country     AS musicBrainzAlbumReleaseCountry,
-    r.music_brainz_album_status              AS musicBrainzAlbumStatus,
-    r.music_brainz_album_artist_id           AS musicBrainzAlbumArtistId,
-    r.music_brainz_album_id                  AS musicBrainzAlbumId,
-    r.music_brainz_artist_id                 AS musicBrainzArtistId,
-    r.music_brainz_release_group_id          AS musicBrainzReleaseGroupId,
-    r.cover_path                             AS coverPath,
-    json_group_array(
-      json_object(
-        'id',                        t.id,
-        'releaseId',                 t.release_id,
-        'title',                     t.title,
-        'artist',                    t.artist,
-        'artistSort',                t.artist_sort,
-        'genre',                     t.genre,
-        'downloadPath',              t.download_path,
-        'disc',                      t.disc,
-        'trackNumber',               t.track_number,
-        'ts02',                      t.ts02,
-        'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
-        'musicBrainzTrackId',        t.music_brainz_track_id
+  const havingSql = filters.status
+    ? Prisma.raw(
+        `(COUNT(t.id) = r.track_count AND '${filters.status}' = 'complete')
+         OR (COUNT(t.id) < r.track_count AND '${filters.status}' = 'partial')
+         OR ('${filters.status}' IS NULL)`,
       )
-    ORDER BY t.disc ASC, t.track_number ASC) AS tracks
-  FROM tb_releases r
-  JOIN tb_tracks t on t.release_id = r.id
-`;
+    : Prisma.empty;
 
-const listLibraryReleases = async () => {
-  const rows = await dbService.list<LibraryReleaseData>(`
-    ${SELECT_LIBRARY_RELEASE}
+  const rows = await prisma.$queryRaw<LibraryReleaseData[]>`
+    SELECT
+      r.id, r.album, r.album_artist AS albumArtist,
+      r.release_type AS releaseType, r.release_date AS releaseDate,
+      r.original_year AS originalYear, r.publisher,
+      r.track_count AS trackCount, r.disc_total AS discTotal,
+      r.tmed, r.cover_path AS coverPath,
+      json_group_array(
+        json_object(
+          'id', t.id, 'releaseId', t.release_id, 'title', t.title,
+          'artist', t.artist, 'artistSort', t.artist_sort,
+          'genre', t.genre, 'downloadPath', t.download_path,
+          'disc', t.disc, 'trackNumber', t.track_number,
+          'ts02', t.ts02,
+          'musicBrainzReleaseTrackId', t.music_brainz_release_track_id,
+          'musicBrainzTrackId', t.music_brainz_track_id
+        )
+      ORDER BY t.disc ASC, t.track_number ASC
+      ) AS tracks
+    FROM tb_releases r
+    JOIN tb_tracks t ON t.release_id = r.id
+    ${whereClause}
     GROUP BY r.id
+    ${havingSql}
     ORDER BY r.album ASC
-  `);
+    LIMIT ${pagination.perPage}
+    OFFSET ${(pagination.page - 1) * pagination.perPage}
+  `;
 
-  return rows.map(row => ({
-    ...row,
-    tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
-  }));
-};
-
-const listLibraryReleasesPaged = async (pagination: Pagination, filters: ReleasesFilters) => {
-  const formatQuery = `%${filters.query ?? ''}%`;
-  const rows = await dbService.list<LibraryReleaseData>(`
-    ${SELECT_LIBRARY_RELEASE}
-    WHERE r.album LIKE ?
-      OR r.album_artist LIKE ?
-      OR t.title LIKE ?
-    GROUP BY r.id
-    HAVING (? = 'complete' AND COUNT(t.id) = r.track_count)
-      OR (? = 'partial' AND COUNT(t.id) < r.track_count)
-      OR (? IS NULL)
-    ORDER BY r.album ASC
-    ${paginationFilters(pagination)};
-  `, formatQuery, formatQuery, formatQuery, filters.status, filters.status, filters.status);
-  const count = (await dbService.get<{ count: number }>('SELECT COUNT(*) as count FROM tb_releases r'))?.count ?? 0;
+  const count = await prisma.$queryRaw<{ count: number }[]>`
+    SELECT COUNT(*) as count FROM (
+      SELECT r.id
+      FROM tb_releases r
+      JOIN tb_tracks t ON t.release_id = r.id
+      ${whereClause}
+      GROUP BY r.id
+      ${havingSql}
+    ) sub
+  `;
 
   return {
-    data: rows.map(row => ({
-      ...row,
-      tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
-    })),
-    pages: Math.ceil(count / pagination.perPage),
+    data: rows,
+    pages: Math.ceil(Number(count[0]?.count ?? 0n) / pagination.perPage),
   };
-};
-
-const getLibraryRelease = async (releaseId: string) => {
-  const row = await dbService.get<LibraryReleaseData>(`
-    ${SELECT_LIBRARY_RELEASE}
-    WHERE r.id = ?;
-  `, releaseId);
-
-  if (row) {
-    return {
-      ...row,
-      tracks: JSON.parse(row.tracks as unknown as string) as TrackRecord[],
-    };
-  }
-};
-
-export const releasesRepository = {
-  createDDL,
-  deleteRelease,
-  deleteTrack,
-  getLibraryRelease,
-  listLibraryReleases,
-  listLibraryReleasesPaged,
-  upsertLibraryRelease,
-  upsertLibraryTrack,
-  upsertRelease,
-  upsertTrack,
 };

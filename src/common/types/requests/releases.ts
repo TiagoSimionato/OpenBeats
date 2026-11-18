@@ -3,7 +3,7 @@ export type Track = {
   'album_artist': string;
   'artist': string;
   'artist-sort': string;
-  'coverPath'?: string;
+  'coverPath'?: null | string;
   'date': string;
   'disc': number;
   'Disctotal': number;
@@ -23,7 +23,7 @@ export type Track = {
   'title': string;
   'TMED': string;
   'track': number;
-  'trackPath'?: string;
+  'trackPath'?: null | string;
   'Tracktotal': number;
   'TSO2': string;
 };

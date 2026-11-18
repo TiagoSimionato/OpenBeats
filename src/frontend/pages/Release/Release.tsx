@@ -24,7 +24,7 @@ import { TrackList } from './components/TrackList';
 import { TrackSelection } from './components/TrackSelection/TrackSelection';
 
 type ReleasePageProps = {
-  defaultRelease?: LibraryReleaseData;
+  defaultRelease?: LibraryReleaseData | null;
   isLibraryView?: boolean;
 };
 

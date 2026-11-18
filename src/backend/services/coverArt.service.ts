@@ -98,7 +98,7 @@ const getReleaseCoverArt = handlePromise(
 
     const imageSrc = coverImage.thumbnails?.[1200] ?? coverImage.image;
 
-    const coverFilePath = join(
+    const coverFilePath = join(/* turbopackIgnore: true */
       resolve(CONFIGS.COVERS_PATH),
       `${releaseId}${getCoverFileExtension(imageSrc)}`,
     );
@@ -106,7 +106,7 @@ const getReleaseCoverArt = handlePromise(
 
     const thumbnailUrl = coverImage.thumbnails?.small ?? coverImage.thumbnails[250];
     if (thumbnailUrl) {
-      const thumbnailPath = join(
+      const thumbnailPath = join(/* turbopackIgnore: true */
         resolve(CONFIGS.THUMBNAILS_PATH),
         `${releaseId}${getCoverFileExtension(thumbnailUrl)}`,
       );

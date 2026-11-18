@@ -1,0 +1,65 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  @@map("tb_users")
+  id String @id @default(uuid())
+  username String @unique
+  password String
+}
+
+model Release {
+  @@map("tb_releases")
+  id String @id
+  album String
+  albumArtist String @map("album_artist")
+  releaseType String @map("release_type")
+  releaseDate String? @map("release_date")
+  originalYear Int? @map("original_year")
+  publisher String?
+  trackCount Int @map("track_count")
+  discTotal Int @map("disc_total")
+  tmed String?
+  musicBrainzAlbumReleaseCountry String? @map("music_brainz_album_release_country")
+  musicBrainzAlbumStatus String? @map("music_brainz_album_status")
+  musicBrainzAlbumArtistId String @map("music_brainz_album_artist_id")
+  musicBrainzAlbumId String @map("music_brainz_album_id")
+  musicBrainzArtistId String @map("music_brainz_artist_id")
+  musicBrainzReleaseGroupId String @map("music_brainz_release_group_id")
+  coverPath String? @map("cover_path")
+  tracks Track[]
+}
+
+model Track {
+  @@map("tb_tracks")
+  id String @id
+  releaseId String @map("release_id")
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  title String
+  artist String?
+  artistSort String? @map("artist_sort")
+  genre String?
+  downloadPath String @map("download_path")
+  disc Int
+  trackNumber Int @map("track_number")
+  ts02 String?
+  musicBrainzReleaseTrackId String @map("music_brainz_release_track_id")
+  musicBrainzTrackId String @map("music_brainz_track_id")
+}
+
+model FailedTrack {
+  @@map("tb_failed_tracks")
+  releaseId String @map("release_id")
+  trackId String @map("track_id")
+  title String?
+  artist String?
+  reason String
+  @@id([trackId, releaseId])
+}

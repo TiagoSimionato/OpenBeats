@@ -12,7 +12,7 @@ import { CONFIGS } from 'configs/constants';
 import { metadataService } from './metadata.service';
 
 const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
-  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId)
+  const libraryRelease = await releasesRepository.findFirst({ include: { tracks: true }, where: { id: releaseId } })
     ?? throwError(new UnprocessableEntityError('Release not found'));
 
   const existingCoverFilePath = await coverArtService.getCoverFilePath(releaseId);
@@ -23,10 +23,10 @@ const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
   const coverFilePath = await coverArtService.getReleaseCoverArt({ releaseId, title: libraryRelease.album });
   if (coverFilePath) {
     libraryRelease.coverPath = libraryRelease.id;
-    await releasesRepository.upsertLibraryRelease(libraryRelease);
+    await releasesRepository.update({ data: { coverPath: libraryRelease.id }, where: { id: releaseId } });
 
-    const tracks = mapLibraryReleaseToTracks(libraryRelease);
-    for (const track of tracks) {
+    const releaseTracks = mapLibraryReleaseToTracks(libraryRelease);
+    for (const track of releaseTracks) {
       await metadataService.writeTrackMetadata({ track });
     }
 
@@ -36,7 +36,7 @@ const addReleaseCover = async ({ releaseId }: { releaseId: string }) => {
 };
 
 const importReleaseCover = async ({ file, releaseId }: { file: File; releaseId: string }) => {
-  const libraryRelease = await releasesRepository.getLibraryRelease(releaseId)
+  const libraryRelease = await releasesRepository.findFirst({ include: { tracks: true }, where: { id: releaseId } })
     ?? throwError(new UnprocessableEntityError('Release not found'));
 
   const existingCoverFilePath = await coverArtService.getCoverFilePath(releaseId);
@@ -55,17 +55,17 @@ const importReleaseCover = async ({ file, releaseId }: { file: File; releaseId: 
 
   if (!libraryRelease.coverPath) {
     libraryRelease.coverPath = libraryRelease.id;
-    await releasesRepository.upsertLibraryRelease(libraryRelease);
+    await releasesRepository.update({ data: { coverPath: libraryRelease.id }, where: { id: libraryRelease.id } });
   }
 
-  const tracks = mapLibraryReleaseToTracks(libraryRelease);
-  for (const track of tracks) {
+  const releaseTracks = mapLibraryReleaseToTracks(libraryRelease);
+  for (const track of releaseTracks) {
     await metadataService.writeTrackMetadata({ track });
   }
 };
 
 const syncReleasesCover = async () => {
-  const releases = await releasesRepository.listLibraryReleases();
+  const releases = await releasesRepository.findMany({ include: { tracks: true } });
   for (const release of releases) {
     if (!release.coverPath) {
       const isCoverArtArchiveSuccess = !!(await coverArtService.getReleaseCoverArt({ releaseId: release.id, title: release.album }));
@@ -79,9 +79,9 @@ const syncReleasesCover = async () => {
 
       const isSuccess = isCoverArtArchiveSuccess || isFFMPEGSuccess;
       if (isSuccess) {
-        await releasesRepository.upsertLibraryRelease({
-          ...release,
-          coverPath: release.id,
+        await releasesRepository.update({
+          data: { coverPath: release.id },
+          where: { id: release.id },
         });
       }
     }
