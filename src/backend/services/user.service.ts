@@ -4,7 +4,7 @@ import { userRepository } from 'backend/repositories/user.repository';
 import * as bcrypt from 'bcrypt';
 
 const getUser = async (username: string) => {
-  const user = await userRepository.getUser(username);
+  const user = await userRepository.findFirst({ where: { username } });
 
   if (user) {
     const { password: _, ...rest } = user;
@@ -13,7 +13,7 @@ const getUser = async (username: string) => {
 };
 
 const changeUserPassword = async (username: string, changePasswordRequest: ChangePasswordRequest) => {
-  const user = await userRepository.getUser(username);
+  const user = await userRepository.findFirst({ where: { username } });
   if (!user) {
     throw new BadRequestError();
   }
@@ -22,7 +22,7 @@ const changeUserPassword = async (username: string, changePasswordRequest: Chang
     throw new BadRequestError();
 
   user.password = await bcrypt.hash(changePasswordRequest.newPassword, 10);
-  await userRepository.updateUser(user);
+  await userRepository.upsert({ create: user, update: user, where: { id: user.id } });
 };
 
 export const userService = {

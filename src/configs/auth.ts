@@ -34,7 +34,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const username = typeof credentials.username === 'string' ? credentials.username : '';
       const password = typeof credentials.password === 'string' ? credentials.password : '';
 
-      const user = await userRepository.getUser(username);
+      const user = await userRepository.findFirst({ where: { username } });
       if (!user) {
         return null;
       }

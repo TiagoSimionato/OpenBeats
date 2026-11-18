@@ -1,9 +1,5 @@
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
-import { configsRepository } from 'backend/repositories/configs.repository';
-import { failedTracksRepository } from 'backend/repositories/failedTracks.repository';
-import { releasesRepository } from 'backend/repositories/releases.repository';
-import { userRepository } from 'backend/repositories/user.repository';
 import Database from 'better-sqlite3';
 import { CONFIGS } from 'configs/constants';
 import { isEmpty } from 'tsm-utils';
@@ -17,12 +13,6 @@ const initDatabase = async () => {
   if (!existsSync(CONFIGS.DB_PATH)) {
     const database = new Database(CONFIGS.DB_PATH);
     databaseInstance = database;
-
-    await userRepository.createDDL();
-    await userRepository.createDefaultUser();
-    await releasesRepository.createDDL();
-    await failedTracksRepository.createDDL();
-    await configsRepository.createDDL();
 
     return database;
   }
