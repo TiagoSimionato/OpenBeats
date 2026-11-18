@@ -15,38 +15,38 @@ export type ImportTrackRequest = {
 export type ImportCoverRequest = { formData: FormData; releaseId: string };
 
 export type TrackRecord = {
-  artist?: string;
-  artistSort?: string;
+  artist?: null | string;
+  artistSort?: null | string;
   disc: number;
   downloadPath: string;
-  genre: string;
+  genre?: null | string;
   id: string;
   musicBrainzReleaseTrackId: string;
   musicBrainzTrackId: string;
   releaseId: string;
   title: string;
   trackNumber: number;
-  ts02?: string;
+  ts02?: null | string;
 
 };
 
 export type ReleaseRecord = {
   album: string;
   albumArtist: string;
-  coverPath?: string;
+  coverPath?: null | string;
   discTotal: number;
   id: string;
   musicBrainzAlbumArtistId: string;
   musicBrainzAlbumId: string;
-  musicBrainzAlbumReleaseCountry?: string;
-  musicBrainzAlbumStatus?: string;
+  musicBrainzAlbumReleaseCountry?: null | string;
+  musicBrainzAlbumStatus?: null | string;
   musicBrainzArtistId: string;
   musicBrainzReleaseGroupId: string;
-  originalYear?: number;
-  publisher?: string;
-  releaseDate?: string;
+  originalYear?: null | number;
+  publisher?: null | string;
+  releaseDate?: null | string;
   releaseType: string;
-  tmed?: string;
+  tmed?: null | string;
   trackCount: number;
 };
 

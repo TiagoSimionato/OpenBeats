@@ -24,7 +24,7 @@ model Release {
   releaseDate String? @map("release_date")
   originalYear Int? @map("original_year")
   publisher String?
-  track_count Int
+  trackCount Int @map("track_count")
   discTotal Int @map("disc_total")
   tmed String?
   musicBrainzAlbumReleaseCountry String? @map("music_brainz_album_release_country")
@@ -34,7 +34,7 @@ model Release {
   musicBrainzArtistId String @map("music_brainz_artist_id")
   musicBrainzReleaseGroupId String @map("music_brainz_release_group_id")
   coverPath String? @map("cover_path")
-  track Track[]
+  tracks Track[]
 }
 
 model Track {

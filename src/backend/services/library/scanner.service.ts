@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { probeAudioFile } from 'backend/binaries/ffprobe';
 import { releasesRepository } from 'backend/repositories/releases.repository';
+import { trackRepository } from 'backend/repositories/track.repository';
 import { isAudioFile, walkFiles } from 'backend/utils';
 import { CONFIGS } from 'configs/constants';
 import { libraryManagerService } from '.';
@@ -66,7 +67,11 @@ const scanLibrary = async () => {
           trackCount: trackTotal,
         };
         libraryReleases.set(releaseId, currentRelease);
-        await releasesRepository.upsertLibraryRelease(currentRelease);
+        await releasesRepository.upsert({
+          create: currentRelease,
+          update: currentRelease,
+          where: { id: currentRelease.id },
+        });
       }
 
       const currentTrack = {
@@ -83,7 +88,11 @@ const scanLibrary = async () => {
         trackNumber: track,
         ts02: tags.TSO2,
       };
-      await releasesRepository.upsertLibraryTrack(currentTrack);
+      await trackRepository.upsert({
+        create: currentTrack,
+        update: currentTrack,
+        where: { id: currentTrack.id },
+      });
     }
     catch (error) {
       console.warn(`walk files error: ${error}`);

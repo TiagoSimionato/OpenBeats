@@ -4,7 +4,8 @@ import type { OnProgress } from '.';
 import { writeFile } from 'node:fs/promises';
 import { dirname, extname } from 'node:path';
 import { failedTracksRepository } from 'backend/repositories/failedTracks.repository';
-import { releasesRepository } from 'backend/repositories/releases.repository';
+import { releasesRepository, upsertRelease } from 'backend/repositories/releases.repository';
+import { upsertTrack } from 'backend/repositories/track.repository';
 import { makeTrackPath } from 'backend/utils';
 import { coversManagerService } from './cover.service';
 import { downloaderService } from './downloader.service';
@@ -12,7 +13,7 @@ import { metadataService } from './metadata.service';
 import { rsGainService } from './rsgain.service';
 
 const addTrackstep = async ({ customUrl, file, track }: { customUrl?: string; file?: File; track: Track }, onProgress?: OnProgress) => {
-  const libraryRelease = await releasesRepository.getLibraryRelease(track['MusicBrainz Album Id']);
+  const libraryRelease = await releasesRepository.findFirst({ include: { tracks: true }, where: { id: track['MusicBrainz Album Id'] } });
   const libraryTrack = libraryRelease?.tracks.find(it => it.musicBrainzTrackId === track['MusicBrainz Track Id']);
   if (libraryTrack)
     track.trackPath = libraryTrack.downloadPath;
@@ -52,13 +53,13 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
   const coverFilePath = await coversManagerService.getCoverArtStep(tracks[0], onProgress);
 
   tracks[0].coverPath = coverFilePath;
-  await releasesRepository.upsertRelease(tracks[0]);
+  await upsertRelease(tracks[0]);
 
   for (const track of tracks.values()) {
     const isSuccess = await addTrackstep({ customUrl, file, track }, onProgress);
     if (isSuccess) {
       await metadataService.writeTrackMetadata({ track }, onProgress);
-      await releasesRepository.upsertTrack(track);
+      await upsertTrack(track);
       await failedTracksRepository.delete({ where: { trackId_releaseId: { releaseId: track['MusicBrainz Album Id'], trackId: track['MusicBrainz Track Id'] } } });
     }
   };
@@ -96,7 +97,7 @@ const addReleaseToLibrary = async (
   const metadata = await metadataService.fetchReleaseMetadata(releaseId, onProgress);
   const tracks = metadata?.tracks;
   if (tracks) {
-    const libraryRelease = await releasesRepository.getLibraryRelease(releaseId);
+    const libraryRelease = await releasesRepository.findFirst({ include: { tracks: true }, where: { id: releaseId } });
     const missingTracks = tracks.filter(it =>
       !(libraryRelease?.tracks.find(libraryTrack => libraryTrack.id === it['MusicBrainz Track Id'])),
     );

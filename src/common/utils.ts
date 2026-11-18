@@ -114,7 +114,7 @@ export const mapLibraryReleaseToTracks = (release: LibraryReleaseData) => releas
   'date': release.releaseDate ?? '',
   'disc': track.disc,
   'Disctotal': release.discTotal,
-  'genre': track.genre.split('; '),
+  'genre': track.genre?.split('; ') ?? [],
   'MusicBrainz Album Artist Id': release.musicBrainzAlbumArtistId,
   'MusicBrainz Album Id': release.musicBrainzAlbumId,
   'MusicBrainz Album Release Country': release.musicBrainzAlbumReleaseCountry ?? '',
