@@ -17,16 +17,14 @@ const scanLibrary = async () => {
   }
 
   const files = await walkFiles(downloadPath);
+  const audioFiles = files.filter(file => isAudioFile(file));
   const libraryReleases = new Map<string, ReleaseRecord>();
 
   let progress = 0;
 
-  for (const filePath of files) {
+  for (const filePath of audioFiles) {
     if (progress % 100 === 0) {
-      console.log(`Scan progress ${progress}/${files.length}`);
-    }
-    if (!isAudioFile(filePath)) {
-      continue;
+      console.log(`Scan progress ${progress}/${audioFiles.length}`);
     }
 
     try {
