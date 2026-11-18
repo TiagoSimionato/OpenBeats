@@ -41,7 +41,7 @@ model Track {
   @@map("tb_tracks")
   id String @id
   releaseId String @map("release_id")
-  release Release @relation(fields: [releaseId], references: [id])
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
   title String
   artist String?
   artistSort String? @map("artist_sort")

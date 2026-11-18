@@ -60,7 +60,7 @@ const addToLibrary = async (tracks: Track[], onProgress?: OnProgress, customUrl?
     if (isSuccess) {
       await metadataService.writeTrackMetadata({ track }, onProgress);
       await upsertTrack(track);
-      await failedTracksRepository.delete({ where: { trackId_releaseId: { releaseId: track['MusicBrainz Album Id'], trackId: track['MusicBrainz Track Id'] } } });
+      await failedTracksRepository.deleteMany({ where: { releaseId: track['MusicBrainz Album Id'], trackId: track['MusicBrainz Track Id'] } });
     }
   };
 
