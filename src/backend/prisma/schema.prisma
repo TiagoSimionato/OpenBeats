@@ -19,47 +19,47 @@ model Release {
   @@map("tb_releases")
   id String @id
   album String
-  album_artist String
-  release_type String
-  release_date String?
-  original_year Int?
+  albumArtist String @map("album_artist")
+  releaseType String @map("release_type")
+  releaseDate String? @map("release_date")
+  originalYear Int? @map("original_year")
   publisher String?
   track_count Int
-  disc_total Int
+  discTotal Int @map("disc_total")
   tmed String?
-  music_brainz_album_release_country String?
-  music_brainz_album_status String?
-  music_brainz_album_artist_id String
-  music_brainz_album_id String
-  music_brainz_artist_id String
-  music_brainz_release_group_id String
-  cover_path String?
+  musicBrainzAlbumReleaseCountry String? @map("music_brainz_album_release_country")
+  musicBrainzAlbumStatus String? @map("music_brainz_album_status")
+  musicBrainzAlbumArtistId String @map("music_brainz_album_artist_id")
+  musicBrainzAlbumId String @map("music_brainz_album_id")
+  musicBrainzArtistId String @map("music_brainz_artist_id")
+  musicBrainzReleaseGroupId String @map("music_brainz_release_group_id")
+  coverPath String? @map("cover_path")
   track Track[]
 }
 
 model Track {
   @@map("tb_tracks")
   id String @id
-  release_id String
-  release Release @relation(fields: [release_id], references: [id])
+  releaseId String @map("release_id")
+  release Release @relation(fields: [releaseId], references: [id])
   title String
   artist String?
-  artist_sort String?
+  artistSort String? @map("artist_sort")
   genre String?
-  download_path String
+  downloadPath String @map("download_path")
   disc Int
-  track_number Int
+  trackNumber Int @map("track_number")
   ts02 String?
-  music_brainz_release_track_id String
-  music_brainz_track_id String
+  musicBrainzReleaseTrackId String @map("music_brainz_release_track_id")
+  musicBrainzTrackId String @map("music_brainz_track_id")
 }
 
 model FailedTrack {
   @@map("tb_failed_tracks")
-  release_id String
-  track_id String
+  releaseId String @map("release_id")
+  trackId String @map("track_id")
   title String?
   artist String?
   reason String
-  @@id([track_id, release_id])
+  @@id([trackId, releaseId])
 }
