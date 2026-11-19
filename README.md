@@ -31,7 +31,7 @@ Optional variables you may want to define:
 ```env
 DEFAULT_USER=admin
 DEFAULT_PASSWORD=change-me
-AUTH_SECRET=insert-a-long-random-string
+JWT_SECRET=insert-a-long-random-string
 CACHE_PATH=/opt/openbeats
 ```
 

@@ -15,5 +15,5 @@ These environment variables are used by the app and can be set in a `.env` file 
 | `ALLOWED_DEV_ORIGINS` | JSON array of origins allowed when developing on another machine or testing from a different host. Example: `["http://localhost:3000"]` | `[]` |
 | `DEFAULT_USER` | Username for the default admin account created on first startup. | `admin` |
 | `DEFAULT_PASSWORD` | Password for the default admin account. If omitted, the app will generate a random one and print it in the logs. | generated automatically if unset |
-| `AUTH_SECRET` | Secret used by NextAuth for session/signing security. Set this to a strong random value. | fallback development secret |
+| `JWT_SECRET` | Secret used for session/signing security. You can set this to a secure value if you do not want your session to end on container restart, otherwise a random value is used | fallback development secret |
 | `LOG_INCOMING_REQUESTS` | Enables request logging for debugging incoming HTTP traffic. | `false` |

@@ -1,7 +1,7 @@
 import { HttpStatusCode } from 'axios';
 import { userRepository } from 'backend/repositories/user.repository';
 import * as bcrypt from 'bcrypt';
-import { CONFIGS, CUSTOM_HEADERS } from 'configs/constants';
+import { CUSTOM_HEADERS } from 'configs/constants';
 import { ROUTES } from 'configs/routes';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
@@ -52,7 +52,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       username: {},
     },
   })],
-  secret: CONFIGS.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
   session: {
     strategy: 'jwt',
   },

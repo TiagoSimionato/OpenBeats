@@ -6,6 +6,9 @@ export const register = async () => {
 
     const { prisma } = await import('backend/prisma/prisma');
 
+    const { randomUUID } = await import('node:crypto');
+    process.env.AUTH_SECRET = process.env.JWT_SECRET ?? `${randomUUID().toString()}`;
+
     const users = await prisma.user.findMany();
     if (users.length === 0) {
       const { createDefaultUser } = await import('backend/repositories/user.repository');
