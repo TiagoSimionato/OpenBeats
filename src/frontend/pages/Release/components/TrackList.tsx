@@ -23,11 +23,16 @@ type ListTrackProps = {
   tracks: ListTracks[];
 };
 
-export const TrackList = ({ tracks }: ListTrackProps) =>
-  tracks.map(({ libraryTrack, mbTrack }, index) => (
-    <Fragment key={libraryTrack?.id ?? mbTrack?.['MusicBrainz Track Id']}>
-      {index > 0 && index < tracks.length && <Divider />}
-      {libraryTrack && <LibraryTrack track={libraryTrack} />}
-      {!libraryTrack && mbTrack && <MBTRack track={mbTrack} />}
-    </Fragment>
-  ));
+export const TrackList = ({ tracks }: ListTrackProps) => (
+  <>
+    <Divider />
+    {tracks.map(({ libraryTrack, mbTrack }, index) => (
+      <Fragment key={libraryTrack?.id ?? mbTrack?.['MusicBrainz Track Id']}>
+        {index > 0 && index < tracks.length && <Divider />}
+        {libraryTrack && <LibraryTrack track={libraryTrack} />}
+        {!libraryTrack && mbTrack && <MBTRack track={mbTrack} />}
+      </Fragment>
+    ))}
+    <Divider />
+  </>
+);
