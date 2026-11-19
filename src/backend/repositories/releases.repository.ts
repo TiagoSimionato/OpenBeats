@@ -48,9 +48,9 @@ export const listLibraryReleasesPaged = async (
 
   const havingSql = filters.status
     ? Prisma.raw(
-        `(COUNT(t.id) = r.track_count AND '${filters.status}' = 'complete')
-         OR (COUNT(t.id) < r.track_count AND '${filters.status}' = 'partial')
-         OR ('${filters.status}' IS NULL)`,
+        `HAVING (COUNT(t.id) = r.track_count AND '${filters.status}' = 'complete')
+       OR (COUNT(t.id) < r.track_count AND '${filters.status}' = 'partial')
+       OR ('${filters.status}' IS NULL)`,
       )
     : Prisma.empty;
 
