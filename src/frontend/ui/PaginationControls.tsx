@@ -1,7 +1,6 @@
 import type { ComponentProps } from 'react';
 import { usePaginationControls } from 'frontend/hooks/usePaginationControls';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 import { Button } from './Button';
 
 type PaginationControlsProps = ComponentProps<'div'> & {
@@ -15,12 +14,6 @@ export const PaginationControls = ({ className, pages, ...rest }: PaginationCont
 
   const page = Number(params.get('page') ?? 1);
   const perPage = Number(params.get('perPage') ?? 18);
-
-  useEffect(() => {
-    if (page > pages && pages > 0) {
-      handlePageChange(pages);
-    }
-  }, [page, pages, handlePageChange]);
 
   return (
     <div className={`flex justify-end gap-4 ${className}`} {...rest}>
