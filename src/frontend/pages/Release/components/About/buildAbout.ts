@@ -10,12 +10,44 @@ export const buildAbout = (release: LibraryReleaseData) => [
     value: release.albumArtist,
   },
   {
-    label: 'Cover Path',
-    value: release.coverPath,
+    label: 'Release Date',
+    value: release.releaseDate,
+  },
+  {
+    label: 'Original Year',
+    value: release.originalYear,
+  },
+  {
+    label: 'Genres',
+    value: [...(new Set(release.tracks.flatMap(it => it.genre?.split('; '))))].join('; '),
+  },
+  {
+    label: 'Album Status',
+    value: release.musicBrainzAlbumStatus,
+  },
+  {
+    label: 'Publisher',
+    value: release.publisher,
+  },
+  {
+    label: 'Release Country',
+    value: release.musicBrainzAlbumReleaseCountry,
+  },
+  {
+    label: 'Release Type',
+    value: release.releaseType,
+  },
+  {
+    label: 'Tracks',
+    value: release.trackCount,
   },
   {
     label: 'Discs',
     value: release.discTotal,
+  },
+  {
+    label: 'HasCover',
+    value: String(!!release.coverPath),
   },
   {
     label: 'Id',
@@ -30,14 +62,6 @@ export const buildAbout = (release: LibraryReleaseData) => [
     value: release.musicBrainzAlbumId,
   },
   {
-    label: 'Release Country',
-    value: release.musicBrainzAlbumReleaseCountry,
-  },
-  {
-    label: 'Album Status',
-    value: release.musicBrainzAlbumStatus,
-  },
-  {
     label: 'Artist Id',
     value: release.musicBrainzArtistId,
   },
@@ -46,31 +70,7 @@ export const buildAbout = (release: LibraryReleaseData) => [
     value: release.musicBrainzReleaseGroupId,
   },
   {
-    label: 'Original Year',
-    value: release.originalYear,
-  },
-  {
-    label: 'Publisher',
-    value: release.publisher,
-  },
-  {
-    label: 'Release Date',
-    value: release.releaseDate,
-  },
-  {
-    label: 'Release Type',
-    value: release.releaseType,
-  },
-  {
-    label: 'Genres',
-    value: [...(new Set(release.tracks.flatMap(it => it.genre?.split('; '))))].join('; '),
-  },
-  {
     label: 'TMED',
     value: release.tmed,
-  },
-  {
-    label: 'Tracks',
-    value: release.trackCount,
   },
 ];
