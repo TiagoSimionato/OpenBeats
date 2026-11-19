@@ -63,7 +63,7 @@ export const buildAbout = (release: LibraryReleaseData) => [
   },
   {
     label: 'Genres',
-    value: [...(new Set(release.tracks.flatMap(it => it.genre?.split('; '))))].slice(0, -1).join('; '),
+    value: [...(new Set(release.tracks.flatMap(it => it.genre?.split('; '))))].join('; '),
   },
   {
     label: 'TMED',
