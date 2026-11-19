@@ -4,10 +4,9 @@ import { once } from 'node:events';
 import { existsSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
-import { isAxiosError } from 'axios';
 import { caaApi } from 'common/api/caaApi';
 import { CONFIGS } from 'configs/constants';
-import { handlePromise } from 'tsm-utils';
+import { handlePromise, retryPromise } from 'tsm-utils';
 
 const makeWebp = async (imagePath: string) => {
   const child = spawn(
@@ -79,12 +78,8 @@ const getReleaseCoverArt = handlePromise(
       return existingCoverFilePath;
     }
 
-    const coverResponse = await caaApi.get<CoverResponse>(`release/${releaseId}`).catch((error) => {
-      if (isAxiosError(error) && error.status === 404) {
-        return undefined;
-      }
-      console.log(`Unkown cover response error: ${error}`);
-    });
+    const getCoverData = retryPromise(() => caaApi.get<CoverResponse>(`release/${releaseId}`), 3);
+    const coverResponse = await getCoverData(null);
     if (!coverResponse) {
       console.log(`cover art: no artwork found for release [${title}]`);
       return;
