@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   logging: { incomingRequests: CONFIGS.LOG_INCOMING_REQUESTS },
   output: 'standalone',
   reactCompiler: true,
+  serverExternalPackages: ['cwebp-bin', 'imagemin-webp', 'imagemin'],
 };
 
 export default nextConfig;

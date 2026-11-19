@@ -1,6 +1,5 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
-ENV NODE_ENV=production
 RUN apk add --no-cache libc6-compat
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
@@ -16,14 +15,12 @@ RUN yarn build
 
 FROM node:22-alpine AS runner
 ENV NODE_ENV=production
-RUN apk add --no-cache yt-dlp \
-  ffmpeg \
-  rsgain
+RUN apk add --no-cache yt-dlp ffmpeg rsgain
 WORKDIR /app
 
-# cp node module: imagemin is missing
-COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next/standalone ./
+# cp node module: get prisma to work
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma7.config.ts ./

@@ -1,29 +1,18 @@
 import type { CoverResponse } from 'common/types/requests/caaApi';
-import { spawn } from 'node:child_process';
-import { once } from 'node:events';
 import { existsSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { caaApi } from 'common/api/caaApi';
 import { CONFIGS } from 'configs/constants';
+import imagemin from 'imagemin';
+import webp from 'imagemin-webp';
 import { handlePromise, retryPromise } from 'tsm-utils';
 
 const makeWebp = async (imagePath: string) => {
-  const child = spawn(
-    process.execPath,
-    ['src/backend/scripts/imagemin.mjs', imagePath, CONFIGS.THUMBNAILS_PATH],
-    { stdio: ['ignore', 'pipe', 'pipe'] },
-  );
-
-  let stderr = '';
-  child.stderr.on('data', (d) => {
-    stderr += d.toString();
+  await imagemin([imagePath], {
+    destination: CONFIGS.THUMBNAILS_PATH,
+    plugins: [webp({ resize: { height: 250, width: 250 } })],
   });
-
-  const [code] = await once(child, 'close') as [number];
-  if (code !== 0) {
-    throw new Error(`cover conversion failed (${code}): ${stderr}`);
-  }
 };
 
 const getCoverFileExtension = (sourcerUrl: string) =>
