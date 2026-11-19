@@ -15,6 +15,7 @@ import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { CoverImage } from '../../ui/CoverImage';
+import { NotFoundPage } from '../NotFound';
 import { About } from './components/About/About';
 import { ActionAddReleaseCover } from './components/ActionAddReleaseCover';
 import { ActionDeleteRelease } from './components/ActionDeleteRelease';
@@ -36,7 +37,7 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
     },
     releaseId,
   });
-  const { data: mbRelease } = useMBGetRelease({ releaseId });
+  const { data: mbRelease, isPending } = useMBGetRelease({ releaseId });
   const router = useRouter();
 
   const release = libraryRelease?.libraryRelease;
@@ -51,12 +52,16 @@ export const ReleasePage = ({ defaultRelease, isLibraryView }: ReleasePageProps)
 
   const mbTracks = mbRelease ? mapMBResponseToTracks(mbRelease) : undefined;
 
-  if (!release && !mbTracks) {
+  if (!release && !mbTracks && isPending) {
     return (
       <div className="flex grow items-center justify-center">
         <Spinner size="xl" />
       </div>
     );
+  }
+
+  if (!release && !mbTracks && !isPending) {
+    return <NotFoundPage />;
   }
 
   const releaseInfo = {
