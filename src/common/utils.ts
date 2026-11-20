@@ -134,3 +134,18 @@ export const mapLibraryReleaseToTracks = (release: LibraryReleaseData) => releas
   'Tracktotal': release.trackCount,
   'TSO2': track.ts02 ?? '',
 } satisfies Track));
+
+export const buildSearchParams = (object: object) => {
+  const urlSearchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(object)) {
+    if (value === undefined)
+      continue;
+    if (Array.isArray(value)) {
+      value.forEach(v => urlSearchParams.append(key, v));
+    }
+    else {
+      urlSearchParams.append(key, value);
+    }
+  }
+  return urlSearchParams;
+};

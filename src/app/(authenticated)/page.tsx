@@ -1,6 +1,7 @@
 import { listLibraryReleasesPaged } from 'backend/repositories/releases.repository';
 import { ReleasesFilters } from 'backend/requests/releases.dto';
 import { buildDTO, buildPagination } from 'backend/utils';
+import { buildSearchParams } from 'common/utils';
 import { CUSTOM_HEADERS } from 'configs/constants';
 import { LibraryPage } from 'frontend/pages/Library/Library';
 import { headers } from 'next/headers';
@@ -18,10 +19,10 @@ export const Page = async ({ searchParams }: { searchParams: SearchParams }) => 
 
   const libraryReleases = await listLibraryReleasesPaged(pagination, filters);
 
-  if (pagination.page > libraryReleases.pages) {
-    if (pagination.perPage === 18)
-      return redirect(pathname);
-    return redirect(`${pathname}?perPage=${pagination.perPage}`);
+  if (pagination.page > libraryReleases.pages && !!params.page) {
+    const urlParams = buildSearchParams(params);
+    urlParams.delete('page');
+    return redirect(`${pathname}?${urlParams}`);
   }
 
   return (
